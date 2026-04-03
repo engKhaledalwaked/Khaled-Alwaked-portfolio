@@ -1,0 +1,20 @@
+- [x] Verify that the copilot-instructions.md file in the .github directory is created.
+- [x] Clarify Project Requirements
+- [x] Scaffold the Project
+  - Manual Next.js App Router scaffold was used because the current folder name contains capital letters and `create-next-app` rejected it as an npm package name.
+- [x] Customize the Project
+  - Implemented a dark glassmorphism portfolio with a 3D hero, animated marquee, bento projects grid, and validated contact form.
+- [x] Install Required Extensions
+  - No extensions were required by the project setup information.
+- [x] Compile the Project
+  - Dependencies installed, ESLint configured, and production build completed successfully.
+- [x] Create and Run Task
+  - Added and ran a development task for `npm run dev`.
+- [ ] Launch the Project
+  - Debug launch is pending explicit user confirmation.
+- [x] Ensure Documentation is Complete
+  - Updated README.md and cleaned this file.
+
+- Work through each checklist item systematically.
+- Keep communication concise and focused.
+- Follow development best practices.
