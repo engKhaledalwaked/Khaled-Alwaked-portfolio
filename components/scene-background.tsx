@@ -6,7 +6,7 @@ import { CSSProperties, memo, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 const sceneCamera = { position: [0, 0, 7.2] as [number, number, number], fov: 45 };
-const sceneDpr: [number, number] = [1, 1.25];
+const sceneDpr: [number, number] = [1, 1.1];
 const sceneGl = { antialias: true, powerPreference: "high-performance" as const };
 
 type StarSpec = {
@@ -244,8 +244,8 @@ function ReactiveMesh() {
       <pointLight position={[-4, -2, 3]} intensity={14} color="#ff4fd8" />
       <pointLight position={[0, -3, -2]} intensity={10} color="#8bffb0" />
 
-      <Stars radius={90} depth={45} count={3200} factor={3.2} saturation={0} fade speed={0.9} />
-      <Sparkles count={90} scale={[11, 7, 11]} size={1.8} speed={0.28} color="#d8f7ff" />
+      <Stars radius={90} depth={45} count={1900} factor={3} saturation={0} fade speed={0.85} />
+      <Sparkles count={56} scale={[11, 7, 11]} size={1.55} speed={0.24} color="#d8f7ff" />
 
       <Float speed={1.2} rotationIntensity={0.22} floatIntensity={0.5}>
         <group ref={groupRef}>
