@@ -442,6 +442,7 @@ export default function Home() {
   const [submitted, setSubmitted] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(true);
   const [isMarqueeInteracting, setIsMarqueeInteracting] = useState(false);
   const scrollRafRef = useRef<number | null>(null);
   const sectionTrackRafRef = useRef<number | null>(null);
@@ -491,11 +492,37 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 900px)");
+
+    const updateViewportMode = () => {
+      setIsCompactViewport(mediaQuery.matches);
+    };
+
+    updateViewportMode();
+
+    mediaQuery.addEventListener("change", updateViewportMode);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateViewportMode);
+    };
+  }, []);
+
+  useEffect(() => {
     const rail = marqueeRailRef.current;
     const group = marqueeGroupRef.current;
     const viewport = marqueeViewportRef.current;
 
     if (!rail || !group || !viewport) {
+      return;
+    }
+
+    if (isCompactViewport) {
+      rail.style.removeProperty("--marquee-x");
+
+      if (marqueeResumeTimeoutRef.current !== null) {
+        window.clearTimeout(marqueeResumeTimeoutRef.current);
+      }
+
       return;
     }
 
@@ -552,7 +579,7 @@ export default function Home() {
         window.clearTimeout(marqueeResumeTimeoutRef.current);
       }
     };
-  }, [locale, marqueeLoopItems]);
+  }, [isCompactViewport, locale, marqueeLoopItems]);
 
   const scheduleMarqueeResume = () => {
     if (marqueeResumeTimeoutRef.current !== null) {
@@ -567,6 +594,10 @@ export default function Home() {
   };
 
   const handleMarqueePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (isCompactViewport) {
+      return;
+    }
+
     marqueeIsDraggingRef.current = true;
     marqueeIsPausedRef.current = true;
     marqueeLastPointerXRef.current = event.clientX;
@@ -577,6 +608,10 @@ export default function Home() {
   };
 
   const handleMarqueePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (isCompactViewport) {
+      return;
+    }
+
     if (!marqueeIsDraggingRef.current) {
       return;
     }
@@ -595,6 +630,10 @@ export default function Home() {
   };
 
   const handleMarqueePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (isCompactViewport) {
+      return;
+    }
+
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -884,7 +923,7 @@ export default function Home() {
     <div dir={isArabic ? "rtl" : "ltr"} className="relative overflow-x-hidden bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0 z-0 bg-grid-fade" />
       <div className="pointer-events-none absolute inset-0 z-[1] grid-overlay" />
-      <SceneBackground />
+      {!isCompactViewport ? <SceneBackground /> : null}
 
       <header className="relative z-50 mx-2 mt-3 md:fixed md:left-1/2 md:top-6 md:mx-0 md:mt-0 md:w-[calc(100%-1.5rem)] md:max-w-5xl md:-translate-x-1/2">
         <motion.div
@@ -1116,14 +1155,14 @@ export default function Home() {
             <div className="glass overflow-hidden rounded-[1.5rem] border-white/10 py-4 shadow-card sm:rounded-[2rem] sm:py-5">
               <div
                 ref={marqueeViewportRef}
-                className={`marquee-viewport ${isMarqueeInteracting ? "cursor-grabbing" : "cursor-grab"}`}
+                className={`marquee-viewport ${!isCompactViewport ? (isMarqueeInteracting ? "cursor-grabbing" : "cursor-grab") : ""}`}
                 dir="ltr"
-                onPointerDown={handleMarqueePointerDown}
-                onPointerMove={handleMarqueePointerMove}
-                onPointerUp={handleMarqueePointerUp}
-                onPointerCancel={handleMarqueePointerUp}
+                onPointerDown={isCompactViewport ? undefined : handleMarqueePointerDown}
+                onPointerMove={isCompactViewport ? undefined : handleMarqueePointerMove}
+                onPointerUp={isCompactViewport ? undefined : handleMarqueePointerUp}
+                onPointerCancel={isCompactViewport ? undefined : handleMarqueePointerUp}
               >
-                <div ref={marqueeRailRef} className="marquee-rail">
+                <div ref={marqueeRailRef} className={`marquee-rail ${isCompactViewport ? "marquee-rail-css" : ""}`}>
                   {[0, 1].map((copyIndex) => (
                     <div
                       key={`marquee-group-${copyIndex}`}
