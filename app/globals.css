@@ -175,6 +175,11 @@ section[id] {
     transform: translate3d(var(--marquee-x, 0px), 0, 0);
   }
 
+  .marquee-rail-css {
+    transform: translate3d(0, 0, 0);
+    animation: marquee 60s linear infinite;
+  }
+
   .marquee-group {
     display: flex;
     flex-shrink: 0;
