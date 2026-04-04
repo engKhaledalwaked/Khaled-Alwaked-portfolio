@@ -2,8 +2,12 @@
 
 import { Float, MeshTransmissionMaterial, Sparkles, Stars } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { CSSProperties, useEffect, useMemo, useRef } from "react";
+import { CSSProperties, memo, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+
+const sceneCamera = { position: [0, 0, 7.2] as [number, number, number], fov: 45 };
+const sceneDpr: [number, number] = [1, 1.25];
+const sceneGl = { antialias: true, powerPreference: "high-performance" as const };
 
 type StarSpec = {
   x: number;
@@ -319,10 +323,10 @@ function ReactiveMesh() {
   );
 }
 
-export function SceneBackground() {
+export const SceneBackground = memo(function SceneBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 z-0 opacity-95">
-      <Canvas camera={{ position: [0, 0, 7.2], fov: 45 }} dpr={[1, 1.25]} gl={{ antialias: true, powerPreference: "high-performance" }}>
+      <Canvas camera={sceneCamera} dpr={sceneDpr} gl={sceneGl}>
         <ReactiveMesh />
       </Canvas>
       <RandomStarsOverlay />
@@ -330,4 +334,4 @@ export function SceneBackground() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(110,231,255,0.12),transparent_28%),radial-gradient(circle_at_70%_20%,rgba(255,79,216,0.08),transparent_24%),radial-gradient(circle_at_50%_90%,rgba(139,255,176,0.08),transparent_20%)]" />
     </div>
   );
-}
+});
