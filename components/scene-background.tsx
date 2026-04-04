@@ -1,7 +1,7 @@
 "use client";
 
 import { Float, MeshTransmissionMaterial, Sparkles, Stars } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { CSSProperties, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
@@ -104,6 +104,7 @@ function RandomStarsOverlay() {
 }
 
 function ReactiveMesh() {
+  const { size, viewport } = useThree();
   const groupRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
   const shellRef = useRef<THREE.Mesh>(null);
@@ -111,19 +112,61 @@ function ReactiveMesh() {
   const glowRef = useRef<THREE.Mesh>(null);
   const satelliteRef = useRef<THREE.Mesh>(null);
   const satelliteSecondaryRef = useRef<THREE.Mesh>(null);
-  const pointer = useRef({ x: 0, y: 0 });
+
+  const orbitDiameterMultiplier = 3;
+
+  const meshLayout = useMemo(() => {
+    let baseScale = 0.48;
+    let y = 0.15;
+    let desiredOrbitRadius = 0.62 * orbitDiameterMultiplier;
+    let orbitSpeed = 0.23;
+
+    if (size.width < 420) {
+      baseScale = 0.28;
+      y = -0.06;
+      desiredOrbitRadius = 0.3 * orbitDiameterMultiplier;
+      orbitSpeed = 0.38;
+    } else if (size.width < 640) {
+      baseScale = 0.33;
+      y = -0.02;
+      desiredOrbitRadius = 0.4 * orbitDiameterMultiplier;
+      orbitSpeed = 0.34;
+    } else if (size.width < 1024) {
+      baseScale = 0.39;
+      y = 0.05;
+      desiredOrbitRadius = 0.5 * orbitDiameterMultiplier;
+      orbitSpeed = 0.3;
+    } else if (size.width < 1440) {
+      baseScale = 0.45;
+      y = 0.12;
+      desiredOrbitRadius = 0.56 * orbitDiameterMultiplier;
+      orbitSpeed = 0.26;
+    }
+
+    const meshVisualRadius = 1.9 * baseScale;
+    const orbitRadiusX = Math.max(0.12, viewport.width / 2);
+    const maxOrbitRadiusZ = Math.max(0.1, viewport.width / 2 - meshVisualRadius - 0.04);
+    const orbitRadius = Math.min(desiredOrbitRadius, maxOrbitRadiusZ);
+    const orbitCenterX = 0;
+
+    return {
+      orbitCenterX,
+      orbitCenterY: y,
+      baseScale,
+      orbitRadius,
+      orbitRadiusX,
+      orbitSpeed,
+    };
+  }, [orbitDiameterMultiplier, size.width, viewport.width]);
 
   useEffect(() => {
-    const handlePointerMove = (event: PointerEvent) => {
-      pointer.current = {
-        x: (event.clientX / window.innerWidth) * 2 - 1,
-        y: -((event.clientY / window.innerHeight) * 2 - 1),
-      };
-    };
+    if (!groupRef.current) {
+      return;
+    }
 
-    window.addEventListener("pointermove", handlePointerMove);
-    return () => window.removeEventListener("pointermove", handlePointerMove);
-  }, []);
+    groupRef.current.position.set(meshLayout.orbitCenterX + meshLayout.orbitRadiusX, meshLayout.orbitCenterY, 0);
+    groupRef.current.scale.setScalar(meshLayout.baseScale);
+  }, [meshLayout.baseScale, meshLayout.orbitCenterX, meshLayout.orbitCenterY, meshLayout.orbitRadiusX]);
 
   useFrame((state, delta) => {
     if (
@@ -138,8 +181,22 @@ function ReactiveMesh() {
       return;
     }
 
-    const targetX = pointer.current.y * 0.45;
-    const targetY = pointer.current.x * 0.65;
+    const targetX = Math.sin(state.clock.elapsedTime * 0.42) * 0.08;
+    const targetY = Math.cos(state.clock.elapsedTime * 0.34) * 0.11;
+
+    const orbitPhase = state.clock.elapsedTime * meshLayout.orbitSpeed;
+    const orbitX = meshLayout.orbitCenterX + Math.cos(orbitPhase) * meshLayout.orbitRadiusX;
+    const orbitY = meshLayout.orbitCenterY;
+    const orbitZ = Math.sin(orbitPhase) * meshLayout.orbitRadius;
+
+    const depthProgress = meshLayout.orbitRadius > 0 ? (orbitZ + meshLayout.orbitRadius) / (2 * meshLayout.orbitRadius) : 0.5;
+    const depthScale = THREE.MathUtils.lerp(0.78, 1.08, depthProgress);
+    const targetScale = meshLayout.baseScale * depthScale;
+
+    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, orbitX, 0.08);
+    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, orbitY, 0.08);
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, orbitZ, 0.08);
+    groupRef.current.scale.setScalar(THREE.MathUtils.lerp(groupRef.current.scale.x, targetScale, 0.08));
 
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetX * 0.18, 0.055);
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetY * 0.18, 0.055);
@@ -168,8 +225,8 @@ function ReactiveMesh() {
     satelliteSecondaryRef.current.position.z = Math.sin(orbitSecondary) * -0.65;
     satelliteSecondaryRef.current.position.y = Math.cos(orbitSecondary * 1.1) * 0.18;
 
-    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, pointer.current.x * 0.2, 0.04);
-    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, pointer.current.y * 0.12, 0.04);
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, 0, 0.04);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, 0, 0.04);
     state.camera.lookAt(0, 0, 0);
   });
 
@@ -187,7 +244,7 @@ function ReactiveMesh() {
       <Sparkles count={90} scale={[11, 7, 11]} size={1.8} speed={0.28} color="#d8f7ff" />
 
       <Float speed={1.2} rotationIntensity={0.22} floatIntensity={0.5}>
-        <group ref={groupRef} scale={0.48} position={[1.2, 0.15, 0]}>
+        <group ref={groupRef}>
           <mesh ref={coreRef}>
             <sphereGeometry args={[0.92, 36, 36]} />
             <MeshTransmissionMaterial
