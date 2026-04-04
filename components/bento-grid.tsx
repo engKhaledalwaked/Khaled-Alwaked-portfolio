@@ -65,7 +65,7 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
       variants={gridRevealVariants}
-      className="grid gap-4 sm:gap-5 md:auto-rows-auto md:grid-cols-3"
+      className="grid gap-3 sm:gap-5 md:auto-rows-auto md:grid-cols-3"
     >
       {items.map((item, index) => {
         const isSmall = item.span === "small";
@@ -88,7 +88,7 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
               event.currentTarget.style.setProperty("--y", `${event.clientY - rect.top}px`);
             }}
             className={clsx(
-              "group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-4 sm:rounded-[2rem] sm:p-6 md:p-7 shadow-card backdrop-blur-2xl",
+              "group relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[0.045] p-3.5 sm:rounded-[2rem] sm:p-6 md:p-7 shadow-card backdrop-blur-2xl",
               isLarge && "self-start",
               spanClasses[item.span],
             )}
@@ -162,10 +162,14 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
                 <p className="text-[10px] uppercase tracking-[0.2em] text-white/42 sm:text-[11px] sm:tracking-[0.24em]">
                   {labels.clientValue}
                 </p>
-                {visibleDetails.map((detail) => (
+                {visibleDetails.map((detail, detailIndex) => (
                   <div
                     key={detail}
-                    className={clsx("flex items-start gap-3 text-xs leading-5 text-white/75 sm:text-sm sm:leading-6", isSmall && "text-xs leading-5")}
+                    className={clsx(
+                      "flex items-start gap-3 text-xs leading-5 text-white/75 sm:text-sm sm:leading-6",
+                      isSmall && "text-xs leading-5",
+                      detailIndex >= 3 && "hidden sm:flex",
+                    )}
                   >
                     <span
                       className="mt-2 h-2 w-2 rounded-full"

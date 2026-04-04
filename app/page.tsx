@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import { BentoGrid, type ProjectCard } from "@/components/bento-grid";
 import { fadeUpItem, MotionReveal, staggerChildren } from "@/components/motion-reveal";
 import { SceneBackground } from "@/components/scene-background";
@@ -416,6 +416,20 @@ const initialForm: FormState = {
 const heroPhotoScale = 1.05;
 const heroPhotoOffsetY = 10;
 
+function normalizeMarqueeOffset(offset: number, groupWidth: number) {
+  if (groupWidth <= 0) {
+    return 0;
+  }
+
+  let normalized = offset % groupWidth;
+
+  if (normalized > 0) {
+    normalized -= groupWidth;
+  }
+
+  return normalized;
+}
+
 export default function Home() {
   const [locale, setLocale] = useState<Locale>("en");
   const [isLocaleHydrated, setIsLocaleHydrated] = useState(false);
@@ -424,14 +438,26 @@ export default function Home() {
   const [submitted, setSubmitted] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMarqueeInteracting, setIsMarqueeInteracting] = useState(false);
   const scrollRafRef = useRef<number | null>(null);
+  const marqueeViewportRef = useRef<HTMLDivElement | null>(null);
+  const marqueeRailRef = useRef<HTMLDivElement | null>(null);
+  const marqueeGroupRef = useRef<HTMLDivElement | null>(null);
+  const marqueeRafRef = useRef<number | null>(null);
+  const marqueeResumeTimeoutRef = useRef<number | null>(null);
+  const marqueePositionRef = useRef(0);
+  const marqueeGroupWidthRef = useRef(0);
+  const marqueeLastFrameTimeRef = useRef(0);
+  const marqueeIsPausedRef = useRef(false);
+  const marqueeIsDraggingRef = useRef(false);
+  const marqueeLastPointerXRef = useRef(0);
 
   const isArabic = locale === "ar";
   const t = textByLocale[locale];
   const projectCards = projectCardsByLocale[locale];
   const stats = statsByLocale[locale];
   const marqueeItems = marqueeItemsByLocale[locale];
-  const duplicatedMarquee = useMemo(() => [...marqueeItems, ...marqueeItems], [marqueeItems]);
+  const marqueeLoopItems = useMemo(() => [...marqueeItems, ...marqueeItems, ...marqueeItems], [marqueeItems]);
   const navigation = navigationConfig.map((item) => ({ ...item, label: t.nav[item.id] }));
 
   useEffect(() => {
@@ -452,6 +478,120 @@ export default function Home() {
       window.cancelAnimationFrame(frameId);
     };
   }, []);
+
+  useEffect(() => {
+    const rail = marqueeRailRef.current;
+    const group = marqueeGroupRef.current;
+    const viewport = marqueeViewportRef.current;
+
+    if (!rail || !group || !viewport) {
+      return;
+    }
+
+    const applyMarqueeOffset = () => {
+      rail.style.setProperty("--marquee-x", `${marqueePositionRef.current}px`);
+    };
+
+    const updateMarqueeMetrics = () => {
+      marqueeGroupWidthRef.current = group.getBoundingClientRect().width;
+      marqueePositionRef.current = normalizeMarqueeOffset(marqueePositionRef.current, marqueeGroupWidthRef.current);
+      applyMarqueeOffset();
+    };
+
+    updateMarqueeMetrics();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateMarqueeMetrics();
+    });
+
+    resizeObserver.observe(group);
+    resizeObserver.observe(viewport);
+
+    const animateMarquee = (time: number) => {
+      const groupWidth = marqueeGroupWidthRef.current;
+
+      if (!marqueeIsPausedRef.current && !marqueeIsDraggingRef.current && groupWidth > 0) {
+        if (marqueeLastFrameTimeRef.current === 0) {
+          marqueeLastFrameTimeRef.current = time;
+        }
+
+        const deltaSeconds = (time - marqueeLastFrameTimeRef.current) / 1000;
+        marqueeLastFrameTimeRef.current = time;
+
+        const speedPxPerSecond = groupWidth / 60;
+        marqueePositionRef.current = normalizeMarqueeOffset(marqueePositionRef.current - speedPxPerSecond * deltaSeconds, groupWidth);
+        applyMarqueeOffset();
+      } else {
+        marqueeLastFrameTimeRef.current = time;
+      }
+
+      marqueeRafRef.current = window.requestAnimationFrame(animateMarquee);
+    };
+
+    marqueeRafRef.current = window.requestAnimationFrame(animateMarquee);
+
+    return () => {
+      resizeObserver.disconnect();
+
+      if (marqueeRafRef.current !== null) {
+        window.cancelAnimationFrame(marqueeRafRef.current);
+      }
+
+      if (marqueeResumeTimeoutRef.current !== null) {
+        window.clearTimeout(marqueeResumeTimeoutRef.current);
+      }
+    };
+  }, [locale, marqueeLoopItems]);
+
+  const scheduleMarqueeResume = () => {
+    if (marqueeResumeTimeoutRef.current !== null) {
+      window.clearTimeout(marqueeResumeTimeoutRef.current);
+    }
+
+    marqueeResumeTimeoutRef.current = window.setTimeout(() => {
+      marqueeIsPausedRef.current = false;
+      marqueeLastFrameTimeRef.current = 0;
+      setIsMarqueeInteracting(false);
+    }, 3000);
+  };
+
+  const handleMarqueePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    marqueeIsDraggingRef.current = true;
+    marqueeIsPausedRef.current = true;
+    marqueeLastPointerXRef.current = event.clientX;
+    marqueeLastFrameTimeRef.current = 0;
+    setIsMarqueeInteracting(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    scheduleMarqueeResume();
+  };
+
+  const handleMarqueePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!marqueeIsDraggingRef.current) {
+      return;
+    }
+
+    const groupWidth = marqueeGroupWidthRef.current;
+
+    if (groupWidth <= 0 || !marqueeRailRef.current) {
+      return;
+    }
+
+    const deltaX = event.clientX - marqueeLastPointerXRef.current;
+    marqueeLastPointerXRef.current = event.clientX;
+    marqueePositionRef.current = normalizeMarqueeOffset(marqueePositionRef.current + deltaX, groupWidth);
+    marqueeRailRef.current.style.setProperty("--marquee-x", `${marqueePositionRef.current}px`);
+    scheduleMarqueeResume();
+  };
+
+  const handleMarqueePointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    marqueeIsDraggingRef.current = false;
+    setIsMarqueeInteracting(false);
+    scheduleMarqueeResume();
+  };
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -619,11 +759,11 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
         >
-          <nav className="glass neon-ring flex min-w-0 items-center gap-2 rounded-2xl px-3 py-2 text-xs text-white/75 shadow-glow sm:rounded-full sm:text-sm lg:px-4 lg:py-3 xl:px-6">
+          <nav className="glass neon-ring flex min-w-0 items-center justify-between gap-2 rounded-2xl px-3 py-2 text-xs text-white/75 shadow-glow sm:rounded-full sm:text-sm md:justify-start lg:px-4 lg:py-3 xl:px-6">
             <button
               type="button"
               onClick={() => handleNavigationClick("home")}
-              className="min-w-0 max-w-[44vw] shrink pr-1 text-[13px] font-semibold tracking-[0.08em] text-white sm:max-w-[36vw] sm:text-base sm:tracking-[0.12em] lg:max-w-none lg:shrink-0 lg:pr-0 lg:tracking-[0.24em]"
+              className="min-w-0 max-w-[56vw] flex-1 shrink text-start pr-1 text-[13px] font-semibold tracking-[0.08em] text-white sm:max-w-[36vw] sm:text-base sm:tracking-[0.12em] md:flex-none lg:max-w-none lg:shrink-0 lg:pr-0 lg:tracking-[0.24em]"
             >
               <span className="block truncate lg:hidden">{isArabic ? "خالد الواكد" : "Khaled Alwaked"}</span>
               <span className="hidden lg:block">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</span>
@@ -669,7 +809,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div className={`${isArabic ? "mr-2" : "ml-2"} flex shrink-0 items-center gap-2 md:hidden`}>
+            <div className="flex shrink-0 items-center gap-2 md:hidden">
               <button
                 type="button"
                 onClick={toggleLocale}
@@ -727,24 +867,24 @@ export default function Home() {
       </header>
 
       <main className="relative z-10">
-        <section id="home" className="section-shell flex min-h-screen items-center py-20 sm:py-28">
+        <section id="home" className="section-shell flex min-h-[calc(100svh-5rem)] items-center py-16 sm:min-h-screen sm:py-28">
           <motion.div
             variants={staggerChildren}
             initial="hidden"
             animate="visible"
-            className="grid w-full items-center gap-10 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr]"
+            className="grid w-full items-center gap-8 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr]"
           >
-            <div className="max-w-3xl space-y-8">
+            <div className="max-w-3xl space-y-6 sm:space-y-8">
               <motion.div
                 variants={fadeUpItem}
-                className="glass inline-flex rounded-full px-3 py-2 text-[10px] tracking-[0.22em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]"
+                className="glass inline-flex rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.2em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]"
               >
                 {t.hero.badge}
               </motion.div>
 
               <motion.div variants={fadeUpItem} className="space-y-5">
                 <h1
-                  className={`max-w-4xl text-4xl font-semibold text-white sm:text-6xl lg:text-7xl ${
+                  className={`max-w-4xl text-3xl font-semibold text-white sm:text-6xl lg:text-7xl ${
                     isArabic ? "leading-[1.3] tracking-normal overflow-visible pt-1 pb-4" : "leading-[0.95] tracking-[-0.04em]"
                   }`}
                 >
@@ -763,7 +903,7 @@ export default function Home() {
                     </>
                   )}
                 </h1>
-                <p className="max-w-2xl text-base leading-7 text-white/68 sm:text-xl sm:leading-8">{t.hero.description}</p>
+                <p className="max-w-2xl text-sm leading-7 text-white/68 sm:text-xl sm:leading-8">{t.hero.description}</p>
               </motion.div>
 
               <motion.div variants={fadeUpItem} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
@@ -783,7 +923,7 @@ export default function Home() {
                 </button>
               </motion.div>
 
-              <motion.div variants={fadeUpItem} className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+              <motion.div variants={fadeUpItem} className="grid gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
                 {stats.map((stat) => (
                   <div key={stat.label} className="glass rounded-3xl p-5 shadow-card">
                     <div className="text-2xl font-semibold text-white">{stat.value}</div>
@@ -793,7 +933,7 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <motion.div variants={fadeUpItem} className="relative mx-auto h-[360px] w-full max-w-xl sm:h-[420px] lg:h-[540px]">
+            <motion.div variants={fadeUpItem} className="relative mx-auto h-[300px] w-full max-w-xl sm:h-[420px] lg:h-[540px]">
               <div className="absolute inset-0 rounded-[2rem] border border-white/10 bg-white/[0.02] backdrop-blur-sm" />
               <div className="absolute inset-4 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(110,231,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,79,216,0.12),transparent_30%)] sm:inset-6" />
               <div className="pointer-events-none absolute bottom-4 left-4 right-4 top-4 overflow-hidden rounded-[2rem] sm:bottom-6 sm:left-6 sm:right-6 sm:top-6">
@@ -808,9 +948,9 @@ export default function Home() {
                   }}
                 />
               </div>
-              <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 backdrop-blur-md sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:px-5 sm:py-4">
+              <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 backdrop-blur-md sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:px-5 sm:py-4">
                 <div>
-                  <p className="text-sm uppercase tracking-[0.16em] text-white/45 sm:text-base sm:tracking-[0.22em]">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</p>
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-white/45 sm:text-base sm:tracking-[0.22em]">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</p>
                   <p className="mt-1 text-xs text-white/70 sm:text-sm">{t.hero.portraitRole}</p>
                 </div>
                 <div className="h-3 w-3 animate-pulse rounded-full bg-neon shadow-[0_0_20px_rgba(110,231,255,0.9)]" />
@@ -830,23 +970,43 @@ export default function Home() {
             </div>
 
             <div className="glass overflow-hidden rounded-[1.5rem] border-white/10 py-4 shadow-card sm:rounded-[2rem] sm:py-5">
-              <div className="marquee-track flex gap-4 px-4">
-                {duplicatedMarquee.map((item, index) => (
-                  <div
-                    key={`${item}-${index}`}
-                    className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-white/78 sm:gap-3 sm:px-5 sm:py-3 sm:text-base"
-                  >
-                    <span className="h-2.5 w-2.5 rounded-full bg-neon shadow-[0_0_14px_rgba(110,231,255,0.9)]" />
-                    <span>{item}</span>
-                  </div>
-                ))}
+              <div
+                ref={marqueeViewportRef}
+                className={`marquee-viewport ${isMarqueeInteracting ? "cursor-grabbing" : "cursor-grab"}`}
+                dir="ltr"
+                onPointerDown={handleMarqueePointerDown}
+                onPointerMove={handleMarqueePointerMove}
+                onPointerUp={handleMarqueePointerUp}
+                onPointerCancel={handleMarqueePointerUp}
+              >
+                <div ref={marqueeRailRef} className="marquee-rail">
+                  {[0, 1].map((copyIndex) => (
+                    <div
+                      key={`marquee-group-${copyIndex}`}
+                      ref={copyIndex === 0 ? marqueeGroupRef : undefined}
+                      className="marquee-group"
+                      aria-hidden={copyIndex === 1}
+                    >
+                      {marqueeLoopItems.map((item, index) => (
+                        <div
+                          key={`${copyIndex}-${item}-${index}`}
+                          dir={isArabic ? "rtl" : "ltr"}
+                          className="marquee-chip flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-white/78 sm:gap-3 sm:px-5 sm:py-3 sm:text-base"
+                        >
+                          <span className="h-2.5 w-2.5 rounded-full bg-neon shadow-[0_0_14px_rgba(110,231,255,0.9)]" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </MotionReveal>
         </section>
 
         <section id="projects" className="section-shell py-10 sm:py-20">
-          <MotionReveal className="space-y-8">
+          <MotionReveal className="space-y-6 sm:space-y-8" viewportAmount={0.02}>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="space-y-3">
                 <p className="text-sm tracking-[0.45em] text-neon/70">{t.projects.eyebrow}</p>
