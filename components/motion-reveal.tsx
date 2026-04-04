@@ -19,6 +19,7 @@ type MotionRevealProps = HTMLMotionProps<"div"> & {
   children: ReactNode;
   delay?: number;
   once?: boolean;
+  viewportAmount?: number | "some" | "all";
   variants?: Variants;
 };
 
@@ -26,6 +27,7 @@ export function MotionReveal({
   children,
   delay = 0,
   once = true,
+  viewportAmount = 0.12,
   variants = defaultVariants,
   transition,
   ...props
@@ -34,7 +36,7 @@ export function MotionReveal({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount: 0.2 }}
+      viewport={{ once, amount: viewportAmount }}
       variants={variants}
       transition={{ delay, ...transition }}
       {...props}
