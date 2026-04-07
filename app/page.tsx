@@ -46,6 +46,15 @@ const statsByLocale: Record<Locale, { label: string; value: string }[]> = {
   ],
 };
 
+const projectVideoEmbeds = {
+  vSafety: "https://www.youtube.com/embed/CY1cl1wyc2A?rel=0",
+  taskFlow: "https://www.youtube.com/embed/zjwj2abCUGg?rel=0",
+  challenger: "https://www.youtube.com/embed/0G4Sf1w9_bQ?rel=0",
+  taqsi: "https://www.youtube.com/embed/bEAN-scSSsQ?rel=0",
+  bmi: "https://www.youtube.com/embed/tHY8ZVe-_Ys?rel=0",
+  casher: "https://www.youtube.com/embed/r0LxGBrgS4U?rel=0",
+} as const;
+
 const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
   en: [
     {
@@ -55,6 +64,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#ff4fd8",
       summary:
         "Many vehicle owners in Saudi Arabia are exposed to overpricing and fraud by untrusted repair and maintenance channels. V-Safety Manager addresses this by providing a government-aligned digital experience with fixed pricing and verified inspection centers in one trusted platform.",
+      youtubeUrl: projectVideoEmbeds.vSafety,
       details: [
         "Business impact: Replaces scattered workshop offers with one verified channel, reducing pricing ambiguity and fraud exposure.",
         "Connects users to state-documented inspection centers across Saudi Arabia through guided booking and verification flows.",
@@ -85,6 +95,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#6ee7ff",
       summary:
         "Gaming cafes often struggle with device booking because most cashier tools are difficult for staff and do not offer precise reservation control. Challenger solves this with a dedicated, accurate booking-management section built for real day-to-day floor operations.",
+      youtubeUrl: projectVideoEmbeds.challenger,
       details: [
         "Business impact: Gives teams a clear booking workflow for device allocation and session control, reducing reservation conflicts and manual corrections.",
         "Includes a complete Sales Report page with save-and-return capability, so managers can review reports anytime without rebuilding data.",
@@ -99,6 +110,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#38bdf8",
       summary:
         "Most task apps are either too shallow or too monotonous, usually designed around a single use case. Task Flow solves this by combining detailed task tracking, smart prioritization, and goal-based organization with a motivating habit system in one focused experience.",
+      youtubeUrl: projectVideoEmbeds.taskFlow,
       details: [
         "Business impact: Enables structured planning by organizing tasks through priority, type, and purpose, helping users act faster with less mental overload.",
         "Includes a dedicated habit-tracking module with daily score accumulation to reinforce consistency and healthy routine-building.",
@@ -114,6 +126,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#93c5fd",
       summary:
         "Many weather apps require too many steps before users reach a decision. This app streamlines access to current conditions and forecasts with resilient data handling so users can act quickly in changing conditions.",
+      youtubeUrl: projectVideoEmbeds.taqsi,
       details: [
         "Business impact: Offers 3 fast entry paths (current location, city search, favorites) to reduce lookup friction.",
         "Provides hourly insights plus a 7-day forecast view for immediate and short-term planning decisions.",
@@ -127,6 +140,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#f59e0b",
       summary:
         "Health tracking tools often fail when input is confusing or feedback is unclear. This BMI app simplifies data entry and interpretation, making regular self-check routines easier to sustain.",
+      youtubeUrl: projectVideoEmbeds.bmi,
       details: [
         "Business impact: Supports 2 unit systems (metric and imperial) to reduce entry mistakes across different user regions.",
         "Visualizes outcomes across 4 BMI ranges with an animated gauge and keeps historical readings for progress awareness.",
@@ -140,6 +154,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#8bffb0",
       summary:
         "Retail checkout lines slow down when invoicing and printer handling depend on repeated manual setup. Casher centralizes selling, invoicing, and thermal printing so cashiers can complete bills with fewer interruptions.",
+      youtubeUrl: projectVideoEmbeds.casher,
       details: [
         "Business impact: Printer selection is done once, then reused with auto-connect on next launches, reducing repeated setup at the counter.",
         "Moves invoice printing from a 20+ line integration pattern to a single service call for faster feature delivery and maintenance.",
@@ -155,6 +170,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#ff4fd8",
       summary:
         "المشكلة: كثير من أصحاب المركبات في السعودية يتعرضون للاستغلال ورفع الأسعار من جهات صيانة غير موثوقة. V-Safety Manager يحل هذه المشكلة عبر منصة رقمية موثقة على مستوى الجهات الحكومية، تجمع التسعير الثابت ومراكز الفحص المعتمدة في تجربة واحدة موثوقة.",
+      youtubeUrl: projectVideoEmbeds.vSafety,
       details: [
         "أثر الأعمال: ينقل المستخدم من خيارات عشوائية بين الورش إلى قناة موثقة واحدة، مما يقلل تضارب الأسعار ومخاطر النصب.",
         "يربط أصحاب المركبات بمراكز فحص موثقة ومعتمدة على مستوى المملكة العربية السعودية ضمن تدفق حجز واضح.",
@@ -185,6 +201,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#6ee7ff",
       summary:
         "مشكلة مقاهي الألعاب أن إدارة حجز الأجهزة تكون صعبة لأن أغلب تطبيقات الكاشير متعبة للعاملين ولا تعطي دقة كافية في تنظيم الحجوزات. منصة Challenger تعالج ذلك عبر قسم مخصص لإدارة الحجوزات بشكل دقيق وعملي يناسب التشغيل اليومي.",
+      youtubeUrl: projectVideoEmbeds.challenger,
       details: [
         "أثر الأعمال: يوفر تدفقا واضحا لحجز الأجهزة وإدارة الجلسات، مما يقلل تعارضات الحجوزات والتعديلات اليدوية أثناء الضغط.",
         "يتضمن صفحة كاملة لتقرير المبيعات مع إمكانية حفظ التقارير والرجوع لها في أي وقت دون إعادة العمل من الصفر.",
@@ -199,6 +216,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#38bdf8",
       summary:
         "المشكلة أن كثيراً من تطبيقات المهام تكون سطحية أو مملة وتركز على هدف واحد فقط. Task Flow يحل هذا عبر تجربة متكاملة تجمع تتبع المهام بالتفصيل، ترتيب الأولويات، وتصنيف المهام حسب نوعها وهدفها، مع نظام تحفيزي واضح للاستمرار.",
+      youtubeUrl: projectVideoEmbeds.taskFlow,
       details: [
         "أثر الأعمال: يساعد المستخدم على تنظيم يومه بوضوح عبر ترتيب المهام حسب الأولوية والنوع والهدف بدلاً من قوائم عشوائية.",
         "يتضمن قسماً مخصصاً لتتبع العادات وبناء عادات صحية جديدة مع نظام score يومي يزيد مع الاستمرارية.",
@@ -214,6 +232,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#93c5fd",
       summary:
         "الكثير من تطبيقات الطقس تحتاج خطوات كثيرة قبل الوصول لقرار. هذا التطبيق يختصر الوصول للبيانات الحالية والتوقعات مع معالجة مرنة للاتصال حتى يتخذ المستخدم قرارا أسرع.",
+      youtubeUrl: projectVideoEmbeds.taqsi,
       details: [
         "أثر الأعمال: يقدم 3 طرق سريعة للوصول (الموقع الحالي، البحث عن مدينة، المفضلة) لتقليل وقت الوصول للمعلومة.",
         "يوفر توقعات ساعية مع عرض 7 أيام لدعم قرارات فورية وقصيرة المدى.",
@@ -227,6 +246,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#f59e0b",
       summary:
         "أدوات المتابعة الصحية تفشل عندما يكون الإدخال معقدا أو التفسير غير واضح. هذا التطبيق يبسط إدخال البيانات وقراءة النتيجة، مما يسهل الالتزام بالمتابعة الدورية.",
+      youtubeUrl: projectVideoEmbeds.bmi,
       details: [
         "أثر الأعمال: يدعم نظامي قياس (متري وإمبريالي) لتقليل أخطاء الإدخال بين فئات المستخدمين.",
         "يعرض النتيجة ضمن 4 نطاقات BMI بمؤشر متحرك مع حفظ سجل القراءات لمتابعة التقدم.",
@@ -240,6 +260,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       accent: "#8bffb0",
       summary:
         "طوابير الكاشير تتباطأ عندما تكون الفوترة والطباعة الحرارية معتمدة على إعداد يدوي متكرر. Casher يجمع البيع والفوترة والطباعة في تدفق واحد لتسريع الإنجاز وتقليل الانقطاع.",
+      youtubeUrl: projectVideoEmbeds.casher,
       details: [
         "أثر الأعمال: يتم اختيار الطابعة مرة واحدة ثم إعادة الاتصال تلقائيا في التشغيلات التالية، مما يقلل وقت الإعداد على نقطة البيع.",
         "ينقل الطباعة من نمط تكامل يتجاوز 20 سطرا إلى استدعاء خدمة واحد، ما يسرع التطوير والصيانة.",

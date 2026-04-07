@@ -10,6 +10,7 @@ export type ProjectCard = {
   span: "large" | "medium" | "small";
   accent: string;
   details: string[];
+  youtubeUrl?: string;
   status?: "ready" | "inProgress";
 };
 
@@ -188,6 +189,22 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
                   />
                 </div>
               </div>
+
+              {item.youtubeUrl ? (
+                <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/35 shadow-[0_0_18px_rgba(0,0,0,0.22)]">
+                  <div className="aspect-video w-full">
+                    <iframe
+                      src={item.youtubeUrl}
+                      title={`${item.title} video demo`}
+                      className="h-full w-full"
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              ) : null}
             </div>
           </motion.article>
         );
