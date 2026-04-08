@@ -2,12 +2,11 @@
 
 import { Float, MeshTransmissionMaterial, Sparkles, Stars } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { CSSProperties, memo, useEffect, useMemo, useRef } from "react";
+import { CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 const sceneCamera = { position: [0, 0, 7.2] as [number, number, number], fov: 45 };
-const sceneDpr: [number, number] = [1, 1.1];
-const sceneGl = { antialias: true, powerPreference: "high-performance" as const };
+type SceneQuality = "high" | "balanced";
 
 type StarSpec = {
   x: number;
@@ -52,9 +51,12 @@ function createStarSpecs(count: number, seed: number, isNearLayer: boolean): Sta
   });
 }
 
-function RandomStarsOverlay() {
-  const nearStars = useMemo(() => createStarSpecs(85, 0x4f9c2d1a, true), []);
-  const farStars = useMemo(() => createStarSpecs(65, 0x71d8a63f, false), []);
+function RandomStarsOverlay({ quality }: { quality: SceneQuality }) {
+  const isBalanced = quality === "balanced";
+  const nearStarsCount = isBalanced ? 50 : 85;
+  const farStarsCount = isBalanced ? 38 : 65;
+  const nearStars = useMemo(() => createStarSpecs(nearStarsCount, 0x4f9c2d1a, true), [nearStarsCount]);
+  const farStars = useMemo(() => createStarSpecs(farStarsCount, 0x71d8a63f, false), [farStarsCount]);
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -107,7 +109,7 @@ function RandomStarsOverlay() {
   );
 }
 
-function ReactiveMesh() {
+function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: boolean }) {
   const { size, viewport } = useThree();
   const groupRef = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
@@ -116,8 +118,17 @@ function ReactiveMesh() {
   const glowRef = useRef<THREE.Mesh>(null);
   const satelliteRef = useRef<THREE.Mesh>(null);
   const satelliteSecondaryRef = useRef<THREE.Mesh>(null);
+  const frameAccumulatorRef = useRef(0);
 
   const orbitDiameterMultiplier = 3;
+  const isBalanced = quality === "balanced";
+  const starsCount = isBalanced ? 900 : 1900;
+  const sparklesCount = isBalanced ? 24 : 56;
+  const sphereSegments = isBalanced ? 28 : 36;
+  const icosahedronDetail = isBalanced ? 1 : 2;
+  const mainTorusSegments = isBalanced ? 88 : 120;
+  const secondaryTorusSegments = isBalanced ? 72 : 100;
+  const satelliteSegments = isBalanced ? 12 : 16;
 
   const meshLayout = useMemo(() => {
     let baseScale = 0.48;
@@ -173,6 +184,10 @@ function ReactiveMesh() {
   }, [meshLayout.baseScale, meshLayout.orbitCenterX, meshLayout.orbitCenterY, meshLayout.orbitRadiusX]);
 
   useFrame((state, delta) => {
+    if (isPaused) {
+      return;
+    }
+
     if (
       !groupRef.current ||
       !coreRef.current ||
@@ -183,6 +198,19 @@ function ReactiveMesh() {
       !satelliteSecondaryRef.current
     ) {
       return;
+    }
+
+    let frameDelta = delta;
+
+    if (isBalanced) {
+      frameAccumulatorRef.current += delta;
+
+      if (frameAccumulatorRef.current < 1 / 42) {
+        return;
+      }
+
+      frameDelta = frameAccumulatorRef.current;
+      frameAccumulatorRef.current = 0;
     }
 
     const targetX = Math.sin(state.clock.elapsedTime * 0.42) * 0.08;
@@ -205,13 +233,13 @@ function ReactiveMesh() {
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetX * 0.18, 0.055);
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetY * 0.18, 0.055);
 
-    coreRef.current.rotation.x += delta * 0.08;
-    coreRef.current.rotation.y += delta * 0.12;
-    shellRef.current.rotation.x -= delta * 0.06;
-    shellRef.current.rotation.z += delta * 0.08;
-    wireRef.current.rotation.x -= delta * 0.05;
-    wireRef.current.rotation.y -= delta * 0.08;
-    glowRef.current.rotation.z += delta * 0.06;
+    coreRef.current.rotation.x += frameDelta * 0.08;
+    coreRef.current.rotation.y += frameDelta * 0.12;
+    shellRef.current.rotation.x -= frameDelta * 0.06;
+    shellRef.current.rotation.z += frameDelta * 0.08;
+    wireRef.current.rotation.x -= frameDelta * 0.05;
+    wireRef.current.rotation.y -= frameDelta * 0.08;
+    glowRef.current.rotation.z += frameDelta * 0.06;
 
     glowRef.current.rotation.x = THREE.MathUtils.lerp(glowRef.current.rotation.x, targetX * 0.55, 0.05);
     glowRef.current.rotation.y = THREE.MathUtils.lerp(glowRef.current.rotation.y, targetY * 0.55, 0.05);
@@ -244,13 +272,13 @@ function ReactiveMesh() {
       <pointLight position={[-4, -2, 3]} intensity={14} color="#ff4fd8" />
       <pointLight position={[0, -3, -2]} intensity={10} color="#8bffb0" />
 
-      <Stars radius={90} depth={45} count={1900} factor={3} saturation={0} fade speed={0.85} />
-      <Sparkles count={56} scale={[11, 7, 11]} size={1.55} speed={0.24} color="#d8f7ff" />
+      <Stars radius={90} depth={45} count={starsCount} factor={3} saturation={0} fade speed={isBalanced ? 0.7 : 0.85} />
+      <Sparkles count={sparklesCount} scale={[11, 7, 11]} size={isBalanced ? 1.2 : 1.55} speed={isBalanced ? 0.2 : 0.24} color="#d8f7ff" />
 
       <Float speed={1.2} rotationIntensity={0.22} floatIntensity={0.5}>
         <group ref={groupRef}>
           <mesh ref={coreRef}>
-            <sphereGeometry args={[0.92, 36, 36]} />
+            <sphereGeometry args={[0.92, sphereSegments, sphereSegments]} />
             <MeshTransmissionMaterial
               color="#79dbff"
               emissive="#0ea5e9"
@@ -259,11 +287,11 @@ function ReactiveMesh() {
               roughness={0.08}
               transmission={1}
               ior={1.22}
-              chromaticAberration={0.045}
-              anisotropy={0.08}
-              distortion={0.12}
-              distortionScale={0.14}
-              temporalDistortion={0.05}
+              chromaticAberration={isBalanced ? 0.02 : 0.045}
+              anisotropy={isBalanced ? 0.04 : 0.08}
+              distortion={isBalanced ? 0.08 : 0.12}
+              distortionScale={isBalanced ? 0.08 : 0.14}
+              temporalDistortion={isBalanced ? 0.03 : 0.05}
               clearcoat={1}
               attenuationColor="#7dd3fc"
               attenuationDistance={1.2}
@@ -271,7 +299,7 @@ function ReactiveMesh() {
           </mesh>
 
           <mesh ref={shellRef} scale={1.18} rotation={[0.35, 0.8, 0.15]}>
-            <icosahedronGeometry args={[0.94, 2]} />
+            <icosahedronGeometry args={[0.94, icosahedronDetail]} />
             <meshPhysicalMaterial
               color="#b9f4ff"
               emissive="#38bdf8"
@@ -285,7 +313,7 @@ function ReactiveMesh() {
           </mesh>
 
           <mesh ref={wireRef} scale={1.3} rotation={[0.45, 0.2, 0.7]}>
-            <icosahedronGeometry args={[0.92, 2]} />
+            <icosahedronGeometry args={[0.92, icosahedronDetail]} />
             <meshStandardMaterial
               color="#d2f6ff"
               emissive="#7dd3fc"
@@ -299,17 +327,17 @@ function ReactiveMesh() {
           </mesh>
 
           <mesh ref={glowRef} rotation={[0.75, 0.2, 0.15]}>
-            <torusGeometry args={[1.36, 0.024, 24, 120]} />
+            <torusGeometry args={[1.36, 0.024, 24, mainTorusSegments]} />
             <meshBasicMaterial color="#ff4fd8" transparent opacity={0.34} />
           </mesh>
 
           <mesh rotation={[-0.8, 0.4, 0.3]} scale={0.88}>
-            <torusGeometry args={[1.7, 0.016, 24, 100]} />
+            <torusGeometry args={[1.7, 0.016, 24, secondaryTorusSegments]} />
             <meshBasicMaterial color="#6ee7ff" transparent opacity={0.18} />
           </mesh>
 
           <mesh ref={satelliteRef} position={[1.58, 0, 0]}>
-            <sphereGeometry args={[0.08, 16, 16]} />
+            <sphereGeometry args={[0.08, satelliteSegments, satelliteSegments]} />
             <meshStandardMaterial color="#ffffff" emissive="#8bffb0" emissiveIntensity={1.2} />
           </mesh>
 
@@ -324,12 +352,69 @@ function ReactiveMesh() {
 }
 
 export const SceneBackground = memo(function SceneBackground() {
+  const [isCompactViewport, setIsCompactViewport] = useState(true);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isDocumentHidden, setIsDocumentHidden] = useState(false);
+
+  useEffect(() => {
+    const compactQuery = window.matchMedia("(max-width: 900px)");
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    const updateEnvironment = () => {
+      setIsCompactViewport(compactQuery.matches);
+      setPrefersReducedMotion(reducedMotionQuery.matches);
+    };
+
+    const updateVisibility = () => {
+      setIsDocumentHidden(document.visibilityState !== "visible");
+    };
+
+    updateEnvironment();
+    updateVisibility();
+
+    compactQuery.addEventListener("change", updateEnvironment);
+    reducedMotionQuery.addEventListener("change", updateEnvironment);
+    document.addEventListener("visibilitychange", updateVisibility);
+
+    return () => {
+      compactQuery.removeEventListener("change", updateEnvironment);
+      reducedMotionQuery.removeEventListener("change", updateEnvironment);
+      document.removeEventListener("visibilitychange", updateVisibility);
+    };
+  }, []);
+
+  const sceneQuality = useMemo<SceneQuality>(() => {
+    if (typeof navigator === "undefined") {
+      return isCompactViewport || prefersReducedMotion ? "balanced" : "high";
+    }
+
+    const navigatorInfo = navigator as Navigator & { deviceMemory?: number };
+    const lowMemoryDevice = navigatorInfo.deviceMemory !== undefined && navigatorInfo.deviceMemory <= 4;
+    const limitedCpu = navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
+
+    return isCompactViewport || prefersReducedMotion || lowMemoryDevice || limitedCpu ? "balanced" : "high";
+  }, [isCompactViewport, prefersReducedMotion]);
+
+  const sceneDpr = useMemo<[number, number]>(() => {
+    return sceneQuality === "high" ? [1, 1.1] : [0.75, 1];
+  }, [sceneQuality]);
+
+  const sceneGl = useMemo(
+    (): { antialias: boolean; powerPreference: WebGLPowerPreference } => ({
+      antialias: sceneQuality === "high",
+      powerPreference: sceneQuality === "high" ? "high-performance" : "low-power",
+    }),
+    [sceneQuality],
+  );
+
+  const shouldPauseAnimation = isDocumentHidden;
+
   return (
     <div className="pointer-events-none absolute inset-0 z-0 opacity-95">
-      <Canvas camera={sceneCamera} dpr={sceneDpr} gl={sceneGl}>
-        <ReactiveMesh />
+      <Canvas camera={sceneCamera} dpr={sceneDpr} gl={sceneGl} frameloop={shouldPauseAnimation ? "never" : "always"}>
+        <ReactiveMesh quality={sceneQuality} isPaused={shouldPauseAnimation} />
       </Canvas>
-      <RandomStarsOverlay />
+      <RandomStarsOverlay quality={sceneQuality} />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(5,8,22,0.05)_0%,rgba(5,8,22,0.42)_52%,rgba(4,4,12,0.95)_100%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(110,231,255,0.12),transparent_28%),radial-gradient(circle_at_70%_20%,rgba(255,79,216,0.08),transparent_24%),radial-gradient(circle_at_50%_90%,rgba(139,255,176,0.08),transparent_20%)]" />
     </div>
