@@ -6,7 +6,7 @@ import { CSSProperties, memo, useEffect, useMemo, useRef, useState } from "react
 import * as THREE from "three";
 
 const sceneCamera = { position: [0, 0, 7.2] as [number, number, number], fov: 45 };
-type SceneQuality = "high" | "balanced";
+type SceneQuality = "high" | "balanced" | "mobile";
 
 type StarSpec = {
   x: number;
@@ -52,9 +52,10 @@ function createStarSpecs(count: number, seed: number, isNearLayer: boolean): Sta
 }
 
 function RandomStarsOverlay({ quality }: { quality: SceneQuality }) {
+  const isMobile = quality === "mobile";
   const isBalanced = quality === "balanced";
-  const nearStarsCount = isBalanced ? 50 : 85;
-  const farStarsCount = isBalanced ? 38 : 65;
+  const nearStarsCount = isMobile ? 28 : isBalanced ? 50 : 85;
+  const farStarsCount = isMobile ? 20 : isBalanced ? 38 : 65;
   const nearStars = useMemo(() => createStarSpecs(nearStarsCount, 0x4f9c2d1a, true), [nearStarsCount]);
   const farStars = useMemo(() => createStarSpecs(farStarsCount, 0x71d8a63f, false), [farStarsCount]);
 
@@ -121,14 +122,15 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
   const frameAccumulatorRef = useRef(0);
 
   const orbitDiameterMultiplier = 3;
+  const isMobile = quality === "mobile";
   const isBalanced = quality === "balanced";
-  const starsCount = isBalanced ? 900 : 1900;
-  const sparklesCount = isBalanced ? 24 : 56;
-  const sphereSegments = isBalanced ? 28 : 36;
-  const icosahedronDetail = isBalanced ? 1 : 2;
-  const mainTorusSegments = isBalanced ? 88 : 120;
-  const secondaryTorusSegments = isBalanced ? 72 : 100;
-  const satelliteSegments = isBalanced ? 12 : 16;
+  const starsCount = isMobile ? 420 : isBalanced ? 900 : 1900;
+  const sparklesCount = isMobile ? 10 : isBalanced ? 24 : 56;
+  const sphereSegments = isMobile ? 20 : isBalanced ? 28 : 36;
+  const icosahedronDetail = isMobile ? 0 : isBalanced ? 1 : 2;
+  const mainTorusSegments = isMobile ? 56 : isBalanced ? 88 : 120;
+  const secondaryTorusSegments = isMobile ? 44 : isBalanced ? 72 : 100;
+  const satelliteSegments = isMobile ? 8 : isBalanced ? 12 : 16;
 
   const meshLayout = useMemo(() => {
     let baseScale = 0.48;
@@ -158,9 +160,17 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
       orbitSpeed = 0.26;
     }
 
+    // Keep the same visual identity on mobile, but shrink the render footprint.
+    const qualityScale = isMobile ? 0.76 : isBalanced ? 0.9 : 1;
+    const qualityOrbitScale = isMobile ? 0.62 : isBalanced ? 0.84 : 1;
+    baseScale *= qualityScale;
+    desiredOrbitRadius *= qualityOrbitScale;
+    orbitSpeed *= isMobile ? 0.9 : 1;
+
     const meshVisualRadius = 1.9 * baseScale;
-    const orbitRadiusX = Math.max(0.12, viewport.width / 2);
-    const maxOrbitRadiusZ = Math.max(0.1, viewport.width / 2 - meshVisualRadius - 0.04);
+    const orbitRadiusXBase = isMobile ? viewport.width / 3.1 : isBalanced ? viewport.width / 2.35 : viewport.width / 2;
+    const orbitRadiusX = Math.max(0.12, orbitRadiusXBase);
+    const maxOrbitRadiusZ = Math.max(0.1, orbitRadiusX - meshVisualRadius - 0.04);
     const orbitRadius = Math.min(desiredOrbitRadius, maxOrbitRadiusZ);
     const orbitCenterX = 0;
 
@@ -172,7 +182,7 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
       orbitRadiusX,
       orbitSpeed,
     };
-  }, [orbitDiameterMultiplier, size.width, viewport.width]);
+  }, [isBalanced, isMobile, orbitDiameterMultiplier, size.width, viewport.width]);
 
   useEffect(() => {
     if (!groupRef.current) {
@@ -202,10 +212,11 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
 
     let frameDelta = delta;
 
-    if (isBalanced) {
+    if (quality !== "high") {
       frameAccumulatorRef.current += delta;
+      const minFrameStep = isMobile ? 1 / 30 : 1 / 42;
 
-      if (frameAccumulatorRef.current < 1 / 42) {
+      if (frameAccumulatorRef.current < minFrameStep) {
         return;
       }
 
@@ -222,7 +233,11 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
     const orbitZ = Math.sin(orbitPhase) * meshLayout.orbitRadius;
 
     const depthProgress = meshLayout.orbitRadius > 0 ? (orbitZ + meshLayout.orbitRadius) / (2 * meshLayout.orbitRadius) : 0.5;
-    const depthScale = THREE.MathUtils.lerp(0.78, 1.08, depthProgress);
+    const depthScale = isMobile
+      ? THREE.MathUtils.lerp(0.82, 0.96, depthProgress)
+      : isBalanced
+        ? THREE.MathUtils.lerp(0.8, 1.02, depthProgress)
+        : THREE.MathUtils.lerp(0.78, 1.08, depthProgress);
     const targetScale = meshLayout.baseScale * depthScale;
 
     groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, orbitX, 0.08);
@@ -272,10 +287,16 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
       <pointLight position={[-4, -2, 3]} intensity={14} color="#ff4fd8" />
       <pointLight position={[0, -3, -2]} intensity={10} color="#8bffb0" />
 
-      <Stars radius={90} depth={45} count={starsCount} factor={3} saturation={0} fade speed={isBalanced ? 0.7 : 0.85} />
-      <Sparkles count={sparklesCount} scale={[11, 7, 11]} size={isBalanced ? 1.2 : 1.55} speed={isBalanced ? 0.2 : 0.24} color="#d8f7ff" />
+      <Stars radius={90} depth={45} count={starsCount} factor={3} saturation={0} fade speed={isMobile ? 0.55 : isBalanced ? 0.7 : 0.85} />
+      <Sparkles
+        count={sparklesCount}
+        scale={isMobile ? [9, 6, 9] : [11, 7, 11]}
+        size={isMobile ? 1 : isBalanced ? 1.2 : 1.55}
+        speed={isMobile ? 0.16 : isBalanced ? 0.2 : 0.24}
+        color="#d8f7ff"
+      />
 
-      <Float speed={1.2} rotationIntensity={0.22} floatIntensity={0.5}>
+      <Float speed={isMobile ? 0.95 : 1.2} rotationIntensity={isMobile ? 0.16 : 0.22} floatIntensity={isMobile ? 0.34 : 0.5}>
         <group ref={groupRef}>
           <mesh ref={coreRef}>
             <sphereGeometry args={[0.92, sphereSegments, sphereSegments]} />
@@ -287,11 +308,11 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
               roughness={0.08}
               transmission={1}
               ior={1.22}
-              chromaticAberration={isBalanced ? 0.02 : 0.045}
-              anisotropy={isBalanced ? 0.04 : 0.08}
-              distortion={isBalanced ? 0.08 : 0.12}
-              distortionScale={isBalanced ? 0.08 : 0.14}
-              temporalDistortion={isBalanced ? 0.03 : 0.05}
+              chromaticAberration={isMobile ? 0.008 : isBalanced ? 0.02 : 0.045}
+              anisotropy={isMobile ? 0 : isBalanced ? 0.04 : 0.08}
+              distortion={isMobile ? 0.03 : isBalanced ? 0.08 : 0.12}
+              distortionScale={isMobile ? 0.03 : isBalanced ? 0.08 : 0.14}
+              temporalDistortion={isMobile ? 0.015 : isBalanced ? 0.03 : 0.05}
               clearcoat={1}
               attenuationColor="#7dd3fc"
               attenuationDistance={1.2}
@@ -385,17 +406,25 @@ export const SceneBackground = memo(function SceneBackground() {
 
   const sceneQuality = useMemo<SceneQuality>(() => {
     if (typeof navigator === "undefined") {
-      return isCompactViewport || prefersReducedMotion ? "balanced" : "high";
+      return isCompactViewport ? "mobile" : prefersReducedMotion ? "balanced" : "high";
     }
 
     const navigatorInfo = navigator as Navigator & { deviceMemory?: number };
     const lowMemoryDevice = navigatorInfo.deviceMemory !== undefined && navigatorInfo.deviceMemory <= 4;
     const limitedCpu = navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
 
-    return isCompactViewport || prefersReducedMotion || lowMemoryDevice || limitedCpu ? "balanced" : "high";
+    if (isCompactViewport) {
+      return "mobile";
+    }
+
+    return prefersReducedMotion || lowMemoryDevice || limitedCpu ? "balanced" : "high";
   }, [isCompactViewport, prefersReducedMotion]);
 
   const sceneDpr = useMemo<[number, number]>(() => {
+    if (sceneQuality === "mobile") {
+      return [0.5, 0.85];
+    }
+
     return sceneQuality === "high" ? [1, 1.1] : [0.75, 1];
   }, [sceneQuality]);
 
