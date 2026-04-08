@@ -440,6 +440,7 @@ const initialForm: FormState = {
 
 const heroPhotoScale = 1.05;
 const heroPhotoOffsetY = 10;
+const isContactSectionVisible = false;
 
 function normalizeMarqueeOffset(offset: number, groupWidth: number) {
   if (groupWidth <= 0) {
@@ -490,7 +491,9 @@ export default function Home() {
   const stats = statsByLocale[locale];
   const marqueeItems = marqueeItemsByLocale[locale];
   const marqueeLoopItems = useMemo(() => [...marqueeItems, ...marqueeItems, ...marqueeItems], [marqueeItems]);
-  const navigation = navigationConfig.map((item) => ({ ...item, label: t.nav[item.id] }));
+  const navigation = navigationConfig
+    .filter((item) => isContactSectionVisible || item.id !== "contact")
+    .map((item) => ({ ...item, label: t.nav[item.id] }));
   const [navIndicator, setNavIndicator] = useState({ x: 0, width: 0, visible: false });
 
   useEffect(() => {
@@ -964,7 +967,9 @@ export default function Home() {
 
             <div
               ref={navLinksContainerRef}
-              className="relative hidden min-w-0 flex-1 md:grid md:grid-cols-4 md:items-center md:gap-1 md:px-1 lg:gap-1.5 lg:px-2 xl:gap-2 xl:px-4"
+              className={`relative hidden min-w-0 flex-1 md:grid md:items-center md:gap-1 md:px-1 lg:gap-1.5 lg:px-2 xl:gap-2 xl:px-4 ${
+                navigation.length === 4 ? "md:grid-cols-4" : "md:grid-cols-3"
+              }`}
             >
               {navIndicator.visible ? (
                 <motion.span
@@ -1002,13 +1007,15 @@ export default function Home() {
               >
                 {isArabic ? "EN" : "AR"}
               </button>
-              <button
-                type="button"
-                onClick={() => handleNavigationClick("contact")}
-                className="inline-flex whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-neon/40 hover:bg-neon/10"
-              >
-                {t.nav.letsBuild}
-              </button>
+              {isContactSectionVisible ? (
+                <button
+                  type="button"
+                  onClick={() => handleNavigationClick("contact")}
+                  className="inline-flex whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-neon/40 hover:bg-neon/10"
+                >
+                  {t.nav.letsBuild}
+                </button>
+              ) : null}
             </div>
 
             <div className="flex shrink-0 items-center gap-2 md:hidden">
@@ -1055,13 +1062,15 @@ export default function Home() {
                     {item.label}
                   </button>
                 ))}
-                <button
-                  type="button"
-                  onClick={() => handleNavigationClick("contact")}
-                  className="flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white transition hover:border-neon/40 hover:bg-neon/10"
-                >
-                  {t.nav.letsBuild}
-                </button>
+                {isContactSectionVisible ? (
+                  <button
+                    type="button"
+                    onClick={() => handleNavigationClick("contact")}
+                    className="flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white transition hover:border-neon/40 hover:bg-neon/10"
+                  >
+                    {t.nav.letsBuild}
+                  </button>
+                ) : null}
               </motion.div>
             ) : null}
           </AnimatePresence>
@@ -1116,13 +1125,15 @@ export default function Home() {
                 >
                   {t.hero.primaryCta}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleNavigationClick("contact")}
-                  className="glass w-full rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:border-neon/40 hover:text-neon sm:w-auto"
-                >
-                  {t.hero.secondaryCta}
-                </button>
+                {isContactSectionVisible ? (
+                  <button
+                    type="button"
+                    onClick={() => handleNavigationClick("contact")}
+                    className="glass w-full rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:border-neon/40 hover:text-neon sm:w-auto"
+                  >
+                    {t.hero.secondaryCta}
+                  </button>
+                ) : null}
               </motion.div>
 
               <motion.div variants={fadeUpItem} className="grid gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
@@ -1223,103 +1234,105 @@ export default function Home() {
           </MotionReveal>
         </section>
 
-        <section id="contact" className="section-shell pb-16 pt-10 sm:pb-28 sm:pt-20">
-          <MotionReveal>
-            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-              <div className="space-y-5">
-                <p className="text-sm tracking-[0.45em] text-neon/70">{t.contact.eyebrow}</p>
-                <h2 className="max-w-xl text-2xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">{t.contact.title}</h2>
-                <p className="max-w-xl text-sm leading-7 text-white/64 sm:text-base">{t.contact.description}</p>
-                <div className="glass inline-flex rounded-3xl px-5 py-4 text-sm text-white/65 shadow-card">{t.contact.availability}</div>
-              </div>
+        {isContactSectionVisible ? (
+          <section id="contact" className="section-shell pb-16 pt-10 sm:pb-28 sm:pt-20">
+            <MotionReveal>
+              <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+                <div className="space-y-5">
+                  <p className="text-sm tracking-[0.45em] text-neon/70">{t.contact.eyebrow}</p>
+                  <h2 className="max-w-xl text-2xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">{t.contact.title}</h2>
+                  <p className="max-w-xl text-sm leading-7 text-white/64 sm:text-base">{t.contact.description}</p>
+                  <div className="glass inline-flex rounded-3xl px-5 py-4 text-sm text-white/65 shadow-card">{t.contact.availability}</div>
+                </div>
 
-              <div className="glass neon-ring rounded-[1.5rem] p-4 shadow-glow sm:rounded-[2rem] sm:p-8">
-                <AnimatePresence mode="wait">
-                  {submitted ? (
-                    <motion.div
-                      key="success"
-                      initial={{ opacity: 0, scale: 0.95, y: 12 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.96, y: -10 }}
-                      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                      className="flex min-h-[420px] flex-col items-center justify-center gap-5 text-center"
-                    >
-                      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-neon/30 bg-neon/10 text-3xl text-neon shadow-glow">
-                        ✓
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-2xl font-semibold text-white">{t.contact.successTitle}</h3>
-                        <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">{t.contact.successDescription}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setSubmitted(false)}
-                        className="rounded-full border border-white/10 px-5 py-3 text-sm font-medium text-white transition hover:border-neon/40 hover:text-neon"
+                <div className="glass neon-ring rounded-[1.5rem] p-4 shadow-glow sm:rounded-[2rem] sm:p-8">
+                  <AnimatePresence mode="wait">
+                    {submitted ? (
+                      <motion.div
+                        key="success"
+                        initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.96, y: -10 }}
+                        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                        className="flex min-h-[420px] flex-col items-center justify-center gap-5 text-center"
                       >
-                        {t.contact.sendAnother}
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <motion.form
-                      key="form"
-                      initial={{ opacity: 0, y: 14 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -14 }}
-                      transition={{ duration: 0.4 }}
-                      onSubmit={handleSubmit}
-                      className="space-y-5"
-                    >
-                      <div className="grid gap-5 sm:grid-cols-2">
-                        <label className="space-y-2 text-sm text-white/70">
-                          <span>{t.form.name}</span>
-                          <input
-                            value={form.name}
-                            onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                            className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
-                            placeholder={t.form.namePlaceholder}
-                          />
-                          {errors.name ? <span className="text-xs text-rose-300">{errors.name}</span> : null}
-                        </label>
-                        <label className="space-y-2 text-sm text-white/70">
-                          <span>{t.form.email}</span>
-                          <input
-                            value={form.email}
-                            onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                            className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
-                            placeholder={t.form.emailPlaceholder}
-                            type="email"
-                          />
-                          {errors.email ? <span className="text-xs text-rose-300">{errors.email}</span> : null}
-                        </label>
-                      </div>
-
-                      <label className="space-y-2 text-sm text-white/70">
-                        <span>{t.form.brief}</span>
-                        <textarea
-                          value={form.message}
-                          onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
-                          className="min-h-40 w-full rounded-[1.5rem] border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
-                          placeholder={t.form.briefPlaceholder}
-                        />
-                        {errors.message ? <span className="text-xs text-rose-300">{errors.message}</span> : null}
-                      </label>
-
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-xs tracking-[0.3em] text-white/38">{t.form.hint}</p>
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full border border-neon/30 bg-neon/10 text-3xl text-neon shadow-glow">
+                          ✓
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-2xl font-semibold text-white">{t.contact.successTitle}</h3>
+                          <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">{t.contact.successDescription}</p>
+                        </div>
                         <button
-                          type="submit"
-                          className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
+                          type="button"
+                          onClick={() => setSubmitted(false)}
+                          className="rounded-full border border-white/10 px-5 py-3 text-sm font-medium text-white transition hover:border-neon/40 hover:text-neon"
                         >
-                          {t.form.submit}
+                          {t.contact.sendAnother}
                         </button>
-                      </div>
-                    </motion.form>
-                  )}
-                </AnimatePresence>
+                      </motion.div>
+                    ) : (
+                      <motion.form
+                        key="form"
+                        initial={{ opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -14 }}
+                        transition={{ duration: 0.4 }}
+                        onSubmit={handleSubmit}
+                        className="space-y-5"
+                      >
+                        <div className="grid gap-5 sm:grid-cols-2">
+                          <label className="space-y-2 text-sm text-white/70">
+                            <span>{t.form.name}</span>
+                            <input
+                              value={form.name}
+                              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                              className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
+                              placeholder={t.form.namePlaceholder}
+                            />
+                            {errors.name ? <span className="text-xs text-rose-300">{errors.name}</span> : null}
+                          </label>
+                          <label className="space-y-2 text-sm text-white/70">
+                            <span>{t.form.email}</span>
+                            <input
+                              value={form.email}
+                              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                              className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
+                              placeholder={t.form.emailPlaceholder}
+                              type="email"
+                            />
+                            {errors.email ? <span className="text-xs text-rose-300">{errors.email}</span> : null}
+                          </label>
+                        </div>
+
+                        <label className="space-y-2 text-sm text-white/70">
+                          <span>{t.form.brief}</span>
+                          <textarea
+                            value={form.message}
+                            onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
+                            className="min-h-40 w-full rounded-[1.5rem] border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
+                            placeholder={t.form.briefPlaceholder}
+                          />
+                          {errors.message ? <span className="text-xs text-rose-300">{errors.message}</span> : null}
+                        </label>
+
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-xs tracking-[0.3em] text-white/38">{t.form.hint}</p>
+                          <button
+                            type="submit"
+                            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
+                          >
+                            {t.form.submit}
+                          </button>
+                        </div>
+                      </motion.form>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
-            </div>
-          </MotionReveal>
-        </section>
+            </MotionReveal>
+          </section>
+        ) : null}
       </main>
     </div>
   );
