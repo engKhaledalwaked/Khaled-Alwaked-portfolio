@@ -947,7 +947,7 @@ export default function Home() {
     <div dir={isArabic ? "rtl" : "ltr"} className="relative overflow-x-hidden bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0 z-0 bg-grid-fade" />
       <div className="pointer-events-none absolute inset-0 z-[1] grid-overlay" />
-      {!isCompactViewport ? <SceneBackground /> : null}
+      <SceneBackground />
 
       <header className="relative z-50 mx-2 mt-3 md:fixed md:left-1/2 md:top-6 md:mx-0 md:mt-0 md:w-[calc(100%-1.5rem)] md:max-w-5xl md:-translate-x-1/2">
         <motion.div
