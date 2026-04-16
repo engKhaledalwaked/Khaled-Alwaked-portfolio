@@ -1,11 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { FormEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, FormEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import { BentoGrid, type ProjectCard } from "@/components/bento-grid";
 import { fadeUpItem, MotionReveal, staggerChildren } from "@/components/motion-reveal";
+import githubProfileIcon from "@/assest/github.png";
+import linkedinProfileIcon from "@/assest/linkedin.png";
 import myPhoto from "@/assest/my-photo.png";
 
 const SceneBackground = dynamic(() => import("@/components/scene-background").then((mod) => mod.SceneBackground), {
@@ -19,6 +21,11 @@ const navigationConfig = [
   { id: "skills", href: "#skills" },
   { id: "projects", href: "#projects" },
   { id: "contact", href: "#contact" },
+] as const;
+
+const socialLinks = [
+  { label: "GitHub", href: "https://github.com/engKhaledalwaked", src: githubProfileIcon },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/khaled-alwaked", src: linkedinProfileIcon },
 ] as const;
 
 type NavigationSectionId = (typeof navigationConfig)[number]["id"];
@@ -442,6 +449,70 @@ const heroPhotoScale = 1.05;
 const heroPhotoOffsetY = 10;
 const isContactSectionVisible = false;
 
+type HeroStarSpec = {
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  driftX: number;
+  driftY: number;
+  duration: number;
+  delay: number;
+  twinkle: number;
+  blur: number;
+};
+
+function createSeededRandom(seed: number) {
+  let value = seed >>> 0;
+
+  return () => {
+    value = (value * 1664525 + 1013904223) >>> 0;
+    return value / 4294967296;
+  };
+}
+
+function createHeroStarSpecs(count: number, seed: number, isDense: boolean): HeroStarSpec[] {
+  const random = createSeededRandom(seed);
+
+  return Array.from({ length: count }, () => {
+    const sizeBase = isDense ? 1.8 : 1.25;
+
+    return {
+      x: random() * 100,
+      y: random() * 100,
+      size: 0.62 + random() * sizeBase,
+      opacity: isDense ? 0.45 + random() * 0.42 : 0.18 + random() * 0.28,
+      driftX: (random() - 0.5) * (isDense ? 30 : 20),
+      driftY: (random() - 0.5) * (isDense ? 24 : 16),
+      duration: (isDense ? 10 : 13) + random() * (isDense ? 12 : 15),
+      delay: -random() * 18,
+      twinkle: 2.8 + random() * (isDense ? 4.2 : 5.2),
+      blur: random() * (isDense ? 0.32 : 0.45),
+    };
+  });
+}
+
+function buildHeroStarStyle(star: HeroStarSpec): CSSProperties {
+  return {
+    "--star-x": `${star.x}%`,
+    "--star-y": `${star.y}%`,
+    "--star-size": `${star.size}px`,
+    "--star-opacity": String(star.opacity),
+    "--star-drift-x": `${star.driftX}px`,
+    "--star-drift-y": `${star.driftY}px`,
+    "--star-duration": `${star.duration}s`,
+    "--star-delay": `${star.delay}s`,
+    "--star-twinkle": `${star.twinkle}s`,
+    "--star-blur": `${star.blur}px`,
+  } as CSSProperties;
+}
+
+function renderHeroStarLayer(stars: HeroStarSpec[], prefix: string) {
+  return stars.map((star, index) => (
+    <span key={`${prefix}-${index}`} className="random-star" style={buildHeroStarStyle(star)} />
+  ));
+}
+
 function normalizeMarqueeOffset(offset: number, groupWidth: number) {
   if (groupWidth <= 0) {
     return 0;
@@ -495,6 +566,14 @@ export default function Home() {
     .filter((item) => isContactSectionVisible || item.id !== "contact")
     .map((item) => ({ ...item, label: t.nav[item.id] }));
   const [navIndicator, setNavIndicator] = useState({ x: 0, width: 0, visible: false });
+  const prefersReducedMotion = useReducedMotion();
+  const pageStarNearCount = isCompactViewport ? 70 : 170;
+  const pageStarFarCount = isCompactViewport ? 40 : 100;
+  const pageStarsNear = useMemo(() => createHeroStarSpecs(pageStarNearCount, 0x4f9c2d1a, true), [pageStarNearCount]);
+  const pageStarsFar = useMemo(() => createHeroStarSpecs(pageStarFarCount, 0x71d8a63f, false), [pageStarFarCount]);
+  const { scrollY } = useScroll();
+  const pageStarNearOffset = useTransform(scrollY, (value) => (prefersReducedMotion ? 0 : value * (isCompactViewport ? -0.008 : -0.015)));
+  const pageStarFarOffset = useTransform(scrollY, (value) => (prefersReducedMotion ? 0 : value * (isCompactViewport ? -0.004 : -0.008)));
 
   useEffect(() => {
     const storedLocale = window.localStorage.getItem("portfolio-locale");
@@ -948,6 +1027,15 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 z-0 bg-grid-fade" />
       <div className="pointer-events-none absolute inset-0 z-[1] grid-overlay" />
       <SceneBackground />
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[2] overflow-hidden opacity-95">
+        <motion.div style={{ y: pageStarFarOffset }} className="random-starfield random-starfield-far">
+          {renderHeroStarLayer(pageStarsFar, "page-far")}
+        </motion.div>
+        <motion.div style={{ y: pageStarNearOffset }} className="random-starfield random-starfield-near">
+          {renderHeroStarLayer(pageStarsNear, "page-near")}
+        </motion.div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%),radial-gradient(circle_at_50%_20%,rgba(110,231,255,0.08),transparent_24%)]" />
+      </div>
 
       <header className="relative z-50 mx-2 mt-3 md:fixed md:left-1/2 md:top-6 md:mx-0 md:mt-0 md:w-[calc(100%-1.5rem)] md:max-w-5xl md:-translate-x-1/2">
         <motion.div
@@ -1007,6 +1095,20 @@ export default function Home() {
               >
                 {isArabic ? "EN" : "AR"}
               </button>
+              {socialLinks.map(({ label, href, src }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-neon/40 hover:bg-neon/10 hover:text-white"
+                >
+                  <Image src={src} alt="" width={16} height={16} className="h-4 w-4 object-contain invert" aria-hidden="true" />
+                  <span className="sr-only">{label}</span>
+                </a>
+              ))}
               {isContactSectionVisible ? (
                 <button
                   type="button"
@@ -1018,7 +1120,7 @@ export default function Home() {
               ) : null}
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 md:hidden">
+            <div className="flex shrink-0 items-center gap-1.5 md:hidden">
               <button
                 type="button"
                 onClick={toggleLocale}
@@ -1027,6 +1129,20 @@ export default function Home() {
               >
                 {isArabic ? "EN" : "AR"}
               </button>
+              {socialLinks.map(({ label, href, src }) => (
+                <a
+                  key={`${label}-mobile`}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-neon/40 hover:bg-neon/10 hover:text-white"
+                >
+                  <Image src={src} alt="" width={16} height={16} className="h-4 w-4 object-contain invert" aria-hidden="true" />
+                  <span className="sr-only">{label}</span>
+                </a>
+              ))}
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((current) => !current)}
@@ -1078,100 +1194,102 @@ export default function Home() {
       </header>
 
       <main className="relative z-10">
-        <section id="home" className="section-shell flex min-h-[calc(100svh-5rem)] items-center py-16 sm:min-h-screen sm:py-28">
-          <motion.div
-            variants={staggerChildren}
-            initial="hidden"
-            animate="visible"
-            className="grid w-full items-center gap-8 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr]"
-          >
-            <div className="max-w-3xl space-y-6 sm:space-y-8">
-              <motion.div
-                variants={fadeUpItem}
-                className="glass inline-flex rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.2em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]"
-              >
-                {t.hero.badge}
-              </motion.div>
-
-              <motion.div variants={fadeUpItem} className="space-y-5">
-                <h1
-                  className={`max-w-4xl text-3xl font-semibold text-white sm:text-6xl lg:text-7xl ${
-                    isArabic ? "leading-[1.3] tracking-normal overflow-visible pt-1 pb-4" : "leading-[0.95] tracking-[-0.04em]"
-                  }`}
+        <section id="home" className="relative isolate flex min-h-[calc(100svh-5rem)] items-center overflow-hidden py-16 sm:min-h-screen sm:py-28">
+          <div className="section-shell relative z-10">
+            <motion.div
+              variants={staggerChildren}
+              initial="hidden"
+              animate="visible"
+              className="grid w-full items-center gap-8 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr]"
+            >
+              <div className="max-w-3xl space-y-6 sm:space-y-8">
+                <motion.div
+                  variants={fadeUpItem}
+                  className="glass inline-flex rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.2em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]"
                 >
-                  {isArabic ? (
-                    <>
-                      <span className="block leading-[1.22]">{t.hero.titleMain}</span>
-                      <span className="mt-3 block leading-[1.22] pb-1">
-                        <span className="text-white/40">| </span>
-                        <span className="text-gradient">{t.hero.titleLine2}</span>
-                      </span>
-                      <span className="mt-3 block leading-[1.22] text-cyan-100">{t.hero.titleLine3}</span>
-                    </>
-                  ) : (
-                    <>
-                      {t.hero.titleMain} <span className="text-white/40">|</span> <span className="text-gradient">{t.hero.titleAccent}</span>
-                    </>
-                  )}
-                </h1>
-                <p className="max-w-2xl text-sm leading-7 text-white/68 sm:text-xl sm:leading-8">{t.hero.description}</p>
-              </motion.div>
+                  {t.hero.badge}
+                </motion.div>
 
-              <motion.div variants={fadeUpItem} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-                <button
-                  type="button"
-                  onClick={() => handleNavigationClick("projects")}
-                  className="w-full rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02] sm:w-auto"
-                >
-                  {t.hero.primaryCta}
-                </button>
-                {isContactSectionVisible ? (
+                <motion.div variants={fadeUpItem} className="space-y-5">
+                  <h1
+                    className={`max-w-4xl text-3xl font-semibold text-white sm:text-6xl lg:text-7xl ${
+                      isArabic ? "leading-[1.3] tracking-normal overflow-visible pt-1 pb-4" : "leading-[0.95] tracking-[-0.04em]"
+                    }`}
+                  >
+                    {isArabic ? (
+                      <>
+                        <span className="block leading-[1.22]">{t.hero.titleMain}</span>
+                        <span className="mt-3 block leading-[1.22] pb-1">
+                          <span className="text-white/40">| </span>
+                          <span className="text-gradient">{t.hero.titleLine2}</span>
+                        </span>
+                        <span className="mt-3 block leading-[1.22] text-cyan-100">{t.hero.titleLine3}</span>
+                      </>
+                    ) : (
+                      <>
+                        {t.hero.titleMain} <span className="text-white/40">|</span> <span className="text-gradient">{t.hero.titleAccent}</span>
+                      </>
+                    )}
+                  </h1>
+                  <p className="max-w-2xl text-sm leading-7 text-white/68 sm:text-xl sm:leading-8">{t.hero.description}</p>
+                </motion.div>
+
+                <motion.div variants={fadeUpItem} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
                   <button
                     type="button"
-                    onClick={() => handleNavigationClick("contact")}
-                    className="glass w-full rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:border-neon/40 hover:text-neon sm:w-auto"
+                    onClick={() => handleNavigationClick("projects")}
+                    className="w-full rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02] sm:w-auto"
                   >
-                    {t.hero.secondaryCta}
+                    {t.hero.primaryCta}
                   </button>
-                ) : null}
-              </motion.div>
+                  {isContactSectionVisible ? (
+                    <button
+                      type="button"
+                      onClick={() => handleNavigationClick("contact")}
+                      className="glass w-full rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:border-neon/40 hover:text-neon sm:w-auto"
+                    >
+                      {t.hero.secondaryCta}
+                    </button>
+                  ) : null}
+                </motion.div>
 
-              <motion.div variants={fadeUpItem} className="grid gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="glass rounded-3xl p-5 shadow-card">
-                    <div className="text-2xl font-semibold text-white">{stat.value}</div>
-                    <div className="mt-2 text-sm text-white/55">{stat.label}</div>
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-
-            <motion.div variants={fadeUpItem} className="relative mx-auto h-[300px] w-full max-w-xl sm:h-[420px] lg:h-[540px]">
-              <div className="absolute inset-0 rounded-[2rem] border border-white/10 bg-white/[0.02] backdrop-blur-sm" />
-              <div className="absolute inset-4 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(110,231,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,79,216,0.12),transparent_30%)] sm:inset-6" />
-              <div className="pointer-events-none absolute bottom-4 left-4 right-4 top-4 overflow-hidden rounded-[2rem] sm:bottom-6 sm:left-6 sm:right-6 sm:top-6">
-                <Image
-                  src={myPhoto}
-                  alt={t.hero.portraitAlt}
-                  priority
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 540px"
-                  quality={72}
-                  className="absolute inset-0 h-full w-full object-cover object-top"
-                  style={{
-                    transform: `translate3d(0, ${heroPhotoOffsetY}px, 0) scale(${heroPhotoScale})`,
-                    transformOrigin: "center top",
-                  }}
-                />
+                <motion.div variants={fadeUpItem} className="grid gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
+                  {stats.map((stat) => (
+                    <div key={stat.label} className="glass rounded-3xl p-5 shadow-card">
+                      <div className="text-2xl font-semibold text-white">{stat.value}</div>
+                      <div className="mt-2 text-sm text-white/55">{stat.label}</div>
+                    </div>
+                  ))}
+                </motion.div>
               </div>
-              <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 backdrop-blur-md sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:px-5 sm:py-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-white/45 sm:text-base sm:tracking-[0.22em]">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</p>
-                  <p className="mt-1 text-xs text-white/70 sm:text-sm">{t.hero.portraitRole}</p>
+
+              <motion.div variants={fadeUpItem} className="relative mx-auto h-[300px] w-full max-w-xl sm:h-[420px] lg:h-[540px]">
+                <div className="absolute inset-0 rounded-[2rem] border border-white/10 bg-white/[0.02] backdrop-blur-sm" />
+                <div className="absolute inset-4 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(110,231,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,79,216,0.12),transparent_30%)] sm:inset-6" />
+                <div className="pointer-events-none absolute bottom-4 left-4 right-4 top-4 overflow-hidden rounded-[2rem] sm:bottom-6 sm:left-6 sm:right-6 sm:top-6">
+                  <Image
+                    src={myPhoto}
+                    alt={t.hero.portraitAlt}
+                    priority
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 540px"
+                    quality={72}
+                    className="absolute inset-0 h-full w-full object-cover object-top"
+                    style={{
+                      transform: `translate3d(0, ${heroPhotoOffsetY}px, 0) scale(${heroPhotoScale})`,
+                      transformOrigin: "center top",
+                    }}
+                  />
                 </div>
-                <div className="h-3 w-3 animate-pulse rounded-full bg-neon shadow-[0_0_20px_rgba(110,231,255,0.9)]" />
-              </div>
+                <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 backdrop-blur-md sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:px-5 sm:py-4">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.14em] text-white/45 sm:text-base sm:tracking-[0.22em]">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</p>
+                    <p className="mt-1 text-xs text-white/70 sm:text-sm">{t.hero.portraitRole}</p>
+                  </div>
+                  <div className="h-3 w-3 animate-pulse rounded-full bg-neon shadow-[0_0_20px_rgba(110,231,255,0.9)]" />
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
         </section>
 
         <section id="skills" className="section-shell py-8 sm:py-16">
