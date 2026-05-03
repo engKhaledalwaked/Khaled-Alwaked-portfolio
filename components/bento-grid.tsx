@@ -1,7 +1,9 @@
 "use client";
 
-import { Variants, motion } from "framer-motion";
+import { useState } from "react";
+import { Variants, motion, useReducedMotion } from "framer-motion";
 import clsx from "clsx";
+import Image from "next/image";
 
 export type ProjectCard = {
   title: string;
@@ -59,13 +61,81 @@ const cardRevealVariants: Variants = {
   },
 };
 
+function getYoutubeId(url: string) {
+  return url.match(/\/embed\/([^?]+)/)?.[1] ?? null;
+}
+
+function withAutoplay(url: string) {
+  return `${url}${url.includes("?") ? "&" : "?"}autoplay=1`;
+}
+
+function ProjectVideoPreview({ accent, title, youtubeUrl }: { accent: string; title: string; youtubeUrl: string }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const videoId = getYoutubeId(youtubeUrl);
+  const thumbnailUrl = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null;
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/35 shadow-[0_0_18px_rgba(0,0,0,0.22)]">
+      <div className="aspect-video w-full">
+        {isLoaded ? (
+          <iframe
+            src={withAutoplay(youtubeUrl)}
+            title={`${title} video demo`}
+            className="h-full w-full"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsLoaded(true)}
+            aria-label={`Play ${title} demo video`}
+            className="group/video relative h-full w-full overflow-hidden bg-black text-left"
+          >
+            {thumbnailUrl ? (
+              <Image
+                src={thumbnailUrl}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover/video:scale-[1.03] group-hover/video:opacity-85"
+              />
+            ) : null}
+            <span
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(135deg, rgba(0,0,0,0.72), ${accent}22 48%, rgba(0,0,0,0.72))`,
+              }}
+            />
+            <span className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3">
+              <span className="min-w-0 text-sm font-semibold text-white sm:text-base">{title}</span>
+              <span
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/12 backdrop-blur-md transition group-hover/video:scale-105"
+                style={{ boxShadow: `0 0 22px ${accent}55` }}
+                aria-hidden="true"
+              >
+                <span className="ml-0.5 h-0 w-0 border-y-[7px] border-l-[11px] border-y-transparent border-l-white" />
+              </span>
+            </span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function BentoGrid({ items, labels }: BentoGridProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial="hidden"
-      whileInView="visible"
+      initial={false}
+      whileInView={shouldReduceMotion ? undefined : "visible"}
       viewport={{ once: true, amount: 0.15 }}
-      variants={gridRevealVariants}
+      variants={shouldReduceMotion ? undefined : gridRevealVariants}
       className="grid gap-3 sm:gap-5 md:auto-rows-auto md:grid-cols-3"
     >
       {items.map((item, index) => {
@@ -81,8 +151,8 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
         return (
           <motion.article
             key={item.title}
-            variants={cardRevealVariants}
-            whileHover={{ scale: 1.02, y: -6 }}
+            variants={shouldReduceMotion ? undefined : cardRevealVariants}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.01, y: -4 }}
             onMouseMove={(event) => {
               const rect = event.currentTarget.getBoundingClientRect();
               event.currentTarget.style.setProperty("--x", `${event.clientX - rect.left}px`);
@@ -136,7 +206,7 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
                 <div className="space-y-2">
                   <h3
                     className={clsx(
-                      "text-xl font-semibold tracking-tight text-white sm:text-2xl md:text-[1.75rem]",
+                      "text-xl font-semibold tracking-normal text-white sm:text-2xl md:text-[1.75rem]",
                       isSmall && "text-lg sm:text-xl md:text-2xl",
                     )}
                   >
@@ -191,19 +261,7 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
               </div>
 
               {item.youtubeUrl ? (
-                <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/35 shadow-[0_0_18px_rgba(0,0,0,0.22)]">
-                  <div className="aspect-video w-full">
-                    <iframe
-                      src={item.youtubeUrl}
-                      title={`${item.title} video demo`}
-                      className="h-full w-full"
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
+                <ProjectVideoPreview accent={item.accent} title={item.title} youtubeUrl={item.youtubeUrl} />
               ) : null}
             </div>
           </motion.article>
