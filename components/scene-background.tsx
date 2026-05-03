@@ -54,8 +54,8 @@ function createStarSpecs(count: number, seed: number, isNearLayer: boolean): Sta
 function RandomStarsOverlay({ quality }: { quality: SceneQuality }) {
   const isMobile = quality === "mobile";
   const isBalanced = quality === "balanced";
-  const nearStarsCount = isMobile ? 28 : isBalanced ? 50 : 85;
-  const farStarsCount = isMobile ? 20 : isBalanced ? 38 : 65;
+  const nearStarsCount = isMobile ? 18 : isBalanced ? 36 : 56;
+  const farStarsCount = isMobile ? 14 : isBalanced ? 26 : 40;
   const nearStars = useMemo(() => createStarSpecs(nearStarsCount, 0x4f9c2d1a, true), [nearStarsCount]);
   const farStars = useMemo(() => createStarSpecs(farStarsCount, 0x71d8a63f, false), [farStarsCount]);
 
@@ -124,8 +124,8 @@ function ReactiveMesh({ quality, isPaused }: { quality: SceneQuality; isPaused: 
   const orbitDiameterMultiplier = 3;
   const isMobile = quality === "mobile";
   const isBalanced = quality === "balanced";
-  const starsCount = isMobile ? 420 : isBalanced ? 900 : 1900;
-  const sparklesCount = isMobile ? 10 : isBalanced ? 24 : 56;
+  const starsCount = isMobile ? 260 : isBalanced ? 620 : 1100;
+  const sparklesCount = isMobile ? 8 : isBalanced ? 18 : 34;
   const sphereSegments = isMobile ? 20 : isBalanced ? 28 : 36;
   const icosahedronDetail = isMobile ? 0 : isBalanced ? 1 : 2;
   const mainTorusSegments = isMobile ? 56 : isBalanced ? 88 : 120;
@@ -425,7 +425,7 @@ export const SceneBackground = memo(function SceneBackground() {
       return [0.5, 0.85];
     }
 
-    return sceneQuality === "high" ? [1, 1.1] : [0.75, 1];
+    return sceneQuality === "high" ? [0.85, 1] : [0.65, 0.9];
   }, [sceneQuality]);
 
   const sceneGl = useMemo(

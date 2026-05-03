@@ -1,6 +1,6 @@
 "use client";
 
-import { HTMLMotionProps, Variants, motion } from "framer-motion";
+import { HTMLMotionProps, Variants, motion, useReducedMotion } from "framer-motion";
 import { ReactNode } from "react";
 
 const defaultVariants: Variants = {
@@ -32,13 +32,15 @@ export function MotionReveal({
   transition,
   ...props
 }: MotionRevealProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial="hidden"
-      whileInView="visible"
+      initial={false}
+      whileInView={shouldReduceMotion ? undefined : "visible"}
       viewport={{ once, amount: viewportAmount }}
-      variants={variants}
-      transition={{ delay, ...transition }}
+      variants={shouldReduceMotion ? undefined : variants}
+      transition={shouldReduceMotion ? undefined : { delay, ...transition }}
       {...props}
     >
       {children}

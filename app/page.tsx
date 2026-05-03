@@ -537,6 +537,7 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(true);
   const [isMarqueeInteracting, setIsMarqueeInteracting] = useState(false);
+  const [shouldRenderScene, setShouldRenderScene] = useState(false);
   const scrollRafRef = useRef<number | null>(null);
   const sectionTrackRafRef = useRef<number | null>(null);
   const navLockTimeoutRef = useRef<number | null>(null);
@@ -567,8 +568,8 @@ export default function Home() {
     .map((item) => ({ ...item, label: t.nav[item.id] }));
   const [navIndicator, setNavIndicator] = useState({ x: 0, width: 0, visible: false });
   const prefersReducedMotion = useReducedMotion();
-  const pageStarNearCount = isCompactViewport ? 70 : 170;
-  const pageStarFarCount = isCompactViewport ? 40 : 100;
+  const pageStarNearCount = isCompactViewport ? 48 : 110;
+  const pageStarFarCount = isCompactViewport ? 28 : 64;
   const pageStarsNear = useMemo(() => createHeroStarSpecs(pageStarNearCount, 0x4f9c2d1a, true), [pageStarNearCount]);
   const pageStarsFar = useMemo(() => createHeroStarSpecs(pageStarFarCount, 0x71d8a63f, false), [pageStarFarCount]);
   const { scrollY } = useScroll();
@@ -607,6 +608,33 @@ export default function Home() {
 
     return () => {
       mediaQuery.removeEventListener("change", updateViewportMode);
+    };
+  }, []);
+
+  useEffect(() => {
+    const compactQuery = window.matchMedia("(max-width: 900px)");
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    if (compactQuery.matches || reducedMotionQuery.matches) {
+      return;
+    }
+
+    const revealScene = () => {
+      setShouldRenderScene(true);
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(revealScene, { timeout: 1600 });
+
+      return () => {
+        window.cancelIdleCallback(idleId);
+      };
+    }
+
+    const timeoutId = globalThis.setTimeout(revealScene, 1200);
+
+    return () => {
+      globalThis.clearTimeout(timeoutId);
     };
   }, []);
 
@@ -1023,10 +1051,10 @@ export default function Home() {
   };
 
   return (
-    <div dir={isArabic ? "rtl" : "ltr"} className="relative overflow-x-hidden bg-background text-foreground">
+    <div dir={isArabic ? "rtl" : "ltr"} className="relative min-w-0 overflow-x-hidden bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0 z-0 bg-grid-fade" />
       <div className="pointer-events-none absolute inset-0 z-[1] grid-overlay" />
-      <SceneBackground />
+      {shouldRenderScene ? <SceneBackground /> : null}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[2] overflow-hidden opacity-95">
         <motion.div style={{ y: pageStarFarOffset }} className="random-starfield random-starfield-far">
           {renderHeroStarLayer(pageStarsFar, "page-far")}
@@ -1047,7 +1075,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => handleNavigationClick("home")}
-              className="min-w-0 max-w-[56vw] flex-1 shrink text-start pr-1 text-[13px] font-semibold tracking-[0.08em] text-white sm:max-w-[36vw] sm:text-base sm:tracking-[0.12em] md:flex-none lg:max-w-none lg:shrink-0 lg:pr-0 lg:tracking-[0.24em]"
+              className="min-w-0 flex-1 shrink text-start pr-1 text-[13px] font-semibold tracking-[0.06em] text-white sm:max-w-[36vw] sm:text-base sm:tracking-[0.12em] md:flex-none lg:max-w-none lg:shrink-0 lg:pr-0 lg:tracking-[0.24em]"
             >
               <span className="block truncate lg:hidden">{isArabic ? "خالد الواكد" : "Khaled Alwaked"}</span>
               <span className="hidden lg:block">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</span>
@@ -1129,20 +1157,6 @@ export default function Home() {
               >
                 {isArabic ? "EN" : "AR"}
               </button>
-              {socialLinks.map(({ label, href, src }) => (
-                <a
-                  key={`${label}-mobile`}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  title={label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-neon/40 hover:bg-neon/10 hover:text-white"
-                >
-                  <Image src={src} alt="" width={16} height={16} className="h-4 w-4 object-contain invert" aria-hidden="true" />
-                  <span className="sr-only">{label}</span>
-                </a>
-              ))}
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((current) => !current)}
@@ -1164,6 +1178,22 @@ export default function Home() {
                 transition={{ duration: 0.2 }}
                 className="glass neon-ring mt-2 space-y-2 rounded-2xl px-2 py-2 shadow-glow md:hidden"
               >
+                <div className="grid grid-cols-2 gap-2">
+                  {socialLinks.map(({ label, href, src }) => (
+                    <a
+                      key={`${label}-mobile-menu`}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      title={label}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-medium text-white/80 transition hover:border-neon/40 hover:bg-neon/10 hover:text-white"
+                    >
+                      <Image src={src} alt="" width={16} height={16} className="h-4 w-4 object-contain invert" aria-hidden="true" />
+                      <span>{label}</span>
+                    </a>
+                  ))}
+                </div>
                 {navigation.map((item) => (
                   <button
                     type="button"
@@ -1194,7 +1224,7 @@ export default function Home() {
       </header>
 
       <main className="relative z-10">
-        <section id="home" className="relative isolate flex min-h-[calc(100svh-5rem)] items-center overflow-hidden py-16 sm:min-h-screen sm:py-28">
+        <section id="home" className="relative isolate flex min-h-[calc(100svh-5rem)] items-center overflow-hidden py-12 sm:min-h-screen sm:py-28">
           <div className="section-shell relative z-10">
             <motion.div
               variants={staggerChildren}
@@ -1205,15 +1235,15 @@ export default function Home() {
               <div className="max-w-3xl space-y-6 sm:space-y-8">
                 <motion.div
                   variants={fadeUpItem}
-                  className="glass inline-flex rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.2em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]"
+                  className="glass inline-flex max-w-[calc(100vw-2rem)] whitespace-normal rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.12em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]"
                 >
                   {t.hero.badge}
                 </motion.div>
 
                 <motion.div variants={fadeUpItem} className="space-y-5">
                   <h1
-                    className={`max-w-4xl text-3xl font-semibold text-white sm:text-6xl lg:text-7xl ${
-                      isArabic ? "leading-[1.3] tracking-normal overflow-visible pt-1 pb-4" : "leading-[0.95] tracking-[-0.04em]"
+                    className={`max-w-4xl text-3xl font-semibold text-white min-[420px]:text-4xl sm:text-6xl lg:text-7xl ${
+                      isArabic ? "leading-[1.3] tracking-normal overflow-visible pt-1 pb-4" : "leading-[1.02] tracking-normal sm:leading-[0.95]"
                     }`}
                   >
                     {isArabic ? (
@@ -1227,11 +1257,13 @@ export default function Home() {
                       </>
                     ) : (
                       <>
-                        {t.hero.titleMain} <span className="text-white/40">|</span> <span className="text-gradient">{t.hero.titleAccent}</span>
+                        <span className="block">{t.hero.titleMain}</span>
+                        <span className="mt-1 block text-white/40 sm:mt-2">|</span>
+                        <span className="mt-1 block text-gradient sm:mt-2">{t.hero.titleAccent}</span>
                       </>
                     )}
                   </h1>
-                  <p className="max-w-2xl text-sm leading-7 text-white/68 sm:text-xl sm:leading-8">{t.hero.description}</p>
+                  <p className="max-w-[calc(100vw-2rem)] text-sm leading-7 text-white/68 sm:max-w-2xl sm:text-xl sm:leading-8">{t.hero.description}</p>
                 </motion.div>
 
                 <motion.div variants={fadeUpItem} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
@@ -1253,10 +1285,10 @@ export default function Home() {
                   ) : null}
                 </motion.div>
 
-                <motion.div variants={fadeUpItem} className="grid gap-3 min-[420px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
+                <motion.div variants={fadeUpItem} className="grid gap-3 min-[560px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
                   {stats.map((stat) => (
-                    <div key={stat.label} className="glass rounded-3xl p-5 shadow-card">
-                      <div className="text-2xl font-semibold text-white">{stat.value}</div>
+                    <div key={stat.label} className="glass min-w-0 rounded-2xl p-4 shadow-card sm:rounded-3xl sm:p-5">
+                      <div className="break-words text-2xl font-semibold text-white">{stat.value}</div>
                       <div className="mt-2 text-sm text-white/55">{stat.label}</div>
                     </div>
                   ))}
@@ -1273,6 +1305,7 @@ export default function Home() {
                     priority
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 540px"
                     quality={72}
+                    placeholder="blur"
                     className="absolute inset-0 h-full w-full object-cover object-top"
                     style={{
                       transform: `translate3d(0, ${heroPhotoOffsetY}px, 0) scale(${heroPhotoScale})`,
@@ -1297,7 +1330,7 @@ export default function Home() {
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="space-y-3">
                 <p className="text-sm tracking-[0.45em] text-neon/70">{t.skills.eyebrow}</p>
-                <h2 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">{t.skills.title}</h2>
+                <h2 className="text-2xl font-semibold tracking-normal text-white sm:text-4xl">{t.skills.title}</h2>
               </div>
               <p className="max-w-2xl text-sm leading-7 text-white/62 sm:text-base">{t.skills.description}</p>
             </div>
@@ -1343,7 +1376,7 @@ export default function Home() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="space-y-3">
                 <p className="text-sm tracking-[0.45em] text-neon/70">{t.projects.eyebrow}</p>
-                <h2 className="text-2xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">{t.projects.title}</h2>
+                <h2 className="text-2xl font-semibold tracking-normal text-white sm:text-4xl">{t.projects.title}</h2>
               </div>
               <p className="max-w-2xl text-sm leading-7 text-white/62 sm:text-base">{t.projects.description}</p>
             </div>
@@ -1358,7 +1391,7 @@ export default function Home() {
               <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
                 <div className="space-y-5">
                   <p className="text-sm tracking-[0.45em] text-neon/70">{t.contact.eyebrow}</p>
-                  <h2 className="max-w-xl text-2xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">{t.contact.title}</h2>
+                  <h2 className="max-w-xl text-2xl font-semibold tracking-normal text-white sm:text-4xl">{t.contact.title}</h2>
                   <p className="max-w-xl text-sm leading-7 text-white/64 sm:text-base">{t.contact.description}</p>
                   <div className="glass inline-flex rounded-3xl px-5 py-4 text-sm text-white/65 shadow-card">{t.contact.availability}</div>
                 </div>
