@@ -223,3 +223,53 @@ section[id] {
   }
 
 }
+
+@media (max-width: 900px) {
+  html,
+  body {
+    background:
+      radial-gradient(circle at top, rgba(110, 231, 255, 0.1), transparent 34%),
+      #0a0a0a;
+  }
+
+  .glass {
+    background-color: rgba(255, 255, 255, 0.065);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .neon-ring {
+    box-shadow:
+      0 0 0 1px rgba(110, 231, 255, 0.28),
+      0 12px 34px rgba(0, 0, 0, 0.26);
+  }
+
+  .grid-overlay {
+    opacity: 0.4;
+    mask-image: none;
+  }
+
+  .random-star {
+    animation: none !important;
+    filter: none;
+    will-change: auto;
+  }
+
+  .marquee-viewport {
+    overflow-x: auto;
+    touch-action: pan-x pan-y;
+    user-select: auto;
+    scrollbar-width: none;
+  }
+
+  .marquee-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .marquee-rail,
+  .marquee-rail-css {
+    transform: none;
+    animation: none;
+    will-change: auto;
+  }
+}

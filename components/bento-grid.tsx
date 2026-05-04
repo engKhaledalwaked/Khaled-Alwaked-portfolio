@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Variants, motion, useReducedMotion } from "framer-motion";
 import clsx from "clsx";
-import Image from "next/image";
 
 export type ProjectCard = {
   title: string;
@@ -31,34 +29,13 @@ export type BentoGridLabels = {
 type BentoGridProps = {
   items: ProjectCard[];
   labels: BentoGridLabels;
+  disableMotion?: boolean;
 };
 
 const spanClasses: Record<ProjectCard["span"], string> = {
   large: "md:col-span-3 md:row-span-1 md:justify-self-center md:w-[92%] md:max-w-[56rem]",
   medium: "md:col-span-1 md:row-span-1",
   small: "md:col-span-1 md:row-span-1",
-};
-
-const gridRevealVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.05,
-    },
-  },
-};
-
-const cardRevealVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.65,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
 };
 
 function getYoutubeId(url: string) {
@@ -71,8 +48,7 @@ function withAutoplay(url: string) {
 
 function ProjectVideoPreview({ accent, title, youtubeUrl }: { accent: string; title: string; youtubeUrl: string }) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const videoId = getYoutubeId(youtubeUrl);
-  const thumbnailUrl = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null;
+  const hasVideo = getYoutubeId(youtubeUrl) !== null;
 
   return (
     <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/35 shadow-[0_0_18px_rgba(0,0,0,0.22)]">
@@ -93,23 +69,15 @@ function ProjectVideoPreview({ accent, title, youtubeUrl }: { accent: string; ti
             onClick={() => setIsLoaded(true)}
             aria-label={`Play ${title} demo video`}
             className="group/video relative h-full w-full overflow-hidden bg-black text-left"
+            disabled={!hasVideo}
           >
-            {thumbnailUrl ? (
-              <Image
-                src={thumbnailUrl}
-                alt=""
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover/video:scale-[1.03] group-hover/video:opacity-85"
-              />
-            ) : null}
             <span
               className="absolute inset-0"
               style={{
-                background: `linear-gradient(135deg, rgba(0,0,0,0.72), ${accent}22 48%, rgba(0,0,0,0.72))`,
+                background: `radial-gradient(circle at 18% 18%, ${accent}42, transparent 34%), radial-gradient(circle at 80% 60%, ${accent}24, transparent 34%), linear-gradient(135deg, rgba(0,0,0,0.86), rgba(255,255,255,0.04) 48%, rgba(0,0,0,0.82))`,
               }}
             />
+            <span className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] opacity-40" />
             <span className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3">
               <span className="min-w-0 text-sm font-semibold text-white sm:text-base">{title}</span>
               <span
@@ -127,16 +95,15 @@ function ProjectVideoPreview({ accent, title, youtubeUrl }: { accent: string; ti
   );
 }
 
-export function BentoGrid({ items, labels }: BentoGridProps) {
-  const shouldReduceMotion = useReducedMotion();
+export function BentoGrid({ items, labels, disableMotion = false }: BentoGridProps) {
+  const shouldDisableMotion = disableMotion;
 
   return (
-    <motion.div
-      initial={false}
-      whileInView={shouldReduceMotion ? undefined : "visible"}
-      viewport={{ once: true, amount: 0.15 }}
-      variants={shouldReduceMotion ? undefined : gridRevealVariants}
-      className="grid gap-3 sm:gap-5 md:auto-rows-auto md:grid-cols-3"
+    <div
+      className={clsx(
+        "grid gap-3 sm:gap-5 md:auto-rows-auto md:grid-cols-3",
+        !shouldDisableMotion && "motion-safe:[&>article]:transition-transform motion-safe:[&>article]:duration-300",
+      )}
     >
       {items.map((item, index) => {
         const isSmall = item.span === "small";
@@ -149,10 +116,8 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
         const footerNote = item.status === "inProgress" ? labels.footerInProgress : labels.footerReady;
 
         return (
-          <motion.article
+          <article
             key={item.title}
-            variants={shouldReduceMotion ? undefined : cardRevealVariants}
-            whileHover={shouldReduceMotion ? undefined : { scale: 1.01, y: -4 }}
             onMouseMove={(event) => {
               const rect = event.currentTarget.getBoundingClientRect();
               event.currentTarget.style.setProperty("--x", `${event.clientX - rect.left}px`);
@@ -160,6 +125,7 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
             }}
             className={clsx(
               "group relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[0.045] p-3.5 sm:rounded-[2rem] sm:p-6 md:p-7 shadow-card backdrop-blur-2xl",
+              !shouldDisableMotion && "motion-safe:hover:-translate-y-1 motion-safe:hover:scale-[1.01]",
               isLarge && "self-start",
               spanClasses[item.span],
             )}
@@ -264,9 +230,9 @@ export function BentoGrid({ items, labels }: BentoGridProps) {
                 <ProjectVideoPreview accent={item.accent} title={item.title} youtubeUrl={item.youtubeUrl} />
               ) : null}
             </div>
-          </motion.article>
+          </article>
         );
       })}
-    </motion.div>
+    </div>
   );
 }

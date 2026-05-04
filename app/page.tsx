@@ -1,17 +1,20 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { CSSProperties, FormEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import { BentoGrid, type ProjectCard } from "@/components/bento-grid";
-import { fadeUpItem, MotionReveal, staggerChildren } from "@/components/motion-reveal";
+import type { ProjectCard } from "@/components/bento-grid";
+import { MotionReveal } from "@/components/motion-reveal";
 import githubProfileIcon from "@/assest/github.png";
 import linkedinProfileIcon from "@/assest/linkedin.png";
 import myPhoto from "@/assest/my-photo.png";
 
 const SceneBackground = dynamic(() => import("@/components/scene-background").then((mod) => mod.SceneBackground), {
   ssr: false,
+});
+
+const BentoGrid = dynamic(() => import("@/components/bento-grid").then((mod) => mod.BentoGrid), {
+  loading: () => <div className="h-80 rounded-[1.5rem] border border-white/10 bg-white/[0.035]" aria-hidden="true" />,
 });
 
 type Locale = "en" | "ar";
@@ -538,6 +541,7 @@ export default function Home() {
   const [isCompactViewport, setIsCompactViewport] = useState(true);
   const [isMarqueeInteracting, setIsMarqueeInteracting] = useState(false);
   const [shouldRenderScene, setShouldRenderScene] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const scrollRafRef = useRef<number | null>(null);
   const sectionTrackRafRef = useRef<number | null>(null);
   const navLockTimeoutRef = useRef<number | null>(null);
@@ -567,14 +571,11 @@ export default function Home() {
     .filter((item) => isContactSectionVisible || item.id !== "contact")
     .map((item) => ({ ...item, label: t.nav[item.id] }));
   const [navIndicator, setNavIndicator] = useState({ x: 0, width: 0, visible: false });
-  const prefersReducedMotion = useReducedMotion();
-  const pageStarNearCount = isCompactViewport ? 48 : 110;
-  const pageStarFarCount = isCompactViewport ? 28 : 64;
+  const shouldReducePageMotion = Boolean(prefersReducedMotion || isCompactViewport);
+  const pageStarNearCount = shouldReducePageMotion ? 0 : 84;
+  const pageStarFarCount = shouldReducePageMotion ? 0 : 48;
   const pageStarsNear = useMemo(() => createHeroStarSpecs(pageStarNearCount, 0x4f9c2d1a, true), [pageStarNearCount]);
   const pageStarsFar = useMemo(() => createHeroStarSpecs(pageStarFarCount, 0x71d8a63f, false), [pageStarFarCount]);
-  const { scrollY } = useScroll();
-  const pageStarNearOffset = useTransform(scrollY, (value) => (prefersReducedMotion ? 0 : value * (isCompactViewport ? -0.008 : -0.015)));
-  const pageStarFarOffset = useTransform(scrollY, (value) => (prefersReducedMotion ? 0 : value * (isCompactViewport ? -0.004 : -0.008)));
 
   useEffect(() => {
     const storedLocale = window.localStorage.getItem("portfolio-locale");
@@ -596,18 +597,22 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 900px)");
+    const compactQuery = window.matchMedia("(max-width: 900px)");
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const updateViewportMode = () => {
-      setIsCompactViewport(mediaQuery.matches);
+      setIsCompactViewport(compactQuery.matches);
+      setPrefersReducedMotion(reducedMotionQuery.matches);
     };
 
     updateViewportMode();
 
-    mediaQuery.addEventListener("change", updateViewportMode);
+    compactQuery.addEventListener("change", updateViewportMode);
+    reducedMotionQuery.addEventListener("change", updateViewportMode);
 
     return () => {
-      mediaQuery.removeEventListener("change", updateViewportMode);
+      compactQuery.removeEventListener("change", updateViewportMode);
+      reducedMotionQuery.removeEventListener("change", updateViewportMode);
     };
   }, []);
 
@@ -788,6 +793,10 @@ export default function Home() {
   }, [isLocaleHydrated, locale]);
 
   useEffect(() => {
+    if (isCompactViewport) {
+      return;
+    }
+
     const updateIndicator = () => {
       const container = navLinksContainerRef.current;
       const activeButton = navButtonRefs.current[activeSection as NavigationSectionId];
@@ -824,9 +833,13 @@ export default function Home() {
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", updateIndicator);
     };
-  }, [activeSection, locale, navigation.length]);
+  }, [activeSection, isCompactViewport, locale, navigation.length]);
 
   useEffect(() => {
+    if (isCompactViewport) {
+      return;
+    }
+
     const sections = navigationConfig
       .map((item) => document.querySelector<HTMLElement>(item.href))
       .filter((section): section is HTMLElement => section !== null);
@@ -911,7 +924,7 @@ export default function Home() {
         window.clearTimeout(navLockTimeoutRef.current);
       }
     };
-  }, []);
+  }, [isCompactViewport]);
 
   useEffect(() => {
     const closeMenuOnDesktop = () => {
@@ -942,6 +955,14 @@ export default function Home() {
     const maxTop = scrollingElement.scrollHeight - window.innerHeight;
     const clampedTargetTop = Math.max(0, Math.min(targetTop, Math.max(0, maxTop)));
     const distance = clampedTargetTop - startTop;
+
+    if (shouldReducePageMotion) {
+      window.scrollTo({
+        top: clampedTargetTop,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+      return;
+    }
 
     if (Math.abs(distance) < 1) {
       isProgrammaticNavScrollRef.current = false;
@@ -992,6 +1013,13 @@ export default function Home() {
   };
 
   const handleNavigationClick = (id: NavigationSectionId) => {
+    if (shouldReducePageMotion) {
+      setActiveSection(id);
+      setIsMobileMenuOpen(false);
+      smoothScrollToSection(id);
+      return;
+    }
+
     if (navLockTimeoutRef.current !== null) {
       window.clearTimeout(navLockTimeoutRef.current);
     }
@@ -1056,21 +1084,17 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 z-[1] grid-overlay" />
       {shouldRenderScene ? <SceneBackground /> : null}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[2] overflow-hidden opacity-95">
-        <motion.div style={{ y: pageStarFarOffset }} className="random-starfield random-starfield-far">
-          {renderHeroStarLayer(pageStarsFar, "page-far")}
-        </motion.div>
-        <motion.div style={{ y: pageStarNearOffset }} className="random-starfield random-starfield-near">
-          {renderHeroStarLayer(pageStarsNear, "page-near")}
-        </motion.div>
+        {!shouldReducePageMotion ? (
+          <>
+            <div className="random-starfield random-starfield-far">{renderHeroStarLayer(pageStarsFar, "page-far")}</div>
+            <div className="random-starfield random-starfield-near">{renderHeroStarLayer(pageStarsNear, "page-near")}</div>
+          </>
+        ) : null}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%),radial-gradient(circle_at_50%_20%,rgba(110,231,255,0.08),transparent_24%)]" />
       </div>
 
       <header className="relative z-50 mx-2 mt-3 md:fixed md:left-1/2 md:top-6 md:mx-0 md:mt-0 md:w-[calc(100%-1.5rem)] md:max-w-5xl md:-translate-x-1/2">
-        <motion.div
-          initial={{ opacity: 0, y: -24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div>
           <nav className="glass neon-ring flex min-w-0 items-center justify-between gap-2 rounded-2xl px-3 py-2 text-xs text-white/75 shadow-glow sm:rounded-full sm:text-sm md:justify-start lg:px-4 lg:py-3 xl:px-6">
             <button
               type="button"
@@ -1088,12 +1112,10 @@ export default function Home() {
               }`}
             >
               {navIndicator.visible ? (
-                <motion.span
+                <span
                   aria-hidden="true"
-                  initial={false}
-                  animate={{ x: navIndicator.x, width: navIndicator.width, opacity: 1 }}
-                  transition={{ type: "tween", duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                   className="pointer-events-none absolute inset-y-0 left-0 -z-10 rounded-full border border-neon/45 bg-neon/20 shadow-[0_0_18px_rgba(110,231,255,0.22)]"
+                  style={{ transform: `translateX(${navIndicator.x}px)`, width: navIndicator.width, opacity: 1 }}
                 />
               ) : null}
 
@@ -1169,15 +1191,8 @@ export default function Home() {
             </div>
           </nav>
 
-          <AnimatePresence>
-            {isMobileMenuOpen ? (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-                className="glass neon-ring mt-2 space-y-2 rounded-2xl px-2 py-2 shadow-glow md:hidden"
-              >
+          {isMobileMenuOpen ? (
+            <div className="glass neon-ring mt-2 space-y-2 rounded-2xl px-2 py-2 shadow-glow md:hidden">
                 <div className="grid grid-cols-2 gap-2">
                   {socialLinks.map(({ label, href, src }) => (
                     <a
@@ -1217,30 +1232,21 @@ export default function Home() {
                     {t.nav.letsBuild}
                   </button>
                 ) : null}
-              </motion.div>
-            ) : null}
-          </AnimatePresence>
-        </motion.div>
+            </div>
+          ) : null}
+        </div>
       </header>
 
       <main className="relative z-10">
         <section id="home" className="relative isolate flex min-h-[calc(100svh-5rem)] items-center overflow-hidden py-12 sm:min-h-screen sm:py-28">
           <div className="section-shell relative z-10">
-            <motion.div
-              variants={staggerChildren}
-              initial="hidden"
-              animate="visible"
-              className="grid w-full items-center gap-8 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr]"
-            >
+            <div className="grid w-full items-center gap-8 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr]">
               <div className="max-w-3xl space-y-6 sm:space-y-8">
-                <motion.div
-                  variants={fadeUpItem}
-                  className="glass inline-flex max-w-[calc(100vw-2rem)] whitespace-normal rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.12em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]"
-                >
+                <div className="glass inline-flex max-w-[calc(100vw-2rem)] whitespace-normal rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.12em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]">
                   {t.hero.badge}
-                </motion.div>
+                </div>
 
-                <motion.div variants={fadeUpItem} className="space-y-5">
+                <div className="space-y-5">
                   <h1
                     className={`max-w-4xl text-3xl font-semibold text-white min-[420px]:text-4xl sm:text-6xl lg:text-7xl ${
                       isArabic ? "leading-[1.3] tracking-normal overflow-visible pt-1 pb-4" : "leading-[1.02] tracking-normal sm:leading-[0.95]"
@@ -1264,9 +1270,9 @@ export default function Home() {
                     )}
                   </h1>
                   <p className="max-w-[calc(100vw-2rem)] text-sm leading-7 text-white/68 sm:max-w-2xl sm:text-xl sm:leading-8">{t.hero.description}</p>
-                </motion.div>
+                </div>
 
-                <motion.div variants={fadeUpItem} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
                   <button
                     type="button"
                     onClick={() => handleNavigationClick("projects")}
@@ -1283,19 +1289,19 @@ export default function Home() {
                       {t.hero.secondaryCta}
                     </button>
                   ) : null}
-                </motion.div>
+                </div>
 
-                <motion.div variants={fadeUpItem} className="grid gap-3 min-[560px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
+                <div className="grid gap-3 min-[560px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
                   {stats.map((stat) => (
                     <div key={stat.label} className="glass min-w-0 rounded-2xl p-4 shadow-card sm:rounded-3xl sm:p-5">
                       <div className="break-words text-2xl font-semibold text-white">{stat.value}</div>
                       <div className="mt-2 text-sm text-white/55">{stat.label}</div>
                     </div>
                   ))}
-                </motion.div>
+                </div>
               </div>
 
-              <motion.div variants={fadeUpItem} className="relative mx-auto h-[300px] w-full max-w-xl sm:h-[420px] lg:h-[540px]">
+              <div className="relative mx-auto h-[300px] w-full max-w-xl sm:h-[420px] lg:h-[540px]">
                 <div className="absolute inset-0 rounded-[2rem] border border-white/10 bg-white/[0.02] backdrop-blur-sm" />
                 <div className="absolute inset-4 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(110,231,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,79,216,0.12),transparent_30%)] sm:inset-6" />
                 <div className="pointer-events-none absolute bottom-4 left-4 right-4 top-4 overflow-hidden rounded-[2rem] sm:bottom-6 sm:left-6 sm:right-6 sm:top-6">
@@ -1320,13 +1326,13 @@ export default function Home() {
                   </div>
                   <div className="h-3 w-3 animate-pulse rounded-full bg-neon shadow-[0_0_20px_rgba(110,231,255,0.9)]" />
                 </div>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </section>
 
         <section id="skills" className="section-shell py-8 sm:py-16">
-          <MotionReveal className="space-y-8">
+          <MotionReveal className="space-y-8" disableMotion={shouldReducePageMotion}>
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="space-y-3">
                 <p className="text-sm tracking-[0.45em] text-neon/70">{t.skills.eyebrow}</p>
@@ -1372,7 +1378,7 @@ export default function Home() {
         </section>
 
         <section id="projects" className="section-shell py-10 sm:py-20">
-          <MotionReveal className="space-y-6 sm:space-y-8" viewportAmount={0.02}>
+          <MotionReveal className="space-y-6 sm:space-y-8" viewportAmount={0.02} disableMotion={shouldReducePageMotion}>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="space-y-3">
                 <p className="text-sm tracking-[0.45em] text-neon/70">{t.projects.eyebrow}</p>
@@ -1381,13 +1387,13 @@ export default function Home() {
               <p className="max-w-2xl text-sm leading-7 text-white/62 sm:text-base">{t.projects.description}</p>
             </div>
 
-            <BentoGrid items={projectCards} labels={t.projects.labels} />
+            <BentoGrid items={projectCards} labels={t.projects.labels} disableMotion={shouldReducePageMotion} />
           </MotionReveal>
         </section>
 
         {isContactSectionVisible ? (
           <section id="contact" className="section-shell pb-16 pt-10 sm:pb-28 sm:pt-20">
-            <MotionReveal>
+            <MotionReveal disableMotion={shouldReducePageMotion}>
               <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
                 <div className="space-y-5">
                   <p className="text-sm tracking-[0.45em] text-neon/70">{t.contact.eyebrow}</p>
@@ -1397,16 +1403,8 @@ export default function Home() {
                 </div>
 
                 <div className="glass neon-ring rounded-[1.5rem] p-4 shadow-glow sm:rounded-[2rem] sm:p-8">
-                  <AnimatePresence mode="wait">
-                    {submitted ? (
-                      <motion.div
-                        key="success"
-                        initial={{ opacity: 0, scale: 0.95, y: 12 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.96, y: -10 }}
-                        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                        className="flex min-h-[420px] flex-col items-center justify-center gap-5 text-center"
-                      >
+                  {submitted ? (
+                      <div className="flex min-h-[420px] flex-col items-center justify-center gap-5 text-center">
                         <div className="flex h-20 w-20 items-center justify-center rounded-full border border-neon/30 bg-neon/10 text-3xl text-neon shadow-glow">
                           ✓
                         </div>
@@ -1421,17 +1419,9 @@ export default function Home() {
                         >
                           {t.contact.sendAnother}
                         </button>
-                      </motion.div>
+                      </div>
                     ) : (
-                      <motion.form
-                        key="form"
-                        initial={{ opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -14 }}
-                        transition={{ duration: 0.4 }}
-                        onSubmit={handleSubmit}
-                        className="space-y-5"
-                      >
+                      <form onSubmit={handleSubmit} className="space-y-5">
                         <div className="grid gap-5 sm:grid-cols-2">
                           <label className="space-y-2 text-sm text-white/70">
                             <span>{t.form.name}</span>
@@ -1476,9 +1466,8 @@ export default function Home() {
                             {t.form.submit}
                           </button>
                         </div>
-                      </motion.form>
+                      </form>
                     )}
-                  </AnimatePresence>
                 </div>
               </div>
             </MotionReveal>
