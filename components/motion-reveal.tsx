@@ -1,71 +1,18 @@
-"use client";
+import { ComponentPropsWithoutRef, ReactNode } from "react";
 
-import { HTMLMotionProps, Variants, motion, useReducedMotion } from "framer-motion";
-import { ReactNode } from "react";
-
-const defaultVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.7,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
-};
-
-type MotionRevealProps = HTMLMotionProps<"div"> & {
+type MotionRevealProps = ComponentPropsWithoutRef<"div"> & {
   children: ReactNode;
   delay?: number;
+  disableMotion?: boolean;
   once?: boolean;
   viewportAmount?: number | "some" | "all";
-  variants?: Variants;
 };
 
-export function MotionReveal({
-  children,
-  delay = 0,
-  once = true,
-  viewportAmount = 0.12,
-  variants = defaultVariants,
-  transition,
-  ...props
-}: MotionRevealProps) {
-  const shouldReduceMotion = useReducedMotion();
+export function MotionReveal({ children, delay, disableMotion, once, viewportAmount, ...props }: MotionRevealProps) {
+  void delay;
+  void disableMotion;
+  void once;
+  void viewportAmount;
 
-  return (
-    <motion.div
-      initial={false}
-      whileInView={shouldReduceMotion ? undefined : "visible"}
-      viewport={{ once, amount: viewportAmount }}
-      variants={shouldReduceMotion ? undefined : variants}
-      transition={shouldReduceMotion ? undefined : { delay, ...transition }}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div {...props}>{children}</div>;
 }
-
-export const staggerChildren: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.14,
-      delayChildren: 0.15,
-    },
-  },
-};
-
-export const fadeUpItem: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.7,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
-};
