@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import clsx from "clsx";
 
 export type ProjectCard = {
@@ -42,13 +43,20 @@ function getYoutubeId(url: string) {
   return url.match(/\/embed\/([^?]+)/)?.[1] ?? null;
 }
 
+function getYoutubeThumbnailUrl(videoId: string) {
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+}
+
 function withAutoplay(url: string) {
   return `${url}${url.includes("?") ? "&" : "?"}autoplay=1`;
 }
 
 function ProjectVideoPreview({ accent, title, youtubeUrl }: { accent: string; title: string; youtubeUrl: string }) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const hasVideo = getYoutubeId(youtubeUrl) !== null;
+  const [thumbnailFailed, setThumbnailFailed] = useState(false);
+  const videoId = getYoutubeId(youtubeUrl);
+  const thumbnailUrl = videoId ? getYoutubeThumbnailUrl(videoId) : null;
+  const hasVideo = videoId !== null;
 
   return (
     <div className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-black/35 shadow-[0_0_18px_rgba(0,0,0,0.22)]">
@@ -71,13 +79,27 @@ function ProjectVideoPreview({ accent, title, youtubeUrl }: { accent: string; ti
             className="group/video relative h-full w-full overflow-hidden bg-black text-left"
             disabled={!hasVideo}
           >
-            <span
-              className="absolute inset-0"
-              style={{
-                background: `radial-gradient(circle at 18% 18%, ${accent}42, transparent 34%), radial-gradient(circle at 80% 60%, ${accent}24, transparent 34%), linear-gradient(135deg, rgba(0,0,0,0.86), rgba(255,255,255,0.04) 48%, rgba(0,0,0,0.82))`,
-              }}
-            />
-            <span className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent)] opacity-40" />
+            {thumbnailUrl && !thumbnailFailed ? (
+              <Image
+                src={thumbnailUrl}
+                alt={`${title} video thumbnail`}
+                fill
+                sizes="(min-width: 1024px) 28rem, (min-width: 768px) 33vw, 100vw"
+                className="object-cover transition duration-500 group-hover/video:scale-105"
+                quality={70}
+                loading="lazy"
+                onError={() => setThumbnailFailed(true)}
+              />
+            ) : (
+              <span
+                className="absolute inset-0"
+                style={{
+                  background: `radial-gradient(circle at 18% 18%, ${accent}42, transparent 34%), radial-gradient(circle at 80% 60%, ${accent}24, transparent 34%), linear-gradient(135deg, rgba(0,0,0,0.86), rgba(255,255,255,0.04) 48%, rgba(0,0,0,0.82))`,
+                }}
+              />
+            )}
+            <span className="absolute inset-0 bg-black/36" />
+            <span className="absolute inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.14),transparent)] opacity-35" />
             <span className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3">
               <span className="min-w-0 text-sm font-semibold text-white sm:text-base">{title}</span>
               <span
