@@ -32,11 +32,14 @@ const socialLinks = [
 ] as const;
 
 type NavigationSectionId = (typeof navigationConfig)[number]["id"];
+type NavIndicatorState = { x: number; width: number; visible: boolean };
 
 const defaultSectionScrollOffset = 112;
 const sectionScrollOffsets: Partial<Record<NavigationSectionId, number>> = {
   projects: 0,
 };
+
+const initialNavIndicator: NavIndicatorState = { x: 0, width: 0, visible: false };
 
 const marqueeItemsByLocale: Record<Locale, string[]> = {
   en: ["Next.js", "React", "Flutter", "Supabase", "AI Model Integration", "System Design", "Motion UI"],
@@ -536,7 +539,7 @@ export default function Home() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const [activeSection, setActiveSection] = useState("home");
+  const [activeSection, setActiveSection] = useState<NavigationSectionId>("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(true);
   const [isMarqueeInteracting, setIsMarqueeInteracting] = useState(false);
@@ -549,6 +552,8 @@ export default function Home() {
   const lockedActiveSectionRef = useRef<NavigationSectionId | null>(null);
   const navLinksContainerRef = useRef<HTMLDivElement | null>(null);
   const navButtonRefs = useRef<Partial<Record<NavigationSectionId, HTMLButtonElement | null>>>({});
+  const navIndicatorRafRef = useRef<number | null>(null);
+  const navIndicatorMetricsRef = useRef<NavIndicatorState>(initialNavIndicator);
   const marqueeViewportRef = useRef<HTMLDivElement | null>(null);
   const marqueeRailRef = useRef<HTMLDivElement | null>(null);
   const marqueeGroupRef = useRef<HTMLDivElement | null>(null);
@@ -570,7 +575,7 @@ export default function Home() {
   const navigation = navigationConfig
     .filter((item) => isContactSectionVisible || item.id !== "contact")
     .map((item) => ({ ...item, label: t.nav[item.id] }));
-  const [navIndicator, setNavIndicator] = useState({ x: 0, width: 0, visible: false });
+  const [navIndicator, setNavIndicator] = useState<NavIndicatorState>(initialNavIndicator);
   const shouldReducePageMotion = Boolean(prefersReducedMotion || isCompactViewport);
   const pageStarNearCount = shouldReducePageMotion ? 0 : 84;
   const pageStarFarCount = shouldReducePageMotion ? 0 : 48;
@@ -793,16 +798,54 @@ export default function Home() {
   }, [isLocaleHydrated, locale]);
 
   useEffect(() => {
-    if (isCompactViewport) {
-      return;
-    }
+    const animateIndicatorTo = (target: NavIndicatorState) => {
+      if (navIndicatorRafRef.current !== null) {
+        window.cancelAnimationFrame(navIndicatorRafRef.current);
+        navIndicatorRafRef.current = null;
+      }
+
+      const start = navIndicatorMetricsRef.current;
+
+      if (!start.visible || !target.visible) {
+        navIndicatorMetricsRef.current = target;
+        setNavIndicator(target);
+        return;
+      }
+
+      const duration = 520;
+      const startTime = performance.now();
+      const easeOutCubic = (progress: number) => 1 - Math.pow(1 - progress, 3);
+
+      const step = (now: number) => {
+        const progress = Math.min(1, (now - startTime) / duration);
+        const eased = easeOutCubic(progress);
+        const next = {
+          x: start.x + (target.x - start.x) * eased,
+          width: start.width + (target.width - start.width) * eased,
+          visible: target.visible,
+        };
+
+        navIndicatorMetricsRef.current = next;
+        setNavIndicator(next);
+
+        if (progress < 1) {
+          navIndicatorRafRef.current = window.requestAnimationFrame(step);
+        } else {
+          navIndicatorRafRef.current = null;
+          navIndicatorMetricsRef.current = target;
+          setNavIndicator(target);
+        }
+      };
+
+      navIndicatorRafRef.current = window.requestAnimationFrame(step);
+    };
 
     const updateIndicator = () => {
       const container = navLinksContainerRef.current;
-      const activeButton = navButtonRefs.current[activeSection as NavigationSectionId];
+      const activeButton = navButtonRefs.current[activeSection];
 
       if (!container || !activeButton || window.innerWidth < 768) {
-        setNavIndicator((current) => (current.visible ? { ...current, visible: false } : current));
+        animateIndicatorTo({ ...navIndicatorMetricsRef.current, visible: false });
         return;
       }
 
@@ -811,35 +854,49 @@ export default function Home() {
       const nextX = buttonRect.left - containerRect.left;
       const nextWidth = buttonRect.width;
 
-      setNavIndicator((current) => {
-        const unchanged = Math.abs(current.x - nextX) < 0.5 && Math.abs(current.width - nextWidth) < 0.5 && current.visible;
+      const current = navIndicatorMetricsRef.current;
 
-        if (unchanged) {
-          return current;
-        }
+      if (Math.abs(current.x - nextX) < 0.5 && Math.abs(current.width - nextWidth) < 0.5 && current.visible) {
+        return;
+      }
 
-        return {
-          x: nextX,
-          width: nextWidth,
-          visible: true,
-        };
+      animateIndicatorTo({
+        x: nextX,
+        width: nextWidth,
+        visible: true,
       });
     };
 
     const rafId = window.requestAnimationFrame(updateIndicator);
+
+    const resizeObserver = new ResizeObserver(updateIndicator);
+
+    if (navLinksContainerRef.current) {
+      resizeObserver.observe(navLinksContainerRef.current);
+    }
+
+    Object.values(navButtonRefs.current).forEach((button) => {
+      if (button) {
+        resizeObserver.observe(button);
+      }
+    });
+
     window.addEventListener("resize", updateIndicator);
 
     return () => {
       window.cancelAnimationFrame(rafId);
+
+      if (navIndicatorRafRef.current !== null) {
+        window.cancelAnimationFrame(navIndicatorRafRef.current);
+        navIndicatorRafRef.current = null;
+      }
+
+      resizeObserver.disconnect();
       window.removeEventListener("resize", updateIndicator);
     };
-  }, [activeSection, isCompactViewport, locale, navigation.length]);
+  }, [activeSection, locale, navigation.length]);
 
   useEffect(() => {
-    if (isCompactViewport) {
-      return;
-    }
-
     const sections = navigationConfig
       .map((item) => document.querySelector<HTMLElement>(item.href))
       .filter((section): section is HTMLElement => section !== null);
@@ -857,11 +914,11 @@ export default function Home() {
 
       const spyOffset = window.innerWidth >= 768 ? defaultSectionScrollOffset + 8 : 80;
       const probeY = window.scrollY + spyOffset;
-      let nextActiveId = sections[0].id;
+      let nextActiveId = sections[0].id as NavigationSectionId;
 
       for (const section of sections) {
         if (probeY >= section.offsetTop - 1) {
-          nextActiveId = section.id;
+          nextActiveId = section.id as NavigationSectionId;
         } else {
           break;
         }
@@ -872,7 +929,7 @@ export default function Home() {
         scrollingElement !== null && scrollingElement.scrollTop + window.innerHeight >= scrollingElement.scrollHeight - 120;
 
       if (reachedBottom) {
-        nextActiveId = sections[sections.length - 1].id;
+        nextActiveId = sections[sections.length - 1].id as NavigationSectionId;
       }
 
       setActiveSection((current) => {
@@ -924,7 +981,7 @@ export default function Home() {
         window.clearTimeout(navLockTimeoutRef.current);
       }
     };
-  }, [isCompactViewport]);
+  }, []);
 
   useEffect(() => {
     const closeMenuOnDesktop = () => {
@@ -941,12 +998,12 @@ export default function Home() {
     };
   }, []);
 
-  const smoothScrollToSection = (id: NavigationSectionId) => {
+  const smoothScrollToSection = (id: NavigationSectionId): number => {
     const section = document.getElementById(id);
     const scrollingElement = document.scrollingElement;
 
     if (!section || !scrollingElement) {
-      return;
+      return 0;
     }
 
     const sectionOffset = sectionScrollOffsets[id] ?? defaultSectionScrollOffset;
@@ -955,14 +1012,6 @@ export default function Home() {
     const maxTop = scrollingElement.scrollHeight - window.innerHeight;
     const clampedTargetTop = Math.max(0, Math.min(targetTop, Math.max(0, maxTop)));
     const distance = clampedTargetTop - startTop;
-
-    if (shouldReducePageMotion) {
-      window.scrollTo({
-        top: clampedTargetTop,
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-      });
-      return;
-    }
 
     if (Math.abs(distance) < 1) {
       isProgrammaticNavScrollRef.current = false;
@@ -973,7 +1022,7 @@ export default function Home() {
         navLockTimeoutRef.current = null;
       }
 
-      return;
+      return 0;
     }
 
     if (scrollRafRef.current !== null) {
@@ -981,16 +1030,16 @@ export default function Home() {
       scrollRafRef.current = null;
     }
 
-    const duration = Math.min(1400, Math.max(700, Math.abs(distance) * 0.55));
+    const duration = Math.min(1700, Math.max(900, Math.abs(distance) * 0.78));
     const startTime = performance.now();
 
-    const easeInOutQuart = (progress: number) => {
-      return progress < 0.5 ? 8 * progress * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 4) / 2;
+    const easeInOutQuad = (progress: number) => {
+      return progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
     };
 
     const step = (now: number) => {
       const progress = Math.min(1, (now - startTime) / duration);
-      const eased = easeInOutQuart(progress);
+      const eased = easeInOutQuad(progress);
       scrollingElement.scrollTop = startTop + distance * eased;
 
       if (progress < 1) {
@@ -1010,32 +1059,33 @@ export default function Home() {
     };
 
     scrollRafRef.current = window.requestAnimationFrame(step);
+    return duration;
   };
 
   const handleNavigationClick = (id: NavigationSectionId) => {
-    if (shouldReducePageMotion) {
-      setActiveSection(id);
-      setIsMobileMenuOpen(false);
-      smoothScrollToSection(id);
-      return;
-    }
-
     if (navLockTimeoutRef.current !== null) {
       window.clearTimeout(navLockTimeoutRef.current);
     }
 
     isProgrammaticNavScrollRef.current = true;
     lockedActiveSectionRef.current = id;
+    setActiveSection(id);
+    setIsMobileMenuOpen(false);
+    const scrollDuration = smoothScrollToSection(id);
+
+    if (scrollDuration <= 0) {
+      isProgrammaticNavScrollRef.current = false;
+      lockedActiveSectionRef.current = null;
+      window.dispatchEvent(new Event("scroll"));
+      return;
+    }
+
     navLockTimeoutRef.current = window.setTimeout(() => {
       isProgrammaticNavScrollRef.current = false;
       lockedActiveSectionRef.current = null;
       navLockTimeoutRef.current = null;
       window.dispatchEvent(new Event("scroll"));
-    }, 2200);
-
-    setActiveSection(id);
-    setIsMobileMenuOpen(false);
-    smoothScrollToSection(id);
+    }, scrollDuration + 320);
   };
 
   const toggleLocale = () => {
@@ -1111,13 +1161,17 @@ export default function Home() {
                 navigation.length === 4 ? "md:grid-cols-4" : "md:grid-cols-3"
               }`}
             >
-              {navIndicator.visible ? (
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-y-0 left-0 -z-10 rounded-full border border-neon/45 bg-neon/20 shadow-[0_0_18px_rgba(110,231,255,0.22)]"
-                  style={{ transform: `translateX(${navIndicator.x}px)`, width: navIndicator.width, opacity: 1 }}
-                />
-              ) : null}
+              <span
+                aria-hidden="true"
+                data-nav-indicator=""
+                className="pointer-events-none absolute inset-y-0 left-0 -z-10 rounded-full border border-neon/45 bg-neon/20 shadow-[0_0_18px_rgba(110,231,255,0.22)]"
+                style={{
+                  opacity: navIndicator.visible ? 1 : 0,
+                  transform: `translate3d(${navIndicator.x}px, 0, 0)`,
+                  width: navIndicator.width,
+                  willChange: "transform, width, opacity",
+                }}
+              />
 
               {navigation.map((item) => (
                 <button
@@ -1127,7 +1181,8 @@ export default function Home() {
                   type="button"
                   key={item.href}
                   onClick={() => handleNavigationClick(item.id)}
-                  className={`relative z-10 w-full min-w-0 rounded-full px-1 py-1 text-[10px] leading-none transition-colors duration-200 md:px-1 lg:px-2 lg:text-xs xl:px-3 xl:py-1.5 xl:text-sm ${
+                  aria-current={activeSection === item.id ? "page" : undefined}
+                  className={`relative z-10 w-full min-w-0 rounded-full px-1 py-1 text-[10px] leading-none transition-colors duration-300 md:px-1 lg:px-2 lg:text-xs xl:px-3 xl:py-1.5 xl:text-sm ${
                     activeSection === item.id ? "text-white" : "text-white/72 hover:text-white"
                   }`}
                 >
