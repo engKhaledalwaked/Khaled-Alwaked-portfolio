@@ -1,11 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Inter } from "next/font/google";
+import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const sans = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans",
+});
+
+const mono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
+
+const arabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600"],
+  variable: "--font-arabic",
 });
 
 export const metadata: Metadata = {
@@ -14,32 +25,26 @@ export const metadata: Metadata = {
     template: "%s | Khaled M Alwaked",
   },
   description:
-    "Software developer portfolio for Khaled M Alwaked, focused on Next.js, React, Flutter, AI integrations, product engineering, and polished user experiences.",
+    "Khaled M Alwaked — software developer building web and mobile products with Next.js, React and Flutter.",
   applicationName: "Khaled M Alwaked Portfolio",
   authors: [{ name: "Khaled M Alwaked" }],
   creator: "Khaled M Alwaked",
-  keywords: [
-    "Khaled Alwaked",
-    "Software Developer",
-    "Next.js Developer",
-    "React Developer",
-    "Flutter Developer",
-    "AI Integration",
-    "Portfolio",
-  ],
+  keywords: ["Khaled Alwaked", "Software Developer", "Next.js Developer", "React Developer", "Flutter Developer", "Portfolio"],
   openGraph: {
     title: "Khaled M Alwaked | Software Developer",
-    description:
-      "Portfolio of scalable web, mobile, and AI-enabled product work by Khaled M Alwaked.",
+    description: "Web and mobile products built with Next.js, React and Flutter.",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary",
     title: "Khaled M Alwaked | Software Developer",
-    description:
-      "Scalable web, mobile, and AI-enabled product work by Khaled M Alwaked.",
+    description: "Web and mobile products built with Next.js, React and Flutter.",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0e0e0d",
 };
 
 export default function RootLayout({
@@ -48,8 +53,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="en">
+      <body className={`${sans.variable} ${mono.variable} ${arabic.variable} antialiased`}>
         {children}
         <SpeedInsights />
       </body>
