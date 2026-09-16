@@ -1,63 +1,19 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Image from "next/image";
-import { CSSProperties, FormEvent, PointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import type { ProjectCard } from "@/components/bento-grid";
-import { MotionReveal } from "@/components/motion-reveal";
+import { useEffect, useState } from "react";
+import { ProjectList, type ProjectCard } from "@/components/project-list";
 import githubProfileIcon from "@/assest/github.png";
 import linkedinProfileIcon from "@/assest/linkedin.png";
 import myPhoto from "@/assest/my-photo.png";
 
-const SceneBackground = dynamic(() => import("@/components/scene-background").then((mod) => mod.SceneBackground), {
-  ssr: false,
-});
-
-const BentoGrid = dynamic(() => import("@/components/bento-grid").then((mod) => mod.BentoGrid), {
-  loading: () => <div className="h-80 rounded-[1.5rem] border border-white/10 bg-white/[0.035]" aria-hidden="true" />,
-});
-
 type Locale = "en" | "ar";
-
-const navigationConfig = [
-  { id: "home", href: "#home" },
-  { id: "skills", href: "#skills" },
-  { id: "projects", href: "#projects" },
-  { id: "contact", href: "#contact" },
-] as const;
+type SectionId = "home" | "skills" | "projects";
 
 const socialLinks = [
-  { label: "GitHub", href: "https://github.com/engKhaledalwaked", src: githubProfileIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/khaled-alwaked", src: linkedinProfileIcon },
+  { label: "GitHub", href: "https://github.com/engKhaledalwaked", src: githubProfileIcon },
 ] as const;
-
-type NavigationSectionId = (typeof navigationConfig)[number]["id"];
-type NavIndicatorState = { x: number; width: number; visible: boolean };
-
-const defaultSectionScrollOffset = 112;
-const sectionScrollOffsets: Partial<Record<NavigationSectionId, number>> = {
-  projects: 0,
-};
-
-const initialNavIndicator: NavIndicatorState = { x: 0, width: 0, visible: false };
-
-const marqueeItemsByLocale: Record<Locale, string[]> = {
-  en: ["Next.js", "React", "Flutter", "Supabase", "AI Model Integration", "System Design", "Motion UI"],
-  ar: ["Next.js", "React", "Flutter", "Supabase", "تكامل نماذج الذكاء الاصطناعي", "تصميم الأنظمة", "واجهات حركية"],
-};
-
-const statsByLocale: Record<Locale, { label: string; value: string }[]> = {
-  en: [
-    { label: "Products Shipped", value: "7" },
-    { label: "Platforms", value: "Web · Mobile · AI" },
-    { label: "Focus", value: "Scalable UX Systems" },
-  ],
-  ar: [
-    { label: "مشاريع مكتملة", value: "7" },
-    { label: "المنصات", value: "ويب · موبايل · ذكاء اصطناعي" },
-    { label: "التركيز", value: "أنظمة UX قابلة للتوسع" },
-  ],
-};
 
 const projectVideoEmbeds = {
   vSafety: "https://www.youtube.com/embed/CY1cl1wyc2A?rel=0",
@@ -79,11 +35,11 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "Many vehicle owners in Saudi Arabia are exposed to overpricing and fraud by untrusted repair and maintenance channels. V-Safety Manager addresses this by providing a government-aligned digital experience with fixed pricing and verified inspection centers in one trusted platform.",
       youtubeUrl: projectVideoEmbeds.vSafety,
       details: [
-        "Business impact: Replaces scattered workshop offers with one verified channel, reducing pricing ambiguity and fraud exposure.",
+        "Replaces scattered workshop offers with one verified channel, reducing pricing ambiguity and fraud exposure.",
         "Connects users to state-documented inspection centers across Saudi Arabia through guided booking and verification flows.",
         "Enforces fixed, visible service pricing before commitment, improving trust and cost predictability for owners and families.",
         "Built as 27 validated client routes and 21 production pages to support secure, end-to-end operation at scale.",
-        "Business result: Safer maintenance decisions, fewer exploitation scenarios, and a more reliable service journey for vehicle owners in the Kingdom.",
+        "Safer maintenance decisions, fewer exploitation scenarios, and a more reliable service journey for vehicle owners in the Kingdom.",
       ],
     },
     {
@@ -95,10 +51,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "In Jordan, thousands of university students move between governorates every year and struggle to find suitable housing by price, location, and space. Masken solves this by unifying student housing, tourist stays, and regular rentals in one trusted platform, while giving landlords a single dashboard to manage units, leases, and maintenance.",
       details: [
-        "Business impact: Helps students compare options faster using practical filters for budget, area, and location near universities.",
+        "Helps students compare options faster using practical filters for budget, area, and location near universities.",
         "Expands demand channels by serving tourists looking for hotels, apartments, or short-stay rooms at competitive prices in specific areas.",
         "Gives everyday renters one place to discover better-value homes instead of fragmented listings and manual back-and-forth.",
-        "Owner value: Enables landlords to manage units, leases, maintenance, and tenant communication from one dashboard instead of scattered calls and WhatsApp messages.",
+        "Enables landlords to manage units, leases, maintenance, and tenant communication from one dashboard instead of scattered calls and WhatsApp messages.",
       ],
     },
     {
@@ -110,10 +66,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "Gaming cafes often struggle with device booking because most cashier tools are difficult for staff and do not offer precise reservation control. Challenger solves this with a dedicated, accurate booking-management section built for real day-to-day floor operations.",
       youtubeUrl: projectVideoEmbeds.challenger,
       details: [
-        "Business impact: Gives teams a clear booking workflow for device allocation and session control, reducing reservation conflicts and manual corrections.",
+        "Gives teams a clear booking workflow for device allocation and session control, reducing reservation conflicts and manual corrections.",
         "Includes a complete Sales Report page with save-and-return capability, so managers can review reports anytime without rebuilding data.",
         "Removes heavy dependence on Excel sheets by keeping operational records inside the app for faster daily follow-up.",
-        "Business result: Less staff friction, quicker shift handling, and more reliable reporting for gaming-cafe operations.",
+        "Less staff friction, quicker shift handling, and more reliable reporting for gaming-cafe operations.",
       ],
     },
     {
@@ -125,11 +81,11 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "Most task apps are either too shallow or too monotonous, usually designed around a single use case. Task Flow solves this by combining detailed task tracking, smart prioritization, and goal-based organization with a motivating habit system in one focused experience.",
       youtubeUrl: projectVideoEmbeds.taskFlow,
       details: [
-        "Business impact: Enables structured planning by organizing tasks through priority, type, and purpose, helping users act faster with less mental overload.",
+        "Enables structured planning by organizing tasks through priority, type, and purpose, helping users act faster with less mental overload.",
         "Includes a dedicated habit-tracking module with daily score accumulation to reinforce consistency and healthy routine-building.",
         "Turns progress into motivation through visible streak and score mechanics that reward sustained execution.",
-        "Business result: Better retention and higher day-to-day goal completion through clarity, structure, and behavioral motivation.",
-        "Roadmap value: Planned weekly, monthly, and yearly leaderboards will add social competition to push long-term commitment even further.",
+        "Better retention and higher day-to-day goal completion through clarity, structure, and behavioral motivation.",
+        "Planned weekly, monthly, and yearly leaderboards will add social competition to push long-term commitment even further.",
       ],
     },
     {
@@ -141,9 +97,9 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "Many weather apps require too many steps before users reach a decision. This app streamlines access to current conditions and forecasts with resilient data handling so users can act quickly in changing conditions.",
       youtubeUrl: projectVideoEmbeds.taqsi,
       details: [
-        "Business impact: Offers 3 fast entry paths (current location, city search, favorites) to reduce lookup friction.",
+        "Offers 3 fast entry paths (current location, city search, favorites) to reduce lookup friction.",
         "Provides hourly insights plus a 7-day forecast view for immediate and short-term planning decisions.",
-        "Business result: Faster decision-making with lower drop-off risk when connectivity is unstable.",
+        "Faster decision-making with lower drop-off risk when connectivity is unstable.",
       ],
     },
     {
@@ -155,9 +111,9 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "Health tracking tools often fail when input is confusing or feedback is unclear. This BMI app simplifies data entry and interpretation, making regular self-check routines easier to sustain.",
       youtubeUrl: projectVideoEmbeds.bmi,
       details: [
-        "Business impact: Supports 2 unit systems (metric and imperial) to reduce entry mistakes across different user regions.",
+        "Supports 2 unit systems (metric and imperial) to reduce entry mistakes across different user regions.",
         "Visualizes outcomes across 4 BMI ranges with an animated gauge and keeps historical readings for progress awareness.",
-        "Business result: Clearer repeat-use experience that encourages ongoing self-tracking behavior.",
+        "Clearer repeat-use experience that encourages ongoing self-tracking behavior.",
       ],
     },
     {
@@ -169,9 +125,9 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "Retail checkout lines slow down when invoicing and printer handling depend on repeated manual setup. Casher centralizes selling, invoicing, and thermal printing so cashiers can complete bills with fewer interruptions.",
       youtubeUrl: projectVideoEmbeds.casher,
       details: [
-        "Business impact: Printer selection is done once, then reused with auto-connect on next launches, reducing repeated setup at the counter.",
+        "Printer selection is done once, then reused with auto-connect on next launches, reducing repeated setup at the counter.",
         "Moves invoice printing from a 20+ line integration pattern to a single service call for faster feature delivery and maintenance.",
-        "Business result: Faster checkout flow with lower cashier friction during peak billing windows.",
+        "Faster checkout flow with lower cashier friction during peak billing windows.",
       ],
     },
   ],
@@ -182,14 +138,14 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       span: "large",
       accent: "#ff4fd8",
       summary:
-        "المشكلة: كثير من أصحاب المركبات في السعودية يتعرضون للاستغلال ورفع الأسعار من جهات صيانة غير موثوقة. V-Safety Manager يحل هذه المشكلة عبر منصة رقمية موثقة على مستوى الجهات الحكومية، تجمع التسعير الثابت ومراكز الفحص المعتمدة في تجربة واحدة موثوقة.",
+        "كثير من أصحاب المركبات في السعودية يتعرضون للاستغلال ورفع الأسعار من جهات صيانة غير موثوقة. V-Safety Manager يحل هذه المشكلة عبر منصة رقمية موثقة على مستوى الجهات الحكومية، تجمع التسعير الثابت ومراكز الفحص المعتمدة في تجربة واحدة موثوقة.",
       youtubeUrl: projectVideoEmbeds.vSafety,
       details: [
-        "أثر الأعمال: ينقل المستخدم من خيارات عشوائية بين الورش إلى قناة موثقة واحدة، مما يقلل تضارب الأسعار ومخاطر النصب.",
+        "ينقل المستخدم من خيارات عشوائية بين الورش إلى قناة موثقة واحدة، مما يقلل تضارب الأسعار ومخاطر النصب.",
         "يربط أصحاب المركبات بمراكز فحص موثقة ومعتمدة على مستوى المملكة العربية السعودية ضمن تدفق حجز واضح.",
         "يعرض اسعارا ثابتة وواضحة قبل إكمال الطلب، ما يرفع الثقة ويقلل مفاجآت التكلفة على العميل.",
         "مبني عبر 27 مسارا معتمدا للعميل و21 شاشة إنتاجية فعلية لضمان تشغيل متكامل وآمن.",
-        "نتيجة الأعمال: قرارات صيانة أكثر أمانا، حالات استغلال أقل، وتجربة خدمة موثوقة لأصحاب المركبات في المملكة.",
+        "قرارات صيانة أكثر أمانا، حالات استغلال أقل، وتجربة خدمة موثوقة لأصحاب المركبات في المملكة.",
       ],
     },
     {
@@ -201,10 +157,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "في الأردن، آلاف الطلاب ينتقلون بين المحافظات للدراسة ويواجهون صعوبة في إيجاد سكن مناسب بالسعر والموقع والمساحة. منصة Masken تحل ذلك عبر جمع سكن الطلاب، والإيجارات اليومية للسياح، وإيجارات السكن العادي في منصة واحدة موثوقة، مع لوحة إدارة موحدة للملاك لإدارة الشقق والعقود والإيجارات والصيانات.",
       details: [
-        "أثر الأعمال: يسرع قرار الطالب عبر فلاتر واضحة للسعر، المنطقة، والقرب من الجامعة بدل البحث العشوائي الطويل.",
+        "يسرع قرار الطالب عبر فلاتر واضحة للسعر، المنطقة، والقرب من الجامعة بدل البحث العشوائي الطويل.",
         "يفتح قناة طلب إضافية للسياح الباحثين عن فنادق أو شقق أو غرف سياحية بأسعار منافسة ومواقع محددة.",
         "يوفر للمستأجر العادي مقارنة أفضل للخيارات السكنية للوصول إلى بيت مناسب بالسعر والمكان المفضل.",
-        "قيمة للمالك: يدير الشقق والعقود والإيجارات والصيانات والتواصل مع المستأجرين من مكان واحد بدل الاتصالات ورسائل الواتس المتفرقة.",
+        "يدير الشقق والعقود والإيجارات والصيانات والتواصل مع المستأجرين من مكان واحد بدل الاتصالات ورسائل الواتس المتفرقة.",
       ],
     },
     {
@@ -216,10 +172,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "مشكلة مقاهي الألعاب أن إدارة حجز الأجهزة تكون صعبة لأن أغلب تطبيقات الكاشير متعبة للعاملين ولا تعطي دقة كافية في تنظيم الحجوزات. منصة Challenger تعالج ذلك عبر قسم مخصص لإدارة الحجوزات بشكل دقيق وعملي يناسب التشغيل اليومي.",
       youtubeUrl: projectVideoEmbeds.challenger,
       details: [
-        "أثر الأعمال: يوفر تدفقا واضحا لحجز الأجهزة وإدارة الجلسات، مما يقلل تعارضات الحجوزات والتعديلات اليدوية أثناء الضغط.",
+        "يوفر تدفقا واضحا لحجز الأجهزة وإدارة الجلسات، مما يقلل تعارضات الحجوزات والتعديلات اليدوية أثناء الضغط.",
         "يتضمن صفحة كاملة لتقرير المبيعات مع إمكانية حفظ التقارير والرجوع لها في أي وقت دون إعادة العمل من الصفر.",
         "يقلل الاعتماد على شيتات وجداول Excel عبر حفظ بيانات التشغيل داخل التطبيق بشكل منظم.",
-        "نتيجة الأعمال: وقت أقل في المتابعة اليومية، جهد تشغيلي أقل على الفريق، وموثوقية أعلى في التقارير والإدارة.",
+        "وقت أقل في المتابعة اليومية، جهد تشغيلي أقل على الفريق، وموثوقية أعلى في التقارير والإدارة.",
       ],
     },
     {
@@ -231,11 +187,11 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "المشكلة أن كثيراً من تطبيقات المهام تكون سطحية أو مملة وتركز على هدف واحد فقط. Task Flow يحل هذا عبر تجربة متكاملة تجمع تتبع المهام بالتفصيل، ترتيب الأولويات، وتصنيف المهام حسب نوعها وهدفها، مع نظام تحفيزي واضح للاستمرار.",
       youtubeUrl: projectVideoEmbeds.taskFlow,
       details: [
-        "أثر الأعمال: يساعد المستخدم على تنظيم يومه بوضوح عبر ترتيب المهام حسب الأولوية والنوع والهدف بدلاً من قوائم عشوائية.",
+        "يساعد المستخدم على تنظيم يومه بوضوح عبر ترتيب المهام حسب الأولوية والنوع والهدف بدلاً من قوائم عشوائية.",
         "يتضمن قسماً مخصصاً لتتبع العادات وبناء عادات صحية جديدة مع نظام score يومي يزيد مع الاستمرارية.",
         "يحوّل الانضباط إلى تجربة محفزة من خلال تتبع النقاط اليومية وإظهار التقدم بشكل مستمر.",
-        "نتيجة الأعمال: إنجاز أعلى للأهداف اليومية واستمرارية أفضل لأن النظام يجمع بين التنظيم والتحفيز السلوكي.",
-        "قيمة مستقبلية: عند الإطلاق الكامل ستتوفر Leaderboards أسبوعية وشهرية وسنوية لتحفيز المستخدمين على المنافسة والاستمرار.",
+        "إنجاز أعلى للأهداف اليومية واستمرارية أفضل لأن النظام يجمع بين التنظيم والتحفيز السلوكي.",
+        "عند الإطلاق الكامل ستتوفر Leaderboards أسبوعية وشهرية وسنوية لتحفيز المستخدمين على المنافسة والاستمرار.",
       ],
     },
     {
@@ -247,9 +203,9 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "الكثير من تطبيقات الطقس تحتاج خطوات كثيرة قبل الوصول لقرار. هذا التطبيق يختصر الوصول للبيانات الحالية والتوقعات مع معالجة مرنة للاتصال حتى يتخذ المستخدم قرارا أسرع.",
       youtubeUrl: projectVideoEmbeds.taqsi,
       details: [
-        "أثر الأعمال: يقدم 3 طرق سريعة للوصول (الموقع الحالي، البحث عن مدينة، المفضلة) لتقليل وقت الوصول للمعلومة.",
+        "يقدم 3 طرق سريعة للوصول (الموقع الحالي، البحث عن مدينة، المفضلة) لتقليل وقت الوصول للمعلومة.",
         "يوفر توقعات ساعية مع عرض 7 أيام لدعم قرارات فورية وقصيرة المدى.",
-        "نتيجة الأعمال: قرارات أسرع مع تقليل احتمال الانسحاب عند ضعف الشبكة.",
+        "قرارات أسرع مع تقليل احتمال الانسحاب عند ضعف الشبكة.",
       ],
     },
     {
@@ -261,9 +217,9 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "أدوات المتابعة الصحية تفشل عندما يكون الإدخال معقدا أو التفسير غير واضح. هذا التطبيق يبسط إدخال البيانات وقراءة النتيجة، مما يسهل الالتزام بالمتابعة الدورية.",
       youtubeUrl: projectVideoEmbeds.bmi,
       details: [
-        "أثر الأعمال: يدعم نظامي قياس (متري وإمبريالي) لتقليل أخطاء الإدخال بين فئات المستخدمين.",
+        "يدعم نظامي قياس (متري وإمبريالي) لتقليل أخطاء الإدخال بين فئات المستخدمين.",
         "يعرض النتيجة ضمن 4 نطاقات BMI بمؤشر متحرك مع حفظ سجل القراءات لمتابعة التقدم.",
-        "نتيجة الأعمال: تجربة أوضح للاستخدام المتكرر تشجع الاستمرارية في المتابعة الصحية.",
+        "تجربة أوضح للاستخدام المتكرر تشجع الاستمرارية في المتابعة الصحية.",
       ],
     },
     {
@@ -275,1260 +231,393 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "طوابير الكاشير تتباطأ عندما تكون الفوترة والطباعة الحرارية معتمدة على إعداد يدوي متكرر. Casher يجمع البيع والفوترة والطباعة في تدفق واحد لتسريع الإنجاز وتقليل الانقطاع.",
       youtubeUrl: projectVideoEmbeds.casher,
       details: [
-        "أثر الأعمال: يتم اختيار الطابعة مرة واحدة ثم إعادة الاتصال تلقائيا في التشغيلات التالية، مما يقلل وقت الإعداد على نقطة البيع.",
+        "يتم اختيار الطابعة مرة واحدة ثم إعادة الاتصال تلقائيا في التشغيلات التالية، مما يقلل وقت الإعداد على نقطة البيع.",
         "ينقل الطباعة من نمط تكامل يتجاوز 20 سطرا إلى استدعاء خدمة واحد، ما يسرع التطوير والصيانة.",
-        "نتيجة الأعمال: سرعة أعلى في الإنهاء عند الكاشير واحتكاك أقل خلال فترات الذروة.",
+        "سرعة أعلى في الإنهاء عند الكاشير واحتكاك أقل خلال فترات الذروة.",
       ],
     },
   ],
 };
 
+
 const textByLocale = {
   en: {
-    nav: {
-      home: "Home",
-      skills: "Skills",
-      projects: "Projects",
-      contact: "Contact",
-      openMenu: "Open navigation menu",
-      closeMenu: "Close navigation menu",
-      languageSwitchAria: "Switch language",
-      letsBuild: "Let's build",
-    },
+    name: "Khaled Alwaked",
+    fullName: "Khaled M Alwaked",
+    nav: { skills: "Skills", projects: "Work", switchLanguage: "العربية", switchLanguageAria: "Switch to Arabic" },
     hero: {
-      badge: "Software engineer · full-stack developer · AI trainer · UI/UX Designer",
-      titleMain: "Software Developer",
-      titleAccent: "Architecting Scalable Solutions",
-      titleLine2: "Architecting",
-      titleLine3: "Scalable Solutions",
+      meta: "Software developer · Irbid, Jordan",
+      titleA: "I build web and mobile products",
+      titleB: "that businesses rely on every day.",
       description:
-        "I design immersive digital products that merge clean interface systems, motion-led storytelling, and robust engineering foundations for web, mobile, and AI-enhanced experiences.",
-      primaryCta: "Explore projects",
-      secondaryCta: "Start a conversation",
-      portraitAlt: "Portrait photo",
-      portraitRole: "Software engineer · full-stack developer · AI trainer · UI/UX Designer",
+        "Full-stack developer working with Next.js, React and Flutter. I take products from the first screen to a working release — booking systems, point-of-sale apps and service platforms.",
+      primaryCta: "View selected work",
+      portraitAlt: "Portrait of Khaled Alwaked",
+      role: "Software engineer · Full-stack · UI/UX",
+      availability: "Open to new projects",
+      facts: [
+        { value: "7", label: "Products built" },
+        { value: "Web + Mobile", label: "Platforms" },
+        { value: "Next.js · Flutter", label: "Main stack" },
+      ],
     },
     skills: {
-      eyebrow: "Core capabilities",
-      title: "High-performance product engineering with design-led execution.",
-      description:
-        "From frontend architecture to mobile systems and AI integration, the stack is structured for scale, speed, and memorable user interaction.",
+      title: "Tools & focus",
+      description: "A small, deliberate stack I know well — not a long list of things I use once.",
+      groups: [
+        { label: "Web", items: ["Next.js", "React"] },
+        { label: "Mobile", items: ["Flutter"] },
+        { label: "Backend & data", items: ["Supabase", "System design"] },
+        { label: "Product", items: ["UI/UX design", "Motion UI"] },
+        { label: "AI", items: ["Model integration", "AI training"] },
+      ],
     },
     projects: {
-      eyebrow: "Selected work",
-      title: "A bento grid of product thinking, architecture depth, and polished execution.",
-      description:
-        "Each case study is framed around product outcomes, technical decisions, and the interaction detail that turns complex workflows into intuitive user journeys.",
-      labels: {
-        featuredLarge: "Flagship Delivery",
-        featuredDefault: "Client Ready",
-        featuredInProgress: "In Active Development",
-        scopeLarge: "End-to-end build",
-        scopeMedium: "Feature stream",
-        scopeSmall: "Focused module",
-        clientValue: "Client value delivered",
-        footerReady: "Ready for immediate rollout",
-        footerInProgress: "MVP under active development",
-      },
+      title: "Selected work",
+      description: "Real problems, the products built to solve them, and what changed for the people using them.",
+      labels: { shipped: "Shipped", inProgress: "In development", watchDemo: "Watch demo", highlights: "Highlights" },
     },
-    contact: {
-      eyebrow: "Contact",
-      title: "Let's turn ambitious ideas into elegant, scalable products.",
-      description:
-        "Share the product vision, timeline, and technical direction. The form validates on the client and transitions into a success state with a lightweight motion cue.",
-      availability: "Available for frontend systems, product design collaboration, and AI-enabled feature builds.",
-      successTitle: "Message sent successfully",
-      successDescription:
-        "Thanks for reaching out. The request is validated, captured, and ready for the next step in the collaboration flow.",
-      sendAnother: "Send another message",
-    },
-    form: {
-      name: "Name",
-      email: "Email",
-      brief: "Project brief",
-      namePlaceholder: "Your name",
-      emailPlaceholder: "you@example.com",
-      briefPlaceholder: "Tell me about the product, goals, constraints, and target users...",
-      hint: "Client-side validation · sleek success animation",
-      submit: "Submit inquiry",
-      errors: {
-        nameRequired: "Name is required.",
-        emailRequired: "Email is required.",
-        emailInvalid: "Enter a valid email address.",
-        briefRequired: "Project details are required.",
-        briefMin: "Add at least 20 characters so the request is actionable.",
-      },
+    footer: {
+      title: "Have a product in mind?",
+      description: "Send me a message on LinkedIn — I’m happy to talk through scope, timeline and the right stack.",
+      rights: "All rights reserved.",
     },
   },
   ar: {
-    nav: {
-      home: "الرئيسية",
-      skills: "المهارات",
-      projects: "المشاريع",
-      contact: "تواصل",
-      openMenu: "فتح قائمة التنقل",
-      closeMenu: "إغلاق قائمة التنقل",
-      languageSwitchAria: "تبديل اللغة",
-      letsBuild: "ابدا مشروعك",
-    },
+    name: "خالد الواكد",
+    fullName: "خالد محمد الواكد",
+    nav: { skills: "المهارات", projects: "الأعمال", switchLanguage: "English", switchLanguageAria: "التبديل إلى الإنجليزية" },
     hero: {
-      badge: "مهندس برمجيات · مطور Full-Stack · مدرب ذكاء اصطناعي · مصمم UI/UX",
-      titleMain: "مهندس برمجيات",
-      titleAccent: "ابني حلولا رقمية قابلة للتوسع",
-      titleLine2: "ابني حلولا رقمية",
-      titleLine3: "قابلة للتوسع",
+      meta: "مطوّر برمجيات · إربد، الأردن",
+      titleA: "أبني منتجات ويب وموبايل",
+      titleB: "تعتمد عليها الشركات كل يوم.",
       description:
-        "اصمم منتجات رقمية غامرة تجمع بين واجهات نظيفة، وسرد بصري بالحركة، واساس هندسي قوي لمنصات الويب والموبايل وميزات الذكاء الاصطناعي.",
-      primaryCta: "استكشف المشاريع",
-      secondaryCta: "ابدا محادثة",
-      portraitAlt: "صورة شخصية",
-      portraitRole: "مهندس برمجيات · مطور Full-Stack · مدرب ذكاء اصطناعي · مصمم UI/UX",
+        "مطوّر Full-Stack أعمل بـ Next.js وReact وFlutter. أنقل المنتج من أول شاشة حتى إصدار يعمل فعلياً — أنظمة حجز، وتطبيقات نقاط بيع، ومنصات خدمات.",
+      primaryCta: "تصفّح الأعمال",
+      portraitAlt: "صورة خالد الواكد",
+      role: "مهندس برمجيات · Full-Stack · UI/UX",
+      availability: "متاح لمشاريع جديدة",
+      facts: [
+        { value: "7", label: "منتجات منجزة" },
+        { value: "ويب + موبايل", label: "المنصات" },
+        { value: "Next.js · Flutter", label: "التقنيات الأساسية" },
+      ],
     },
     skills: {
-      eyebrow: "القدرات الاساسية",
-      title: "هندسة منتجات عالية الاداء بتنفيذ يقوده التصميم.",
-      description:
-        "من معمارية الواجهات الى انظمة الموبايل وتكامل الذكاء الاصطناعي، يتم بناء الستاك ليدعم التوسع والسرعة وتجربة استخدام تظل في الذاكرة.",
+      title: "الأدوات والتركيز",
+      description: "مجموعة تقنيات مختارة أتقنها جيداً، بدلاً من قائمة طويلة أستخدمها مرة واحدة.",
+      groups: [
+        { label: "الويب", items: ["Next.js", "React"] },
+        { label: "الموبايل", items: ["Flutter"] },
+        { label: "الخلفية والبيانات", items: ["Supabase", "تصميم الأنظمة"] },
+        { label: "المنتج", items: ["تصميم UI/UX", "واجهات حركية"] },
+        { label: "الذكاء الاصطناعي", items: ["تكامل النماذج", "تدريب الذكاء الاصطناعي"] },
+      ],
     },
     projects: {
-      eyebrow: "اعمال مختارة",
-      title: "شبكة مشاريع تجمع التفكير المنتجـي وعمق المعمارية وجودة التنفيذ.",
-      description:
-        "كل مشروع معروض بمنظور نتائج الاعمال والقرارات التقنية والتفاصيل التفاعلية التي تحول التعقيد الى تجربة سهلة وواضحة.",
-      labels: {
-        featuredLarge: "المشروع الاقوى",
-        featuredDefault: "جاهز للعميل",
-        featuredInProgress: "قيد التطوير",
-        scopeLarge: "تنفيذ شامل",
-        scopeMedium: "ميزات متدفقة",
-        scopeSmall: "وحدة مركزة",
-        clientValue: "القيمة المقدمة للعميل",
-        footerReady: "جاهز للتنفيذ الفوري",
-        footerInProgress: "نسخة MVP قيد التطوير",
-      },
+      title: "أعمال مختارة",
+      description: "مشكلات حقيقية، والمنتجات التي بُنيت لحلها، وما الذي تغيّر لمستخدميها.",
+      labels: { shipped: "مُنجز", inProgress: "قيد التطوير", watchDemo: "شاهد العرض", highlights: "أبرز النقاط" },
     },
-    contact: {
-      eyebrow: "تواصل",
-      title: "لنحول الافكار الطموحة الى منتجات انيقة وقابلة للتوسع.",
-      description:
-        "شارك فكرة المنتج والجدول الزمني والاتجاه التقني. النموذج يتحقق من المدخلات في الواجهة وينتقل لحالة نجاح بتاثير حركي خفيف.",
-      availability: "متاح لبناء انظمة الواجهات، وتطوير المنتج، وتنفيذ ميزات مدعومة بالذكاء الاصطناعي.",
-      successTitle: "تم ارسال الرسالة بنجاح",
-      successDescription: "شكرا لتواصلك. تم التحقق من الطلب وتجهيزه للخطوة التالية في رحلة التعاون.",
-      sendAnother: "ارسال رسالة جديدة",
-    },
-    form: {
-      name: "الاسم",
-      email: "البريد الالكتروني",
-      brief: "ملخص المشروع",
-      namePlaceholder: "اكتب اسمك",
-      emailPlaceholder: "you@example.com",
-      briefPlaceholder: "اشرح فكرة المنتج والاهداف والقيود والمستخدمين المستهدفين...",
-      hint: "تحقق مباشر من المدخلات · حالة نجاح انيقة",
-      submit: "ارسال الطلب",
-      errors: {
-        nameRequired: "الاسم مطلوب.",
-        emailRequired: "البريد الالكتروني مطلوب.",
-        emailInvalid: "ادخل بريدا الكترونيا صحيحا.",
-        briefRequired: "تفاصيل المشروع مطلوبة.",
-        briefMin: "اضف 20 حرفا على الاقل ليكون الطلب واضحا للتنفيذ.",
-      },
+    footer: {
+      title: "لديك فكرة منتج؟",
+      description: "راسلني على LinkedIn — يسعدني أن نناقش النطاق والجدول الزمني والتقنيات المناسبة.",
+      rights: "جميع الحقوق محفوظة.",
     },
   },
 } as const;
 
-type FormState = {
-  name: string;
-  email: string;
-  message: string;
-};
-
-type FormErrors = Partial<Record<keyof FormState, string>>;
-
-const initialForm: FormState = {
-  name: "",
-  email: "",
-  message: "",
-};
-
-const heroPhotoScale = 1.05;
-const heroPhotoOffsetY = 10;
-const isContactSectionVisible = false;
-
-type HeroStarSpec = {
-  x: number;
-  y: number;
-  size: number;
-  opacity: number;
-  driftX: number;
-  driftY: number;
-  duration: number;
-  delay: number;
-  twinkle: number;
-  blur: number;
-};
-
-function createSeededRandom(seed: number) {
-  let value = seed >>> 0;
-
-  return () => {
-    value = (value * 1664525 + 1013904223) >>> 0;
-    return value / 4294967296;
-  };
-}
-
-function createHeroStarSpecs(count: number, seed: number, isDense: boolean): HeroStarSpec[] {
-  const random = createSeededRandom(seed);
-
-  return Array.from({ length: count }, () => {
-    const sizeBase = isDense ? 1.8 : 1.25;
-
-    return {
-      x: random() * 100,
-      y: random() * 100,
-      size: 0.62 + random() * sizeBase,
-      opacity: isDense ? 0.45 + random() * 0.42 : 0.18 + random() * 0.28,
-      driftX: (random() - 0.5) * (isDense ? 30 : 20),
-      driftY: (random() - 0.5) * (isDense ? 24 : 16),
-      duration: (isDense ? 10 : 13) + random() * (isDense ? 12 : 15),
-      delay: -random() * 18,
-      twinkle: 2.8 + random() * (isDense ? 4.2 : 5.2),
-      blur: random() * (isDense ? 0.32 : 0.45),
-    };
-  });
-}
-
-function buildHeroStarStyle(star: HeroStarSpec): CSSProperties {
-  return {
-    "--star-x": `${star.x}%`,
-    "--star-y": `${star.y}%`,
-    "--star-size": `${star.size}px`,
-    "--star-opacity": String(star.opacity),
-    "--star-drift-x": `${star.driftX}px`,
-    "--star-drift-y": `${star.driftY}px`,
-    "--star-duration": `${star.duration}s`,
-    "--star-delay": `${star.delay}s`,
-    "--star-twinkle": `${star.twinkle}s`,
-    "--star-blur": `${star.blur}px`,
-  } as CSSProperties;
-}
-
-function renderHeroStarLayer(stars: HeroStarSpec[], prefix: string) {
-  return stars.map((star, index) => (
-    <span key={`${prefix}-${index}`} className="random-star" style={buildHeroStarStyle(star)} />
-  ));
-}
-
-function normalizeMarqueeOffset(offset: number, groupWidth: number) {
-  if (groupWidth <= 0) {
-    return 0;
-  }
-
-  let normalized = offset % groupWidth;
-
-  if (normalized > 0) {
-    normalized -= groupWidth;
-  }
-
-  return normalized;
+function SectionHeading({ index, title, description }: { index: string; title: string; description: string }) {
+  return (
+    <div className="grid gap-4 lg:grid-cols-12 lg:gap-12">
+      <div className="lg:col-span-4">
+        <p className="font-mono text-xs text-subtle">{index}</p>
+        <h2 className="mt-3 text-3xl font-medium tracking-tight text-foreground rtl:tracking-normal sm:text-4xl">{title}</h2>
+      </div>
+      <p className="max-w-xl text-base leading-relaxed text-muted lg:col-span-8 lg:self-end">{description}</p>
+    </div>
+  );
 }
 
 export default function Home() {
   const [locale, setLocale] = useState<Locale>("en");
-  const [isLocaleHydrated, setIsLocaleHydrated] = useState(false);
-  const [form, setForm] = useState<FormState>(initialForm);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [activeSection, setActiveSection] = useState<NavigationSectionId>("home");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCompactViewport, setIsCompactViewport] = useState(true);
-  const [isMarqueeInteracting, setIsMarqueeInteracting] = useState(false);
-  const [shouldRenderScene, setShouldRenderScene] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const scrollRafRef = useRef<number | null>(null);
-  const sectionTrackRafRef = useRef<number | null>(null);
-  const navLockTimeoutRef = useRef<number | null>(null);
-  const isProgrammaticNavScrollRef = useRef(false);
-  const lockedActiveSectionRef = useRef<NavigationSectionId | null>(null);
-  const navLinksContainerRef = useRef<HTMLDivElement | null>(null);
-  const navButtonRefs = useRef<Partial<Record<NavigationSectionId, HTMLButtonElement | null>>>({});
-  const navIndicatorRafRef = useRef<number | null>(null);
-  const navIndicatorMetricsRef = useRef<NavIndicatorState>(initialNavIndicator);
-  const marqueeViewportRef = useRef<HTMLDivElement | null>(null);
-  const marqueeRailRef = useRef<HTMLDivElement | null>(null);
-  const marqueeGroupRef = useRef<HTMLDivElement | null>(null);
-  const marqueeRafRef = useRef<number | null>(null);
-  const marqueeResumeTimeoutRef = useRef<number | null>(null);
-  const marqueePositionRef = useRef(0);
-  const marqueeGroupWidthRef = useRef(0);
-  const marqueeLastFrameTimeRef = useRef(0);
-  const marqueeIsPausedRef = useRef(false);
-  const marqueeIsDraggingRef = useRef(false);
-  const marqueeLastPointerXRef = useRef(0);
+  const [isLocaleReady, setIsLocaleReady] = useState(false);
+  const [activeSection, setActiveSection] = useState<SectionId>("home");
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const isArabic = locale === "ar";
   const t = textByLocale[locale];
   const projectCards = projectCardsByLocale[locale];
-  const stats = statsByLocale[locale];
-  const marqueeItems = marqueeItemsByLocale[locale];
-  const marqueeLoopItems = useMemo(() => [...marqueeItems, ...marqueeItems, ...marqueeItems], [marqueeItems]);
-  const navigation = navigationConfig
-    .filter((item) => isContactSectionVisible || item.id !== "contact")
-    .map((item) => ({ ...item, label: t.nav[item.id] }));
-  const [navIndicator, setNavIndicator] = useState<NavIndicatorState>(initialNavIndicator);
-  const shouldReducePageMotion = Boolean(prefersReducedMotion || isCompactViewport);
-  const pageStarNearCount = shouldReducePageMotion ? 0 : 84;
-  const pageStarFarCount = shouldReducePageMotion ? 0 : 48;
-  const pageStarsNear = useMemo(() => createHeroStarSpecs(pageStarNearCount, 0x4f9c2d1a, true), [pageStarNearCount]);
-  const pageStarsFar = useMemo(() => createHeroStarSpecs(pageStarFarCount, 0x71d8a63f, false), [pageStarFarCount]);
 
   useEffect(() => {
-    const storedLocale = window.localStorage.getItem("portfolio-locale");
-    const preferredLocale: Locale =
-      storedLocale === "ar" || storedLocale === "en"
-        ? storedLocale
-        : window.navigator.language.toLowerCase().startsWith("ar")
-          ? "ar"
-          : "en";
+    let stored: string | null = null;
 
-    const frameId = window.requestAnimationFrame(() => {
-      setLocale(preferredLocale);
-      setIsLocaleHydrated(true);
+    try {
+      stored = window.localStorage.getItem("portfolio-locale");
+    } catch {
+      stored = null;
+    }
+
+    const preferred: Locale =
+      stored === "ar" || stored === "en" ? stored : window.navigator.language.toLowerCase().startsWith("ar") ? "ar" : "en";
+
+    const frame = window.requestAnimationFrame(() => {
+      setLocale(preferred);
+      setIsLocaleReady(true);
     });
 
-    return () => {
-      window.cancelAnimationFrame(frameId);
-    };
+    return () => window.cancelAnimationFrame(frame);
   }, []);
-
-  useEffect(() => {
-    const compactQuery = window.matchMedia("(max-width: 900px)");
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    const updateViewportMode = () => {
-      setIsCompactViewport(compactQuery.matches);
-      setPrefersReducedMotion(reducedMotionQuery.matches);
-    };
-
-    updateViewportMode();
-
-    compactQuery.addEventListener("change", updateViewportMode);
-    reducedMotionQuery.addEventListener("change", updateViewportMode);
-
-    return () => {
-      compactQuery.removeEventListener("change", updateViewportMode);
-      reducedMotionQuery.removeEventListener("change", updateViewportMode);
-    };
-  }, []);
-
-  useEffect(() => {
-    const compactQuery = window.matchMedia("(max-width: 900px)");
-    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    if (compactQuery.matches || reducedMotionQuery.matches) {
-      return;
-    }
-
-    const revealScene = () => {
-      setShouldRenderScene(true);
-    };
-
-    if ("requestIdleCallback" in window) {
-      const idleId = window.requestIdleCallback(revealScene, { timeout: 1600 });
-
-      return () => {
-        window.cancelIdleCallback(idleId);
-      };
-    }
-
-    const timeoutId = globalThis.setTimeout(revealScene, 1200);
-
-    return () => {
-      globalThis.clearTimeout(timeoutId);
-    };
-  }, []);
-
-  useEffect(() => {
-    const rail = marqueeRailRef.current;
-    const group = marqueeGroupRef.current;
-    const viewport = marqueeViewportRef.current;
-
-    if (!rail || !group || !viewport) {
-      return;
-    }
-
-    if (isCompactViewport) {
-      rail.style.removeProperty("--marquee-x");
-
-      if (marqueeResumeTimeoutRef.current !== null) {
-        window.clearTimeout(marqueeResumeTimeoutRef.current);
-      }
-
-      return;
-    }
-
-    const applyMarqueeOffset = () => {
-      rail.style.setProperty("--marquee-x", `${marqueePositionRef.current}px`);
-    };
-
-    const updateMarqueeMetrics = () => {
-      marqueeGroupWidthRef.current = group.getBoundingClientRect().width;
-      marqueePositionRef.current = normalizeMarqueeOffset(marqueePositionRef.current, marqueeGroupWidthRef.current);
-      applyMarqueeOffset();
-    };
-
-    updateMarqueeMetrics();
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateMarqueeMetrics();
-    });
-
-    resizeObserver.observe(group);
-    resizeObserver.observe(viewport);
-
-    const animateMarquee = (time: number) => {
-      const groupWidth = marqueeGroupWidthRef.current;
-
-      if (!marqueeIsPausedRef.current && !marqueeIsDraggingRef.current && groupWidth > 0) {
-        if (marqueeLastFrameTimeRef.current === 0) {
-          marqueeLastFrameTimeRef.current = time;
-        }
-
-        const deltaSeconds = (time - marqueeLastFrameTimeRef.current) / 1000;
-        marqueeLastFrameTimeRef.current = time;
-
-        const speedPxPerSecond = groupWidth / 60;
-        marqueePositionRef.current = normalizeMarqueeOffset(marqueePositionRef.current - speedPxPerSecond * deltaSeconds, groupWidth);
-        applyMarqueeOffset();
-      } else {
-        marqueeLastFrameTimeRef.current = time;
-      }
-
-      marqueeRafRef.current = window.requestAnimationFrame(animateMarquee);
-    };
-
-    marqueeRafRef.current = window.requestAnimationFrame(animateMarquee);
-
-    return () => {
-      resizeObserver.disconnect();
-
-      if (marqueeRafRef.current !== null) {
-        window.cancelAnimationFrame(marqueeRafRef.current);
-      }
-
-      if (marqueeResumeTimeoutRef.current !== null) {
-        window.clearTimeout(marqueeResumeTimeoutRef.current);
-      }
-    };
-  }, [isCompactViewport, locale, marqueeLoopItems]);
-
-  const scheduleMarqueeResume = () => {
-    if (marqueeResumeTimeoutRef.current !== null) {
-      window.clearTimeout(marqueeResumeTimeoutRef.current);
-    }
-
-    marqueeResumeTimeoutRef.current = window.setTimeout(() => {
-      marqueeIsPausedRef.current = false;
-      marqueeLastFrameTimeRef.current = 0;
-      setIsMarqueeInteracting(false);
-    }, 3000);
-  };
-
-  const handleMarqueePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (isCompactViewport) {
-      return;
-    }
-
-    marqueeIsDraggingRef.current = true;
-    marqueeIsPausedRef.current = true;
-    marqueeLastPointerXRef.current = event.clientX;
-    marqueeLastFrameTimeRef.current = 0;
-    setIsMarqueeInteracting(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
-    scheduleMarqueeResume();
-  };
-
-  const handleMarqueePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (isCompactViewport) {
-      return;
-    }
-
-    if (!marqueeIsDraggingRef.current) {
-      return;
-    }
-
-    const groupWidth = marqueeGroupWidthRef.current;
-
-    if (groupWidth <= 0 || !marqueeRailRef.current) {
-      return;
-    }
-
-    const deltaX = event.clientX - marqueeLastPointerXRef.current;
-    marqueeLastPointerXRef.current = event.clientX;
-    marqueePositionRef.current = normalizeMarqueeOffset(marqueePositionRef.current + deltaX, groupWidth);
-    marqueeRailRef.current.style.setProperty("--marquee-x", `${marqueePositionRef.current}px`);
-    scheduleMarqueeResume();
-  };
-
-  const handleMarqueePointerUp = (event: PointerEvent<HTMLDivElement>) => {
-    if (isCompactViewport) {
-      return;
-    }
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-
-    marqueeIsDraggingRef.current = false;
-    setIsMarqueeInteracting(false);
-    scheduleMarqueeResume();
-  };
 
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = isArabic ? "rtl" : "ltr";
-  }, [isArabic, locale]);
 
-  useEffect(() => {
-    if (!isLocaleHydrated) {
+    if (!isLocaleReady) {
       return;
     }
 
-    window.localStorage.setItem("portfolio-locale", locale);
-  }, [isLocaleHydrated, locale]);
+    try {
+      window.localStorage.setItem("portfolio-locale", locale);
+    } catch {
+      // Storage can be unavailable (private mode); the page still works.
+    }
+  }, [isArabic, isLocaleReady, locale]);
 
   useEffect(() => {
-    const animateIndicatorTo = (target: NavIndicatorState) => {
-      if (navIndicatorRafRef.current !== null) {
-        window.cancelAnimationFrame(navIndicatorRafRef.current);
-        navIndicatorRafRef.current = null;
-      }
-
-      const start = navIndicatorMetricsRef.current;
-
-      if (!start.visible || !target.visible) {
-        navIndicatorMetricsRef.current = target;
-        setNavIndicator(target);
-        return;
-      }
-
-      const duration = 520;
-      const startTime = performance.now();
-      const easeOutCubic = (progress: number) => 1 - Math.pow(1 - progress, 3);
-
-      const step = (now: number) => {
-        const progress = Math.min(1, (now - startTime) / duration);
-        const eased = easeOutCubic(progress);
-        const next = {
-          x: start.x + (target.x - start.x) * eased,
-          width: start.width + (target.width - start.width) * eased,
-          visible: target.visible,
-        };
-
-        navIndicatorMetricsRef.current = next;
-        setNavIndicator(next);
-
-        if (progress < 1) {
-          navIndicatorRafRef.current = window.requestAnimationFrame(step);
-        } else {
-          navIndicatorRafRef.current = null;
-          navIndicatorMetricsRef.current = target;
-          setNavIndicator(target);
-        }
-      };
-
-      navIndicatorRafRef.current = window.requestAnimationFrame(step);
-    };
-
-    const updateIndicator = () => {
-      const container = navLinksContainerRef.current;
-      const activeButton = navButtonRefs.current[activeSection];
-
-      if (!container || !activeButton || window.innerWidth < 768) {
-        animateIndicatorTo({ ...navIndicatorMetricsRef.current, visible: false });
-        return;
-      }
-
-      const containerRect = container.getBoundingClientRect();
-      const buttonRect = activeButton.getBoundingClientRect();
-      const nextX = buttonRect.left - containerRect.left;
-      const nextWidth = buttonRect.width;
-
-      const current = navIndicatorMetricsRef.current;
-
-      if (Math.abs(current.x - nextX) < 0.5 && Math.abs(current.width - nextWidth) < 0.5 && current.visible) {
-        return;
-      }
-
-      animateIndicatorTo({
-        x: nextX,
-        width: nextWidth,
-        visible: true,
-      });
-    };
-
-    const rafId = window.requestAnimationFrame(updateIndicator);
-
-    const resizeObserver = new ResizeObserver(updateIndicator);
-
-    if (navLinksContainerRef.current) {
-      resizeObserver.observe(navLinksContainerRef.current);
-    }
-
-    Object.values(navButtonRefs.current).forEach((button) => {
-      if (button) {
-        resizeObserver.observe(button);
-      }
-    });
-
-    window.addEventListener("resize", updateIndicator);
-
-    return () => {
-      window.cancelAnimationFrame(rafId);
-
-      if (navIndicatorRafRef.current !== null) {
-        window.cancelAnimationFrame(navIndicatorRafRef.current);
-        navIndicatorRafRef.current = null;
-      }
-
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", updateIndicator);
-    };
-  }, [activeSection, locale, navigation.length]);
-
-  useEffect(() => {
-    const sections = navigationConfig
-      .map((item) => document.querySelector<HTMLElement>(item.href))
-      .filter((section): section is HTMLElement => section !== null);
-
-    if (!sections.length) {
-      return;
-    }
-
-    const updateActiveSection = () => {
-      if (isProgrammaticNavScrollRef.current && lockedActiveSectionRef.current !== null) {
-        const lockedId = lockedActiveSectionRef.current;
-        setActiveSection((current) => (current === lockedId ? current : lockedId));
-        return;
-      }
-
-      const spyOffset = window.innerWidth >= 768 ? defaultSectionScrollOffset + 8 : 80;
-      const probeY = window.scrollY + spyOffset;
-      let nextActiveId = sections[0].id as NavigationSectionId;
-
-      for (const section of sections) {
-        if (probeY >= section.offsetTop - 1) {
-          nextActiveId = section.id as NavigationSectionId;
-        } else {
-          break;
-        }
-      }
-
-      const scrollingElement = document.scrollingElement;
-      const reachedBottom =
-        scrollingElement !== null && scrollingElement.scrollTop + window.innerHeight >= scrollingElement.scrollHeight - 120;
-
-      if (reachedBottom) {
-        nextActiveId = sections[sections.length - 1].id as NavigationSectionId;
-      }
-
-      setActiveSection((current) => {
-        if (current === nextActiveId) {
-          return current;
-        }
-
-        const currentIndex = sections.findIndex((section) => section.id === current);
-        const nextIndex = sections.findIndex((section) => section.id === nextActiveId);
-
-        if (currentIndex >= 0 && nextIndex >= 0 && Math.abs(nextIndex - currentIndex) === 1) {
-          const boundarySection = nextIndex > currentIndex ? sections[nextIndex] : sections[currentIndex];
-          const boundaryTop = boundarySection.offsetTop - spyOffset;
-          const boundaryHysteresis = nextIndex === sections.length - 1 ? 8 : 16;
-
-          if (!reachedBottom && Math.abs(window.scrollY - boundaryTop) < boundaryHysteresis) {
-            return current;
-          }
-        }
-
-        return nextActiveId;
-      });
-    };
-
-    const scheduleActiveSectionUpdate = () => {
-      if (sectionTrackRafRef.current !== null) {
-        return;
-      }
-
-      sectionTrackRafRef.current = window.requestAnimationFrame(() => {
-        sectionTrackRafRef.current = null;
-        updateActiveSection();
-      });
-    };
-
-    scheduleActiveSectionUpdate();
-    window.addEventListener("scroll", scheduleActiveSectionUpdate, { passive: true });
-    window.addEventListener("resize", scheduleActiveSectionUpdate);
-
-    return () => {
-      window.removeEventListener("scroll", scheduleActiveSectionUpdate);
-      window.removeEventListener("resize", scheduleActiveSectionUpdate);
-
-      if (sectionTrackRafRef.current !== null) {
-        window.cancelAnimationFrame(sectionTrackRafRef.current);
-      }
-
-      if (navLockTimeoutRef.current !== null) {
-        window.clearTimeout(navLockTimeoutRef.current);
-      }
-    };
+    const onScroll = () => setIsScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const closeMenuOnDesktop = () => {
-      if (window.innerWidth >= 768) {
-        setIsMobileMenuOpen(false);
-      }
-    };
+    const sections = (["home", "skills", "projects"] as const)
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
 
-    closeMenuOnDesktop();
-    window.addEventListener("resize", closeMenuOnDesktop);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting);
 
-    return () => {
-      window.removeEventListener("resize", closeMenuOnDesktop);
-    };
+        if (visible.length) {
+          setActiveSection(visible[visible.length - 1].target.id as SectionId);
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
   }, []);
 
-  const smoothScrollToSection = (id: NavigationSectionId): number => {
-    const section = document.getElementById(id);
-    const scrollingElement = document.scrollingElement;
-
-    if (!section || !scrollingElement) {
-      return 0;
-    }
-
-    const sectionOffset = sectionScrollOffsets[id] ?? defaultSectionScrollOffset;
-    const targetTop = section.offsetTop - sectionOffset;
-    const startTop = scrollingElement.scrollTop;
-    const maxTop = scrollingElement.scrollHeight - window.innerHeight;
-    const clampedTargetTop = Math.max(0, Math.min(targetTop, Math.max(0, maxTop)));
-    const distance = clampedTargetTop - startTop;
-
-    if (Math.abs(distance) < 1) {
-      isProgrammaticNavScrollRef.current = false;
-      lockedActiveSectionRef.current = null;
-
-      if (navLockTimeoutRef.current !== null) {
-        window.clearTimeout(navLockTimeoutRef.current);
-        navLockTimeoutRef.current = null;
-      }
-
-      return 0;
-    }
-
-    if (scrollRafRef.current !== null) {
-      window.cancelAnimationFrame(scrollRafRef.current);
-      scrollRafRef.current = null;
-    }
-
-    const duration = Math.min(1700, Math.max(900, Math.abs(distance) * 0.78));
-    const startTime = performance.now();
-
-    const easeInOutQuad = (progress: number) => {
-      return progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-    };
-
-    const step = (now: number) => {
-      const progress = Math.min(1, (now - startTime) / duration);
-      const eased = easeInOutQuad(progress);
-      scrollingElement.scrollTop = startTop + distance * eased;
-
-      if (progress < 1) {
-        scrollRafRef.current = window.requestAnimationFrame(step);
-      } else {
-        scrollRafRef.current = null;
-        isProgrammaticNavScrollRef.current = false;
-        lockedActiveSectionRef.current = null;
-
-        if (navLockTimeoutRef.current !== null) {
-          window.clearTimeout(navLockTimeoutRef.current);
-          navLockTimeoutRef.current = null;
-        }
-
-        window.dispatchEvent(new Event("scroll"));
-      }
-    };
-
-    scrollRafRef.current = window.requestAnimationFrame(step);
-    return duration;
-  };
-
-  const handleNavigationClick = (id: NavigationSectionId) => {
-    if (navLockTimeoutRef.current !== null) {
-      window.clearTimeout(navLockTimeoutRef.current);
-    }
-
-    isProgrammaticNavScrollRef.current = true;
-    lockedActiveSectionRef.current = id;
-    setActiveSection(id);
-    setIsMobileMenuOpen(false);
-    const scrollDuration = smoothScrollToSection(id);
-
-    if (scrollDuration <= 0) {
-      isProgrammaticNavScrollRef.current = false;
-      lockedActiveSectionRef.current = null;
-      window.dispatchEvent(new Event("scroll"));
-      return;
-    }
-
-    navLockTimeoutRef.current = window.setTimeout(() => {
-      isProgrammaticNavScrollRef.current = false;
-      lockedActiveSectionRef.current = null;
-      navLockTimeoutRef.current = null;
-      window.dispatchEvent(new Event("scroll"));
-    }, scrollDuration + 320);
-  };
-
-  const toggleLocale = () => {
-    setLocale((current) => (current === "en" ? "ar" : "en"));
-  };
-
-  const validate = () => {
-    const nextErrors: FormErrors = {};
-
-    if (!form.name.trim()) {
-      nextErrors.name = t.form.errors.nameRequired;
-    }
-
-    if (!form.email.trim()) {
-      nextErrors.email = t.form.errors.emailRequired;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      nextErrors.email = t.form.errors.emailInvalid;
-    }
-
-    if (!form.message.trim()) {
-      nextErrors.message = t.form.errors.briefRequired;
-    } else if (form.message.trim().length < 20) {
-      nextErrors.message = t.form.errors.briefMin;
-    }
-
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!validate()) {
-      setSubmitted(false);
-      return;
-    }
-
-    setSubmitted(true);
-    setErrors({});
-    setForm(initialForm);
-  };
+  const navItems: { id: SectionId; label: string }[] = [
+    { id: "skills", label: t.nav.skills },
+    { id: "projects", label: t.nav.projects },
+  ];
 
   return (
-    <div dir={isArabic ? "rtl" : "ltr"} className="relative min-w-0 overflow-x-hidden bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 z-0 bg-grid-fade" />
-      <div className="pointer-events-none absolute inset-0 z-[1] grid-overlay" />
-      {shouldRenderScene ? <SceneBackground /> : null}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[2] overflow-hidden opacity-95">
-        {!shouldReducePageMotion ? (
-          <>
-            <div className="random-starfield random-starfield-far">{renderHeroStarLayer(pageStarsFar, "page-far")}</div>
-            <div className="random-starfield random-starfield-near">{renderHeroStarLayer(pageStarsNear, "page-near")}</div>
-          </>
-        ) : null}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_42%),radial-gradient(circle_at_50%_20%,rgba(110,231,255,0.08),transparent_24%)]" />
-      </div>
+    <div dir={isArabic ? "rtl" : "ltr"} className="min-h-screen bg-background text-foreground">
+      <header
+        className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
+          isScrolled ? "hairline bg-background/85 backdrop-blur-md" : "border-transparent bg-background"
+        }`}
+      >
+        <div className="shell flex h-16 items-center justify-between gap-4">
+          <a href="#home" className="text-[15px] font-medium tracking-tight text-foreground rtl:tracking-normal">
+            {t.name}
+          </a>
 
-      <header className="relative z-50 mx-2 mt-3 md:fixed md:left-1/2 md:top-6 md:mx-0 md:mt-0 md:w-[calc(100%-1.5rem)] md:max-w-5xl md:-translate-x-1/2">
-        <div>
-          <nav className="glass neon-ring flex min-w-0 items-center justify-between gap-2 rounded-2xl px-3 py-2 text-xs text-white/75 shadow-glow sm:rounded-full sm:text-sm md:justify-start lg:px-4 lg:py-3 xl:px-6">
+          <nav className="flex items-center gap-1 sm:gap-2">
+            {navItems.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                aria-current={activeSection === item.id ? "true" : undefined}
+                className={`rounded-md px-2.5 py-2 text-sm transition-colors ${
+                  activeSection === item.id ? "text-foreground" : "text-muted hover:text-foreground"
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
+
+            <span className="hairline mx-1 hidden h-4 border-s sm:block" aria-hidden="true" />
+
+            {socialLinks.map(({ label, href, src }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                title={label}
+                className="hidden h-9 w-9 items-center justify-center rounded-md opacity-60 transition hover:opacity-100 sm:inline-flex"
+              >
+                <Image src={src} alt="" width={16} height={16} className="h-4 w-4 object-contain invert" />
+              </a>
+            ))}
+
             <button
               type="button"
-              onClick={() => handleNavigationClick("home")}
-              className="min-w-0 flex-1 shrink text-start pr-1 text-[13px] font-semibold tracking-[0.06em] text-white sm:max-w-[36vw] sm:text-base sm:tracking-[0.12em] md:flex-none lg:max-w-none lg:shrink-0 lg:pr-0 lg:tracking-[0.24em]"
+              onClick={() => setLocale((current) => (current === "en" ? "ar" : "en"))}
+              aria-label={t.nav.switchLanguageAria}
+              className="hairline ms-1 rounded-md border px-3 py-1.5 text-[13px] text-muted transition-colors hover:border-foreground/30 hover:text-foreground"
             >
-              <span className="block truncate lg:hidden">{isArabic ? "خالد الواكد" : "Khaled Alwaked"}</span>
-              <span className="hidden lg:block">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</span>
+              {t.nav.switchLanguage}
             </button>
-
-            <div
-              ref={navLinksContainerRef}
-              className={`relative hidden min-w-0 flex-1 md:grid md:items-center md:gap-1 md:px-1 lg:gap-1.5 lg:px-2 xl:gap-2 xl:px-4 ${
-                navigation.length === 4 ? "md:grid-cols-4" : "md:grid-cols-3"
-              }`}
-            >
-              <span
-                aria-hidden="true"
-                data-nav-indicator=""
-                className="pointer-events-none absolute inset-y-0 left-0 -z-10 rounded-full border border-neon/45 bg-neon/20 shadow-[0_0_18px_rgba(110,231,255,0.22)]"
-                style={{
-                  opacity: navIndicator.visible ? 1 : 0,
-                  transform: `translate3d(${navIndicator.x}px, 0, 0)`,
-                  width: navIndicator.width,
-                  willChange: "transform, width, opacity",
-                }}
-              />
-
-              {navigation.map((item) => (
-                <button
-                  ref={(element) => {
-                    navButtonRefs.current[item.id] = element;
-                  }}
-                  type="button"
-                  key={item.href}
-                  onClick={() => handleNavigationClick(item.id)}
-                  aria-current={activeSection === item.id ? "page" : undefined}
-                  className={`relative z-10 w-full min-w-0 rounded-full px-1 py-1 text-[10px] leading-none transition-colors duration-300 md:px-1 lg:px-2 lg:text-xs xl:px-3 xl:py-1.5 xl:text-sm ${
-                    activeSection === item.id ? "text-white" : "text-white/72 hover:text-white"
-                  }`}
-                >
-                  <span className="relative block truncate">{item.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className={`${isArabic ? "mr-auto" : "ml-auto"} hidden items-center gap-2 min-[1380px]:flex`}>
-              <button
-                type="button"
-                onClick={toggleLocale}
-                aria-label={t.nav.languageSwitchAria}
-                className="inline-flex h-9 min-w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 px-3 text-xs font-semibold tracking-[0.12em] text-white transition hover:border-neon/40 hover:bg-neon/10"
-              >
-                {isArabic ? "EN" : "AR"}
-              </button>
-              {socialLinks.map(({ label, href, src }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  title={label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 transition hover:border-neon/40 hover:bg-neon/10 hover:text-white"
-                >
-                  <Image src={src} alt="" width={16} height={16} className="h-4 w-4 object-contain invert" aria-hidden="true" />
-                  <span className="sr-only">{label}</span>
-                </a>
-              ))}
-              {isContactSectionVisible ? (
-                <button
-                  type="button"
-                  onClick={() => handleNavigationClick("contact")}
-                  className="inline-flex whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:border-neon/40 hover:bg-neon/10"
-                >
-                  {t.nav.letsBuild}
-                </button>
-              ) : null}
-            </div>
-
-            <div className="flex shrink-0 items-center gap-1.5 md:hidden">
-              <button
-                type="button"
-                onClick={toggleLocale}
-                aria-label={t.nav.languageSwitchAria}
-                className="inline-flex h-9 min-w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 px-3 text-xs font-semibold tracking-[0.12em] text-white transition hover:border-neon/40 hover:bg-neon/10"
-              >
-                {isArabic ? "EN" : "AR"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen((current) => !current)}
-                aria-expanded={isMobileMenuOpen}
-                aria-label={isMobileMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:border-neon/40 hover:bg-neon/10"
-              >
-                <span className="text-base leading-none">{isMobileMenuOpen ? "✕" : "☰"}</span>
-              </button>
-            </div>
           </nav>
-
-          {isMobileMenuOpen ? (
-            <div className="glass neon-ring mt-2 space-y-2 rounded-2xl px-2 py-2 shadow-glow md:hidden">
-                <div className="grid grid-cols-2 gap-2">
-                  {socialLinks.map(({ label, href, src }) => (
-                    <a
-                      key={`${label}-mobile-menu`}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={label}
-                      title={label}
-                      className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/25 px-3 py-2 text-[11px] font-medium text-white/80 transition hover:border-neon/40 hover:bg-neon/10 hover:text-white"
-                    >
-                      <Image src={src} alt="" width={16} height={16} className="h-4 w-4 object-contain invert" aria-hidden="true" />
-                      <span>{label}</span>
-                    </a>
-                  ))}
-                </div>
-                {navigation.map((item) => (
-                  <button
-                    type="button"
-                    key={`mobile-${item.href}`}
-                    onClick={() => handleNavigationClick(item.id)}
-                    className={`flex w-full items-center justify-center rounded-xl border px-3 py-2 text-[11px] transition ${
-                      activeSection === item.id
-                        ? "border-neon/55 bg-neon/15 text-white"
-                        : "border-white/10 bg-black/25 text-white/70 hover:text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                {isContactSectionVisible ? (
-                  <button
-                    type="button"
-                    onClick={() => handleNavigationClick("contact")}
-                    className="flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white transition hover:border-neon/40 hover:bg-neon/10"
-                  >
-                    {t.nav.letsBuild}
-                  </button>
-                ) : null}
-            </div>
-          ) : null}
         </div>
       </header>
 
-      <main className="relative z-10">
-        <section id="home" className="relative isolate flex min-h-[calc(100svh-5rem)] items-center overflow-hidden py-12 sm:min-h-screen sm:py-28">
-          <div className="section-shell relative z-10">
-            <div className="grid w-full items-center gap-8 sm:gap-12 lg:grid-cols-[1.15fr_0.85fr]">
-              <div className="max-w-3xl space-y-6 sm:space-y-8">
-                <div className="glass inline-flex max-w-[calc(100vw-2rem)] whitespace-normal rounded-full px-3 py-2 text-[10px] leading-5 tracking-[0.12em] text-white/65 sm:px-4 sm:text-xs sm:tracking-[0.35em]">
-                  {t.hero.badge}
-                </div>
+      <main>
+        <section id="home" className="shell pb-20 pt-10 sm:pb-28 sm:pt-20">
+          <div className="grid items-end gap-12 lg:grid-cols-12 lg:gap-12">
+            <div className="fade-up lg:col-span-7 lg:pb-4">
+              <p className="flex items-center gap-2 text-sm text-muted">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
+                {t.hero.meta}
+              </p>
 
-                <div className="space-y-5">
-                  <h1
-                    className={`max-w-4xl text-3xl font-semibold text-white min-[420px]:text-4xl sm:text-6xl lg:text-7xl ${
-                      isArabic ? "leading-[1.3] tracking-normal overflow-visible pt-1 pb-4" : "leading-[1.02] tracking-normal sm:leading-[0.95]"
-                    }`}
-                  >
-                    {isArabic ? (
-                      <>
-                        <span className="block leading-[1.22]">{t.hero.titleMain}</span>
-                        <span className="mt-3 block leading-[1.22] pb-1">
-                          <span className="text-white/40">| </span>
-                          <span className="text-gradient">{t.hero.titleLine2}</span>
-                        </span>
-                        <span className="mt-3 block leading-[1.22] text-cyan-100">{t.hero.titleLine3}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="block">{t.hero.titleMain}</span>
-                        <span className="mt-1 block text-white/40 sm:mt-2">|</span>
-                        <span className="mt-1 block text-gradient sm:mt-2">{t.hero.titleAccent}</span>
-                      </>
-                    )}
-                  </h1>
-                  <p className="max-w-[calc(100vw-2rem)] text-sm leading-7 text-white/68 sm:max-w-2xl sm:text-xl sm:leading-8">{t.hero.description}</p>
-                </div>
+              <h1 className="mt-8 text-[2.5rem] font-medium leading-[1.08] tracking-[-0.03em] rtl:leading-[1.35] rtl:tracking-normal sm:text-6xl sm:leading-[1.04] lg:text-[4.1rem]">
+                <span className="text-foreground">{t.hero.titleA}</span>{" "}
+                <span className="text-muted">{t.hero.titleB}</span>
+              </h1>
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-                  <button
-                    type="button"
-                    onClick={() => handleNavigationClick("projects")}
-                    className="w-full rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02] sm:w-auto"
-                  >
-                    {t.hero.primaryCta}
-                  </button>
-                  {isContactSectionVisible ? (
-                    <button
-                      type="button"
-                      onClick={() => handleNavigationClick("contact")}
-                      className="glass w-full rounded-full px-6 py-3 text-sm font-semibold text-white transition hover:border-neon/40 hover:text-neon sm:w-auto"
-                    >
-                      {t.hero.secondaryCta}
-                    </button>
-                  ) : null}
-                </div>
+              <p className="mt-8 max-w-xl text-base leading-relaxed text-muted sm:text-lg sm:leading-relaxed">{t.hero.description}</p>
 
-                <div className="grid gap-3 min-[560px]:grid-cols-2 sm:grid-cols-3 sm:gap-4">
-                  {stats.map((stat) => (
-                    <div key={stat.label} className="glass min-w-0 rounded-2xl p-4 shadow-card sm:rounded-3xl sm:p-5">
-                      <div className="break-words text-2xl font-semibold text-white">{stat.value}</div>
-                      <div className="mt-2 text-sm text-white/55">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
+              <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4">
+                <a
+                  href="#projects"
+                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background transition-colors hover:bg-white"
+                >
+                  {t.hero.primaryCta}
+                  <span aria-hidden="true" className="rtl:-scale-x-100">
+                    →
+                  </span>
+                </a>
+                <a
+                  href={socialLinks[0].href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted underline decoration-subtle/60 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-foreground"
+                >
+                  LinkedIn
+                </a>
+                <a
+                  href={socialLinks[1].href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted underline decoration-subtle/60 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-foreground"
+                >
+                  GitHub
+                </a>
               </div>
 
-              <div className="relative mx-auto h-[300px] w-full max-w-xl sm:h-[420px] lg:h-[540px]">
-                <div className="absolute inset-0 rounded-[2rem] border border-white/10 bg-white/[0.02] backdrop-blur-sm" />
-                <div className="absolute inset-4 rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(110,231,255,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,79,216,0.12),transparent_30%)] sm:inset-6" />
-                <div className="pointer-events-none absolute bottom-4 left-4 right-4 top-4 overflow-hidden rounded-[2rem] sm:bottom-6 sm:left-6 sm:right-6 sm:top-6">
-                  <Image
-                    src={myPhoto}
-                    alt={t.hero.portraitAlt}
-                    priority
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 540px"
-                    quality={72}
-                    placeholder="blur"
-                    className="absolute inset-0 h-full w-full object-cover object-top"
-                    style={{
-                      transform: `translate3d(0, ${heroPhotoOffsetY}px, 0) scale(${heroPhotoScale})`,
-                      transformOrigin: "center top",
-                    }}
-                  />
-                </div>
-                <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 backdrop-blur-md sm:bottom-8 sm:left-8 sm:right-8 sm:rounded-3xl sm:px-5 sm:py-4">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-white/45 sm:text-base sm:tracking-[0.22em]">{isArabic ? "خالد الواكد" : "Khaled M Alwaked"}</p>
-                    <p className="mt-1 text-xs text-white/70 sm:text-sm">{t.hero.portraitRole}</p>
+              <dl className="hairline mt-14 grid grid-cols-3 gap-4 border-t pt-6 sm:gap-8">
+                {t.hero.facts.map((fact) => (
+                  <div key={fact.label} className="min-w-0">
+                    <dt className="text-xs text-subtle sm:text-sm">{fact.label}</dt>
+                    <dd className="mt-1.5 text-sm font-medium text-foreground sm:text-base">{fact.value}</dd>
                   </div>
-                  <div className="h-3 w-3 animate-pulse rounded-full bg-neon shadow-[0_0_20px_rgba(110,231,255,0.9)]" />
-                </div>
+                ))}
+              </dl>
+            </div>
+
+            <figure className="fade-up mx-auto w-full max-w-sm [animation-delay:120ms] sm:max-w-md lg:col-span-5 lg:max-w-none">
+              <div className="hairline relative aspect-[4/5] overflow-hidden rounded-2xl border bg-surface">
+                <div
+                  className="absolute inset-0"
+                  style={{ background: "radial-gradient(120% 70% at 50% 0%, rgb(var(--foreground) / 0.06), transparent 60%)" }}
+                  aria-hidden="true"
+                />
+                <Image
+                  src={myPhoto}
+                  alt={t.hero.portraitAlt}
+                  priority
+                  placeholder="blur"
+                  quality={80}
+                  sizes="(min-width: 1024px) 28rem, (min-width: 640px) 28rem, 90vw"
+                  className="absolute inset-x-0 bottom-0 h-[92%] w-full object-cover object-top"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-surface to-transparent" aria-hidden="true" />
               </div>
+              <figcaption className="mt-4 flex items-start justify-between gap-4 text-sm">
+                <span>
+                  <span className="block font-medium text-foreground">{t.fullName}</span>
+                  <span className="mt-0.5 block text-muted">{t.hero.role}</span>
+                </span>
+                <span className="mt-0.5 inline-flex shrink-0 items-center gap-2 text-xs text-muted">
+                  <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
+                    <span className="absolute inset-0 animate-ping rounded-full bg-accent/60 [animation-duration:2.4s]" />
+                    <span className="relative h-1.5 w-1.5 rounded-full bg-accent" />
+                  </span>
+                  {t.hero.availability}
+                </span>
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section id="skills" className="hairline border-t">
+          <div className="shell py-20 sm:py-28">
+            <SectionHeading index="01" title={t.skills.title} description={t.skills.description} />
+
+            <div className="mt-12 grid sm:mt-16 lg:grid-cols-12 lg:gap-12">
+            <dl className="lg:col-span-8 lg:col-start-5">
+              {t.skills.groups.map((group) => (
+                <div key={group.label} className="hairline grid grid-cols-[8rem_1fr] gap-4 border-t py-5 sm:grid-cols-[12rem_1fr]">
+                  <dt className="text-sm text-subtle">{group.label}</dt>
+                  <dd className="flex flex-wrap gap-x-5 gap-y-1 text-[15px] text-foreground">
+                    {group.items.map((skill) => (
+                      <span key={skill}>{skill}</span>
+                    ))}
+                  </dd>
+                </div>
+              ))}
+            </dl>
             </div>
           </div>
         </section>
 
-        <section id="skills" className="section-shell py-8 sm:py-16">
-          <MotionReveal className="space-y-8" disableMotion={shouldReducePageMotion}>
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div className="space-y-3">
-                <p className="text-sm tracking-[0.45em] text-neon/70">{t.skills.eyebrow}</p>
-                <h2 className="text-2xl font-semibold tracking-normal text-white sm:text-4xl">{t.skills.title}</h2>
-              </div>
-              <p className="max-w-2xl text-sm leading-7 text-white/62 sm:text-base">{t.skills.description}</p>
-            </div>
-
-            <div className="glass overflow-hidden rounded-[1.5rem] border-white/10 py-4 shadow-card sm:rounded-[2rem] sm:py-5">
-              <div
-                ref={marqueeViewportRef}
-                className={`marquee-viewport ${!isCompactViewport ? (isMarqueeInteracting ? "cursor-grabbing" : "cursor-grab") : ""}`}
-                dir="ltr"
-                onPointerDown={isCompactViewport ? undefined : handleMarqueePointerDown}
-                onPointerMove={isCompactViewport ? undefined : handleMarqueePointerMove}
-                onPointerUp={isCompactViewport ? undefined : handleMarqueePointerUp}
-                onPointerCancel={isCompactViewport ? undefined : handleMarqueePointerUp}
-              >
-                <div ref={marqueeRailRef} className={`marquee-rail ${isCompactViewport ? "marquee-rail-css" : ""}`}>
-                  {[0, 1].map((copyIndex) => (
-                    <div
-                      key={`marquee-group-${copyIndex}`}
-                      ref={copyIndex === 0 ? marqueeGroupRef : undefined}
-                      className="marquee-group"
-                      aria-hidden={copyIndex === 1}
-                    >
-                      {marqueeLoopItems.map((item, index) => (
-                        <div
-                          key={`${copyIndex}-${item}-${index}`}
-                          dir={isArabic ? "rtl" : "ltr"}
-                          className="marquee-chip flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-white/78 sm:gap-3 sm:px-5 sm:py-3 sm:text-base"
-                        >
-                          <span className="h-2.5 w-2.5 rounded-full bg-neon shadow-[0_0_14px_rgba(110,231,255,0.9)]" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </MotionReveal>
+        <section id="projects" className="hairline border-t">
+          <div className="shell pt-20 sm:pt-28">
+            <SectionHeading index="02" title={t.projects.title} description={t.projects.description} />
+            <ProjectList items={projectCards} labels={t.projects.labels} />
+          </div>
         </section>
-
-        <section id="projects" className="section-shell py-10 sm:py-20">
-          <MotionReveal className="space-y-6 sm:space-y-8" viewportAmount={0.02} disableMotion={shouldReducePageMotion}>
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="space-y-3">
-                <p className="text-sm tracking-[0.45em] text-neon/70">{t.projects.eyebrow}</p>
-                <h2 className="text-2xl font-semibold tracking-normal text-white sm:text-4xl">{t.projects.title}</h2>
-              </div>
-              <p className="max-w-2xl text-sm leading-7 text-white/62 sm:text-base">{t.projects.description}</p>
-            </div>
-
-            <BentoGrid items={projectCards} labels={t.projects.labels} disableMotion={shouldReducePageMotion} />
-          </MotionReveal>
-        </section>
-
-        {isContactSectionVisible ? (
-          <section id="contact" className="section-shell pb-16 pt-10 sm:pb-28 sm:pt-20">
-            <MotionReveal disableMotion={shouldReducePageMotion}>
-              <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-                <div className="space-y-5">
-                  <p className="text-sm tracking-[0.45em] text-neon/70">{t.contact.eyebrow}</p>
-                  <h2 className="max-w-xl text-2xl font-semibold tracking-normal text-white sm:text-4xl">{t.contact.title}</h2>
-                  <p className="max-w-xl text-sm leading-7 text-white/64 sm:text-base">{t.contact.description}</p>
-                  <div className="glass inline-flex rounded-3xl px-5 py-4 text-sm text-white/65 shadow-card">{t.contact.availability}</div>
-                </div>
-
-                <div className="glass neon-ring rounded-[1.5rem] p-4 shadow-glow sm:rounded-[2rem] sm:p-8">
-                  {submitted ? (
-                      <div className="flex min-h-[420px] flex-col items-center justify-center gap-5 text-center">
-                        <div className="flex h-20 w-20 items-center justify-center rounded-full border border-neon/30 bg-neon/10 text-3xl text-neon shadow-glow">
-                          ✓
-                        </div>
-                        <div className="space-y-2">
-                          <h3 className="text-2xl font-semibold text-white">{t.contact.successTitle}</h3>
-                          <p className="max-w-md text-sm leading-7 text-white/65 sm:text-base">{t.contact.successDescription}</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setSubmitted(false)}
-                          className="rounded-full border border-white/10 px-5 py-3 text-sm font-medium text-white transition hover:border-neon/40 hover:text-neon"
-                        >
-                          {t.contact.sendAnother}
-                        </button>
-                      </div>
-                    ) : (
-                      <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="grid gap-5 sm:grid-cols-2">
-                          <label className="space-y-2 text-sm text-white/70">
-                            <span>{t.form.name}</span>
-                            <input
-                              value={form.name}
-                              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-                              className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
-                              placeholder={t.form.namePlaceholder}
-                            />
-                            {errors.name ? <span className="text-xs text-rose-300">{errors.name}</span> : null}
-                          </label>
-                          <label className="space-y-2 text-sm text-white/70">
-                            <span>{t.form.email}</span>
-                            <input
-                              value={form.email}
-                              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                              className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
-                              placeholder={t.form.emailPlaceholder}
-                              type="email"
-                            />
-                            {errors.email ? <span className="text-xs text-rose-300">{errors.email}</span> : null}
-                          </label>
-                        </div>
-
-                        <label className="space-y-2 text-sm text-white/70">
-                          <span>{t.form.brief}</span>
-                          <textarea
-                            value={form.message}
-                            onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
-                            className="min-h-40 w-full rounded-[1.5rem] border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition focus:border-neon/50 focus:bg-black/40"
-                            placeholder={t.form.briefPlaceholder}
-                          />
-                          {errors.message ? <span className="text-xs text-rose-300">{errors.message}</span> : null}
-                        </label>
-
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                          <p className="text-xs tracking-[0.3em] text-white/38">{t.form.hint}</p>
-                          <button
-                            type="submit"
-                            className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:scale-[1.02]"
-                          >
-                            {t.form.submit}
-                          </button>
-                        </div>
-                      </form>
-                    )}
-                </div>
-              </div>
-            </MotionReveal>
-          </section>
-        ) : null}
       </main>
+
+      <footer className="hairline border-t">
+        <div className="shell py-20 sm:py-28">
+          <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+            <h2 className="text-3xl font-medium tracking-tight rtl:tracking-normal sm:text-5xl lg:col-span-7">{t.footer.title}</h2>
+            <div className="lg:col-span-5 lg:self-end">
+              <p className="text-base leading-relaxed text-muted">{t.footer.description}</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                {socialLinks.map(({ label, href, src }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hairline inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-sm text-foreground transition-colors hover:border-foreground/30 hover:bg-foreground/[0.03]"
+                  >
+                    <Image src={src} alt="" width={14} height={14} className="h-3.5 w-3.5 object-contain opacity-80 invert" />
+                    {label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="hairline mt-20 flex flex-wrap items-center justify-between gap-3 border-t pt-6 text-xs text-subtle">
+            <span>
+              © {new Date().getFullYear()} {t.fullName}. {t.footer.rights}
+            </span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
