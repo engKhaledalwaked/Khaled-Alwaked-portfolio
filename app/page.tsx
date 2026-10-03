@@ -3,12 +3,13 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProjectList, type ProjectCard } from "@/components/project-list";
+import { WebsiteGrid, type WebsiteCard } from "@/components/website-grid";
 import githubProfileIcon from "@/assest/github.png";
 import linkedinProfileIcon from "@/assest/linkedin.png";
 import myPhoto from "@/assest/my-photo.png";
 
 type Locale = "en" | "ar";
-type SectionId = "home" | "skills" | "projects";
+type SectionId = "home" | "skills" | "projects" | "websites";
 
 const socialLinks = [
   { label: "LinkedIn", href: "https://www.linkedin.com/in/khaled-alwaked", src: linkedinProfileIcon },
@@ -239,24 +240,142 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
   ],
 };
 
+const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
+  en: [
+    {
+      name: "Arab Dental Center",
+      url: "https://arab-dental.vercel.app",
+      image: "/projects/arab-dental.jpg",
+      location: "Dental center · Shmeisani, Amman",
+      kind: "redesign",
+      summary:
+        "Jordan’s first comprehensive dental center had an outdated website that buried its eight departments, eleven dentists and emergency service in cluttered pages. I rebuilt it as a fast bilingual site that turns a visit into a booking.",
+      details: [
+        "Choosing a department or a doctor carries straight into a booking form that opens WhatsApp with a ready-made message.",
+        "Draggable before/after sliders for real cases, a doctor directory filtered by specialty and a photo tour of the center.",
+        "Emergency hours up front, a sticky call/book bar on mobile and a dedicated path for patients travelling from abroad.",
+      ],
+    },
+    {
+      name: "Lucca Steakhouse",
+      url: "https://lucca-steakhouse.vercel.app",
+      image: "/projects/lucca.jpg",
+      location: "Steakhouse · Jabal Amman",
+      kind: "newSite",
+      summary:
+        "A Jabal Amman steakhouse with 3,600+ Google reviews was relying on Instagram and Facebook alone, with its menu available only as an old photo. I designed a site that sells the experience and takes reservations.",
+      details: [
+        "Interactive butcher’s chart: hover any cut to see where it comes from, with weights taken from the house menu.",
+        "Reservation form with occasion and seating choices that reaches the restaurant’s WhatsApp as a structured request.",
+        "A dark walnut-and-oxblood identity with Arabic and English typography chosen to match the room.",
+      ],
+    },
+    {
+      name: "Sicilia",
+      url: "https://sicilia-livid.vercel.app",
+      image: "/projects/sicilia.jpg",
+      location: "Italian restaurant · Irbid",
+      kind: "newSite",
+      summary:
+        "A popular Italian restaurant in Irbid (4.7 on Google, 1,000+ reviews) had no website, so guests pieced the menu together from Google Maps photos. I built one around a full priced menu and direct bookings.",
+      details: [
+        "Complete menu with medium and large prices in JD, organized by category so guests can decide before they arrive.",
+        "Identity drawn from the restaurant itself: its majolica tiles redrawn as an SVG band, arches taken from its logo and décor.",
+        "Swipeable signature dishes, a photo gallery and a WhatsApp booking form with a sticky call/book bar on mobile.",
+      ],
+    },
+    {
+      name: "STEEL Restaurant & Cafe",
+      url: "https://steel-cafe.vercel.app",
+      image: "/projects/steel.jpg",
+      location: "Restaurant & café · Irbid",
+      kind: "newSite",
+      summary:
+        "An Irbid restaurant and café with 46K Facebook followers but no website of its own. I designed one that covers everything from breakfast to late dinner and turns events into enquiries.",
+      details: [
+        "Menu organized by meal, from Levantine breakfast through to mains and desserts.",
+        "Events section for birthdays, Ramadan iftars and corporate lunches, each leading to a quote request.",
+        "Booking form with booking type, indoor or outdoor seating and group size, sent to WhatsApp in one tap.",
+      ],
+    },
+  ],
+  ar: [
+    {
+      name: "المركز العربي لطب الأسنان",
+      url: "https://arab-dental.vercel.app",
+      image: "/projects/arab-dental.jpg",
+      location: "مركز أسنان · الشميساني، عمّان",
+      kind: "redesign",
+      summary:
+        "أول مركز متخصص شامل لطب الأسنان في الأردن كان موقعه قديماً، يُخفي أقسامه الثمانية وأطباءه الأحد عشر وخدمة الطوارئ خلف صفحات مزدحمة. أعدت بناءه كموقع سريع بالعربي والإنجليزي يحوّل الزيارة إلى حجز.",
+      details: [
+        "اختيار القسم أو الطبيب ينتقل مباشرة إلى نموذج حجز يفتح واتساب برسالة جاهزة.",
+        "شرائح مقارنة قبل/بعد قابلة للسحب لحالات حقيقية، ودليل أطباء مصنّف حسب التخصص، وجولة مصوّرة داخل المركز.",
+        "ساعات الطوارئ في الواجهة، وشريط اتصال وحجز ثابت على الهاتف، ومسار مخصص للمرضى القادمين من خارج الأردن.",
+      ],
+    },
+    {
+      name: "Lucca Steakhouse",
+      url: "https://lucca-steakhouse.vercel.app",
+      image: "/projects/lucca.jpg",
+      location: "مطعم ستيك · جبل عمّان",
+      kind: "newSite",
+      summary:
+        "مطعم ستيك في جبل عمّان بأكثر من 3,600 مراجعة على Google كان يعتمد على إنستغرام وفيسبوك فقط، وقائمته مجرد صورة قديمة. صممت له موقعاً يعرض التجربة ويستقبل الحجوزات.",
+      details: [
+        "مخطط جزّار تفاعلي: مرّر على أي قطعة لترى موقعها على الذبيحة مع أوزانها من قائمة المطعم.",
+        "نموذج حجز يحدد المناسبة ومكان الجلوس، ويصل إلى واتساب المطعم كطلب منظّم.",
+        "هوية داكنة بألوان خشب الجوز والأحمر العميق، وخطوط عربية وإنجليزية تناسب أجواء المكان.",
+      ],
+    },
+    {
+      name: "مطعم صقلية",
+      url: "https://sicilia-livid.vercel.app",
+      image: "/projects/sicilia.jpg",
+      location: "مطعم إيطالي · إربد",
+      kind: "newSite",
+      summary:
+        "مطعم إيطالي معروف في إربد (تقييم 4.7 على Google بأكثر من 1,000 مراجعة) بلا موقع، والزبون يجمع القائمة من صور Google Maps. بنيت له موقعاً يرتكز على قائمة كاملة بالأسعار وحجز مباشر.",
+      details: [
+        "قائمة كاملة بأسعار الحجم الوسط والكبير بالدينار، مرتّبة حسب الأصناف ليقرر الزبون قبل وصوله.",
+        "هوية مستوحاة من المطعم نفسه: بلاط المايوليكا مرسوم كشريط SVG، وشكل القوس من شعاره وديكوره.",
+        "أطباق مميزة بالسحب، ومعرض صور، ونموذج حجز عبر واتساب مع شريط اتصال وحجز ثابت على الهاتف.",
+      ],
+    },
+    {
+      name: "مطعم وكافيه STEEL",
+      url: "https://steel-cafe.vercel.app",
+      image: "/projects/steel.jpg",
+      location: "مطعم وكافيه · إربد",
+      kind: "newSite",
+      summary:
+        "مطعم وكافيه في إربد لديه 46 ألف متابع على فيسبوك لكن بلا موقع خاص به. صممت له موقعاً يغطي كل شيء من الفطور حتى العشاء المتأخر، ويحوّل المناسبات إلى طلبات.",
+      details: [
+        "قائمة مرتّبة حسب الوجبة، من الفطور الشرقي حتى الأطباق الرئيسية والحلويات.",
+        "قسم للمناسبات: أعياد الميلاد، والإفطارات الرمضانية، وغداء الشركات، ولكلٍّ منها طلب عرض سعر.",
+        "نموذج حجز يحدد نوع الحجز ومكان الجلوس داخلي أو خارجي وعدد الضيوف، ويُرسل إلى واتساب بضغطة واحدة.",
+      ],
+    },
+  ],
+};
 
 const textByLocale = {
   en: {
     name: "Khaled Alwaked",
     fullName: "Khaled M Alwaked",
-    nav: { skills: "Skills", projects: "Work", switchLanguage: "العربية", switchLanguageAria: "Switch to Arabic" },
+    nav: { skills: "Skills", projects: "Work", websites: "Websites", switchLanguage: "العربية", switchLanguageAria: "Switch to Arabic" },
     hero: {
       meta: "Software developer · Irbid, Jordan",
       titleA: "I build web and mobile products",
       titleB: "that businesses rely on every day.",
       description:
-        "Full-stack developer working with Next.js, React and Flutter. I take products from the first screen to a working release — booking systems, point-of-sale apps and service platforms.",
+        "Full-stack developer working with Next.js, React and Flutter. I take products from the first screen to a working release — booking systems, point-of-sale apps, service platforms and websites for local businesses.",
       primaryCta: "View selected work",
       portraitAlt: "Portrait of Khaled Alwaked",
       role: "Software engineer · Full-stack · UI/UX",
       availability: "Open to new projects",
       facts: [
-        { value: "7", label: "Products built" },
+        { value: "11", label: "Projects built" },
         { value: "Web + Mobile", label: "Platforms" },
         { value: "Next.js · Flutter", label: "Main stack" },
       ],
@@ -265,7 +384,7 @@ const textByLocale = {
       title: "Tools & focus",
       description: "A small, deliberate stack I know well — not a long list of things I use once.",
       groups: [
-        { label: "Web", items: ["Next.js", "React"] },
+        { label: "Web", items: ["Next.js", "React", "Vue"] },
         { label: "Mobile", items: ["Flutter"] },
         { label: "Backend & data", items: ["Supabase", "System design"] },
         { label: "Product", items: ["UI/UX design", "Motion UI"] },
@@ -277,6 +396,12 @@ const textByLocale = {
       description: "Real problems, the products built to solve them, and what changed for the people using them.",
       labels: { shipped: "Shipped", inProgress: "In development", watchDemo: "Watch demo", highlights: "Highlights" },
     },
+    websites: {
+      title: "Websites for local businesses",
+      description:
+        "Proposals I built on my own initiative for businesses that had no website, or one that was holding them back. Each is live, bilingual (Arabic and English) and built with Vue 3.",
+      labels: { redesign: "Redesign proposal", newSite: "New website proposal", visit: "Visit live site" },
+    },
     footer: {
       title: "Have a product in mind?",
       description: "Send me a message on LinkedIn — I’m happy to talk through scope, timeline and the right stack.",
@@ -286,19 +411,19 @@ const textByLocale = {
   ar: {
     name: "خالد الواكد",
     fullName: "خالد محمد الواكد",
-    nav: { skills: "المهارات", projects: "الأعمال", switchLanguage: "English", switchLanguageAria: "التبديل إلى الإنجليزية" },
+    nav: { skills: "المهارات", projects: "الأعمال", websites: "المواقع", switchLanguage: "English", switchLanguageAria: "التبديل إلى الإنجليزية" },
     hero: {
       meta: "مطوّر برمجيات · إربد، الأردن",
       titleA: "أبني منتجات ويب وموبايل",
       titleB: "تعتمد عليها الشركات كل يوم.",
       description:
-        "مطوّر Full-Stack أعمل بـ Next.js وReact وFlutter. أنقل المنتج من أول شاشة حتى إصدار يعمل فعلياً — أنظمة حجز، وتطبيقات نقاط بيع، ومنصات خدمات.",
+        "مطوّر Full-Stack أعمل بـ Next.js وReact وFlutter. أنقل المنتج من أول شاشة حتى إصدار يعمل فعلياً — أنظمة حجز، وتطبيقات نقاط بيع، ومنصات خدمات، ومواقع لأعمال محلية.",
       primaryCta: "تصفّح الأعمال",
       portraitAlt: "صورة خالد الواكد",
       role: "مهندس برمجيات · Full-Stack · UI/UX",
       availability: "متاح لمشاريع جديدة",
       facts: [
-        { value: "7", label: "منتجات منجزة" },
+        { value: "11", label: "مشاريع منجزة" },
         { value: "ويب + موبايل", label: "المنصات" },
         { value: "Next.js · Flutter", label: "التقنيات الأساسية" },
       ],
@@ -307,7 +432,7 @@ const textByLocale = {
       title: "الأدوات والتركيز",
       description: "مجموعة تقنيات مختارة أتقنها جيداً، بدلاً من قائمة طويلة أستخدمها مرة واحدة.",
       groups: [
-        { label: "الويب", items: ["Next.js", "React"] },
+        { label: "الويب", items: ["Next.js", "React", "Vue"] },
         { label: "الموبايل", items: ["Flutter"] },
         { label: "الخلفية والبيانات", items: ["Supabase", "تصميم الأنظمة"] },
         { label: "المنتج", items: ["تصميم UI/UX", "واجهات حركية"] },
@@ -318,6 +443,12 @@ const textByLocale = {
       title: "أعمال مختارة",
       description: "مشكلات حقيقية، والمنتجات التي بُنيت لحلها، وما الذي تغيّر لمستخدميها.",
       labels: { shipped: "مُنجز", inProgress: "قيد التطوير", watchDemo: "شاهد العرض", highlights: "أبرز النقاط" },
+    },
+    websites: {
+      title: "مواقع لأعمال محلية",
+      description:
+        "مواقع بنيتها بمبادرة مني لأعمال لم يكن لديها موقع، أو كان موقعها ضعيفاً ولا يخدمها. كلها منشورة، بالعربي والإنجليزي، ومبنية بـ Vue 3.",
+      labels: { redesign: "مقترح إعادة تصميم", newSite: "مقترح موقع جديد", visit: "زيارة الموقع" },
     },
     footer: {
       title: "لديك فكرة منتج؟",
@@ -348,6 +479,7 @@ export default function Home() {
   const isArabic = locale === "ar";
   const t = textByLocale[locale];
   const projectCards = projectCardsByLocale[locale];
+  const websiteCards = websiteCardsByLocale[locale];
 
   useEffect(() => {
     let stored: string | null = null;
@@ -392,7 +524,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const sections = (["home", "skills", "projects"] as const)
+    const sections = (["home", "skills", "projects", "websites"] as const)
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
@@ -414,6 +546,7 @@ export default function Home() {
   const navItems: { id: SectionId; label: string }[] = [
     { id: "skills", label: t.nav.skills },
     { id: "projects", label: t.nav.projects },
+    { id: "websites", label: t.nav.websites },
   ];
 
   return (
@@ -584,6 +717,13 @@ export default function Home() {
           <div className="shell pt-20 sm:pt-28">
             <SectionHeading index="02" title={t.projects.title} description={t.projects.description} />
             <ProjectList items={projectCards} labels={t.projects.labels} />
+          </div>
+        </section>
+
+        <section id="websites" className="hairline border-t">
+          <div className="shell py-20 sm:py-28">
+            <SectionHeading index="03" title={t.websites.title} description={t.websites.description} />
+            <WebsiteGrid items={websiteCards} labels={t.websites.labels} />
           </div>
         </section>
       </main>
