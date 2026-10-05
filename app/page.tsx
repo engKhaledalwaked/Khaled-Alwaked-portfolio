@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ProjectList, type ProjectCard } from "@/components/project-list";
-import { WebsiteGrid, type WebsiteCard } from "@/components/website-grid";
 import githubProfileIcon from "@/assest/github.png";
 import linkedinProfileIcon from "@/assest/linkedin.png";
 import myPhoto from "@/assest/my-photo.png";
@@ -240,14 +239,13 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
   ],
 };
 
-const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
+const websiteCardsByLocale: Record<Locale, ProjectCard[]> = {
   en: [
     {
-      name: "Arab Dental Center",
-      url: "https://arab-dental.vercel.app",
-      image: "/projects/arab-dental.jpg",
-      location: "Dental center · Shmeisani, Amman",
-      kind: "redesign",
+      title: "Arab Dental Center",
+      site: { url: "https://arab-dental.vercel.app", image: "/projects/arab-dental.jpg" },
+      category: "Dental center · Shmeisani, Amman",
+      status: "redesign",
       summary:
         "Jordan’s first comprehensive dental center had an outdated website that buried its eight departments, eleven dentists and emergency service in cluttered pages. I rebuilt it as a fast bilingual site that turns a visit into a booking.",
       details: [
@@ -257,11 +255,10 @@ const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
       ],
     },
     {
-      name: "Lucca Steakhouse",
-      url: "https://lucca-steakhouse.vercel.app",
-      image: "/projects/lucca.jpg",
-      location: "Steakhouse · Jabal Amman",
-      kind: "newSite",
+      title: "Lucca Steakhouse",
+      site: { url: "https://lucca-steakhouse.vercel.app", image: "/projects/lucca.jpg" },
+      category: "Steakhouse · Jabal Amman",
+      status: "newSite",
       summary:
         "A Jabal Amman steakhouse with 3,600+ Google reviews was relying on Instagram and Facebook alone, with its menu available only as an old photo. I designed a site that sells the experience and takes reservations.",
       details: [
@@ -271,11 +268,10 @@ const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
       ],
     },
     {
-      name: "Sicilia",
-      url: "https://sicilia-livid.vercel.app",
-      image: "/projects/sicilia.jpg",
-      location: "Italian restaurant · Irbid",
-      kind: "newSite",
+      title: "Sicilia",
+      site: { url: "https://sicilia-livid.vercel.app", image: "/projects/sicilia.jpg" },
+      category: "Italian restaurant · Irbid",
+      status: "newSite",
       summary:
         "A popular Italian restaurant in Irbid (4.7 on Google, 1,000+ reviews) had no website, so guests pieced the menu together from Google Maps photos. I built one around a full priced menu and direct bookings.",
       details: [
@@ -285,11 +281,10 @@ const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
       ],
     },
     {
-      name: "STEEL Restaurant & Cafe",
-      url: "https://steel-cafe.vercel.app",
-      image: "/projects/steel.jpg",
-      location: "Restaurant & café · Irbid",
-      kind: "newSite",
+      title: "STEEL Restaurant & Cafe",
+      site: { url: "https://steel-cafe.vercel.app", image: "/projects/steel.jpg" },
+      category: "Restaurant & café · Irbid",
+      status: "newSite",
       summary:
         "An Irbid restaurant and café with 46K Facebook followers but no website of its own. I designed one that covers everything from breakfast to late dinner and turns events into enquiries.",
       details: [
@@ -301,11 +296,10 @@ const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
   ],
   ar: [
     {
-      name: "المركز العربي لطب الأسنان",
-      url: "https://arab-dental.vercel.app",
-      image: "/projects/arab-dental.jpg",
-      location: "مركز أسنان · الشميساني، عمّان",
-      kind: "redesign",
+      title: "المركز العربي لطب الأسنان",
+      site: { url: "https://arab-dental.vercel.app", image: "/projects/arab-dental.jpg" },
+      category: "مركز أسنان · الشميساني، عمّان",
+      status: "redesign",
       summary:
         "أول مركز متخصص شامل لطب الأسنان في الأردن كان موقعه قديماً، يُخفي أقسامه الثمانية وأطباءه الأحد عشر وخدمة الطوارئ خلف صفحات مزدحمة. أعدت بناءه كموقع سريع بالعربي والإنجليزي يحوّل الزيارة إلى حجز.",
       details: [
@@ -315,11 +309,10 @@ const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
       ],
     },
     {
-      name: "Lucca Steakhouse",
-      url: "https://lucca-steakhouse.vercel.app",
-      image: "/projects/lucca.jpg",
-      location: "مطعم ستيك · جبل عمّان",
-      kind: "newSite",
+      title: "Lucca Steakhouse",
+      site: { url: "https://lucca-steakhouse.vercel.app", image: "/projects/lucca.jpg" },
+      category: "مطعم ستيك · جبل عمّان",
+      status: "newSite",
       summary:
         "مطعم ستيك في جبل عمّان بأكثر من 3,600 مراجعة على Google كان يعتمد على إنستغرام وفيسبوك فقط، وقائمته مجرد صورة قديمة. صممت له موقعاً يعرض التجربة ويستقبل الحجوزات.",
       details: [
@@ -329,11 +322,10 @@ const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
       ],
     },
     {
-      name: "مطعم صقلية",
-      url: "https://sicilia-livid.vercel.app",
-      image: "/projects/sicilia.jpg",
-      location: "مطعم إيطالي · إربد",
-      kind: "newSite",
+      title: "مطعم صقلية",
+      site: { url: "https://sicilia-livid.vercel.app", image: "/projects/sicilia.jpg" },
+      category: "مطعم إيطالي · إربد",
+      status: "newSite",
       summary:
         "مطعم إيطالي معروف في إربد (تقييم 4.7 على Google بأكثر من 1,000 مراجعة) بلا موقع، والزبون يجمع القائمة من صور Google Maps. بنيت له موقعاً يرتكز على قائمة كاملة بالأسعار وحجز مباشر.",
       details: [
@@ -343,17 +335,335 @@ const websiteCardsByLocale: Record<Locale, WebsiteCard[]> = {
       ],
     },
     {
-      name: "مطعم وكافيه STEEL",
-      url: "https://steel-cafe.vercel.app",
-      image: "/projects/steel.jpg",
-      location: "مطعم وكافيه · إربد",
-      kind: "newSite",
+      title: "مطعم وكافيه STEEL",
+      site: { url: "https://steel-cafe.vercel.app", image: "/projects/steel.jpg" },
+      category: "مطعم وكافيه · إربد",
+      status: "newSite",
       summary:
         "مطعم وكافيه في إربد لديه 46 ألف متابع على فيسبوك لكن بلا موقع خاص به. صممت له موقعاً يغطي كل شيء من الفطور حتى العشاء المتأخر، ويحوّل المناسبات إلى طلبات.",
       details: [
         "قائمة مرتّبة حسب الوجبة، من الفطور الشرقي حتى الأطباق الرئيسية والحلويات.",
         "قسم للمناسبات: أعياد الميلاد، والإفطارات الرمضانية، وغداء الشركات، ولكلٍّ منها طلب عرض سعر.",
         "نموذج حجز يحدد نوع الحجز ومكان الجلوس داخلي أو خارجي وعدد الضيوف، ويُرسل إلى واتساب بضغطة واحدة.",
+      ],
+    },
+  ],
+};
+
+const saudiWebsiteCardsByLocale: Record<Locale, ProjectCard[]> = {
+  en: [
+    {
+      title: "Madar Al Nojoom Recruitment",
+      site: { url: "https://madar-demo-psi.vercel.app", image: "/projects/madar.jpg" },
+      category: "Recruitment office · Al Maghrazat, Riyadh",
+      status: "rebuild",
+      summary:
+        "A recruitment office with 1,200+ Google reviews, an old website failing with an SSL error, and one question filling its reviews: where is my request? I built a site that takes the request step by step and lets clients follow it up without calling.",
+      details: [
+        "Guided request flow (profession → nationality → requirements → contact) with a live summary ticket, sent to WhatsApp.",
+        "“Track your request”: a Musaned contract number and name become a ready follow-up message to the office.",
+        "The request journey shown as an orbit of six clickable stages, so clients know what happens after they apply.",
+      ],
+    },
+    {
+      title: "DPTC Physical Therapy",
+      site: { url: "https://dptc-demo.vercel.app", image: "/projects/dptc.jpg" },
+      category: "Physical therapy center · Al Sulimaniyah, Riyadh",
+      status: "rebuild",
+      summary:
+        "A physical therapy center rated 4.5 on Google whose domain no longer existed and had no social presence. I gave it a site that starts from the patient’s pain, not a list of services.",
+      details: [
+        "Interactive body map: tap where it hurts to see how the center treats it, and the choice carries into the booking form.",
+        "A four-step treatment journey from assessment to a home program, with real photos of the rehab hall and treatment rooms.",
+        "Wordmark redrawn in SVG from the center’s blue neon sign.",
+      ],
+    },
+    {
+      title: "Al Raha Appliance Repair",
+      site: { url: "https://raha-demo.vercel.app", image: "/projects/raha.jpg" },
+      category: "Appliance repair workshop · Al Masif, Riyadh",
+      status: "rebuild",
+      summary:
+        "A busy repair workshop with 1,250+ Google reviews and a dead domain. “Spare parts” appears 125 times in its reviews, so the site is built around diagnosing a device and finding a part.",
+      details: [
+        "“Diagnose your device”: device → fault (the faults change per device) → details, building a numbered repair ticket sent to WhatsApp.",
+        "Spare-parts finder: type the part and model to ask about availability in one tap.",
+        "A workshop identity with blueprint grids, an inspection frame with a scan line and monospace part codes.",
+      ],
+    },
+    {
+      title: "Badaea Lebanon Decoration",
+      site: { url: "https://badaea-demo.vercel.app", image: "/projects/badaea.jpg" },
+      category: "Shop & hotel fit-out supplier · Olaya St., Riyadh",
+      status: "rebuild",
+      summary:
+        "A two-floor showroom supplying racks, mannequins, hotel trolleys and café furniture, whose domain had expired. Its customers are projects, not shoppers, so the site works like a quote request.",
+      details: [
+        "Quote list: add products with quantities, then send the whole list on WhatsApp for pricing.",
+        "Products filtered by project type: fashion retail, hotels, cafés, exhibitions and jewelry.",
+        "Identity taken from the storefront: lime green from the day sign, black from the night sign, gold from the products.",
+      ],
+    },
+    {
+      title: "Bin Yahya Real Estate",
+      site: { url: "https://yahya-demo.vercel.app", image: "/projects/yahya.jpg" },
+      category: "Real estate office · Umm Al Hamam, Riyadh",
+      status: "rebuild",
+      summary:
+        "A neighborhood real estate office whose old site was down and whose reviews kept mentioning unanswered phones. I built a site that captures the request in detail and offers a callback instead.",
+      details: [
+        "Property request: rent, list my property or manage my property → type → district → rooms → annual budget slider → WhatsApp.",
+        "“Missed us? We’ll call you”: a callback request at the client’s preferred time.",
+        "A section for landlords covering marketing, Ejar contracts, rent collection and maintenance.",
+      ],
+    },
+    {
+      title: "Rodna Training Academy",
+      site: { url: "https://rodna-demo.vercel.app", image: "/projects/rodna.jpg" },
+      category: "Women’s training academy · Al Hamra, Riyadh",
+      status: "rebuild",
+      summary:
+        "A women’s training academy offering admin, computer and HR courses, with a website failing on an SSL error. I built a site that helps a trainee pick a track and register in under a minute.",
+      details: [
+        "“Which track suits me?”: a three-question quiz that recommends a track and moves straight to registration.",
+        "Color-coded track tabs: administrative courses, computer courses, HR diploma and co-op training.",
+        "Registration by track, morning or evening period and status (employee, job seeker or student), sent to WhatsApp.",
+      ],
+    },
+    {
+      title: "Dorar Al Wataniya Car Rental",
+      site: { url: "https://durar-demo.vercel.app", image: "/projects/durar.jpg" },
+      category: "Car rental · Al Sulimaniyah, Riyadh",
+      status: "rebuild",
+      summary:
+        "A car rental branch whose website no longer worked, leaving phone calls as the only way to book. The new site puts a booking form right in the hero.",
+      details: [
+        "Booking widget: car class, daily, weekly or monthly rental, pick-up and return dates with a live day count.",
+        "Optional extras (delivery, full insurance, child seat) included in the WhatsApp price request.",
+        "Bold identity from the street sign: yellow, red and blue with heavy outlines and offset shadows.",
+      ],
+    },
+    {
+      title: "MAZ Higher Institute of Training",
+      site: { url: "https://maz-demo.vercel.app", image: "/projects/maz.jpg" },
+      category: "Training institute · Riyadh, Jeddah, Buraydah",
+      status: "rebuild",
+      summary:
+        "A training institute with four branches across three cities, and both of its websites down. The new site presents its programs and sends every enquiry to the right branch.",
+      details: [
+        "Programs shown only where there was evidence for them: AI diploma, cybersecurity, CSCP prep and robotics for kids.",
+        "Registration routes to the selected branch’s WhatsApp admissions number, in person or online.",
+        "Branch finder with directions and hours for the men’s and women’s branches in Riyadh, Jeddah and Buraydah.",
+      ],
+    },
+    {
+      title: "Smile Life Pet Clinic",
+      site: { url: "https://smilelife-demo.vercel.app", image: "/projects/smilelife.jpg" },
+      category: "Veterinary clinic · As Suwaidi, Riyadh",
+      status: "rebuild",
+      summary:
+        "A late-night vet clinic with 500+ Google reviews and a website that would not open over HTTPS. I built a warm, pet-first site around its services and hours.",
+      details: [
+        "Circular stamp logo redrawn in SVG (“Every pet has a smile”, with a cat, a dog and a heart).",
+        "The 20% spay and neuter offer from the reception desk, featured with a direct booking link.",
+        "Services, a patients gallery, day-by-day late opening hours and a WhatsApp booking form.",
+      ],
+    },
+    {
+      title: "Three Star Studio",
+      site: { url: "https://threestar-demo.vercel.app", image: "/projects/threestar.jpg" },
+      category: "Photo studio · Al Yarmouk, Riyadh",
+      status: "rebuild",
+      summary:
+        "A photo studio with 760+ Google reviews whose domain showed only a default hosting page. Its reviews praise fast passport photos, so that is what the site leads with.",
+      details: [
+        "Hero recreates the studio’s brand wall of framed family, kids and newborn portraits.",
+        "Passport and visa photo guide with each size drawn to scale: passport, US visa, Schengen and UK.",
+        "Family and newborn sessions, printing and framing, with WhatsApp booking.",
+      ],
+    },
+    {
+      title: "Lady Studio",
+      site: { url: "https://lady-demo.vercel.app", image: "/projects/lady.jpg" },
+      category: "Women-only photo studio · Al Quds, Riyadh",
+      status: "rebuild",
+      summary:
+        "A women-only photo studio whose domain no longer existed. Privacy is the reason clients choose it, so the site leads with an all-female team and makes ID photo visits easy to prepare for.",
+      details: [
+        "Civil Affairs photo requirements, taken from the notice posted in the studio, so clients arrive prepared.",
+        "Services from ID and passport photos to event and product shoots, photo restoration, framing and albums.",
+        "Calm, elegant identity and a WhatsApp booking form.",
+      ],
+    },
+    {
+      title: "Rukn Al Yamama Auto Service",
+      site: { url: "https://yamama-demo.vercel.app", image: "/projects/yamama.jpg" },
+      category: "Chinese car specialist · Umm Al Hamam, Riyadh",
+      status: "rebuild",
+      summary:
+        "A 24/7 workshop for Chinese cars, rated 4.4 on Google, listed under a generic name and with a dead domain. I gave it a clear specialist identity for MG, Changan, Geely and more.",
+      details: [
+        "Services from the shop sign (mechanics, electrics, programming, body work) plus gearbox repair from its reviews.",
+        "Brands section, and a booking form that takes the car model and the problem straight to WhatsApp.",
+        "Only about seven photos existed, so the rest of the site is designed with SVG icons and illustration.",
+      ],
+    },
+  ],
+  ar: [
+    {
+      title: "مكتب مدار النجوم للاستقدام",
+      site: { url: "https://madar-demo-psi.vercel.app", image: "/projects/madar.jpg" },
+      category: "مكتب استقدام · حي المغرزات، الرياض",
+      status: "rebuild",
+      summary:
+        "مكتب استقدام بأكثر من 1,200 مراجعة على Google، موقعه القديم يعطي خطأ شهادة SSL، وأكثر سؤال يتكرر في مراجعاته: وين وصل طلبي؟ بنيت له موقعاً يأخذ الطلب خطوة بخطوة ويتيح للعميل متابعته دون اتصال.",
+      details: [
+        "طلب استقدام تفاعلي (المهنة ← الجنسية ← المواصفات ← البيانات) مع تذكرة ملخص حيّة، يُرسل إلى واتساب.",
+        "«تابع طلبك»: رقم عقد مساند والاسم يتحولان إلى رسالة متابعة جاهزة للمكتب.",
+        "رحلة الطلب معروضة كمدار من 6 محطات قابلة للنقر، ليعرف العميل ماذا يحدث بعد التقديم.",
+      ],
+    },
+    {
+      title: "مركز الضباب للعلاج الطبيعي DPTC",
+      site: { url: "https://dptc-demo.vercel.app", image: "/projects/dptc.jpg" },
+      category: "مركز علاج طبيعي · السليمانية، الرياض",
+      status: "rebuild",
+      summary:
+        "مركز علاج طبيعي بتقييم 4.5 على Google، دومين موقعه لم يعد موجوداً ولا حسابات له على السوشيال. صممت له موقعاً يبدأ من ألم المريض لا من قائمة خدمات.",
+      details: [
+        "خريطة جسم تفاعلية: اضغط على مكان الألم لترى كيف يعالجه المركز، وينتقل اختيارك إلى نموذج الحجز.",
+        "رحلة علاج من 4 خطوات من التقييم حتى برنامج التمارين المنزلي، مع صور حقيقية لصالة التأهيل وغرف العلاج.",
+        "علامة نصية مرسومة SVG من لافتة النيون الزرقاء للمركز.",
+      ],
+    },
+    {
+      title: "ورشة الرحى لصيانة الأجهزة المنزلية",
+      site: { url: "https://raha-demo.vercel.app", image: "/projects/raha.jpg" },
+      category: "ورشة صيانة أجهزة · المصيف، الرياض",
+      status: "rebuild",
+      summary:
+        "ورشة صيانة مزدحمة بأكثر من 1,250 مراجعة على Google ودومين متوقف. كلمة «قطع غيار» تتكرر 125 مرة في مراجعاتها، لذلك بُني الموقع حول تشخيص الجهاز والبحث عن القطعة.",
+      details: [
+        "«شخّص جهازك»: الجهاز ← العطل (تتغير الأعطال حسب الجهاز) ← التفاصيل، فتتكوّن بطاقة صيانة برقم تُرسل إلى واتساب.",
+        "باحث قطع الغيار: اكتب اسم القطعة والموديل واسأل عن توفرها بضغطة.",
+        "هوية «ورشة فنية»: شبكة مخططات هندسية، وإطار فحص بخط مسح، وأكواد قطع بخط Mono.",
+      ],
+    },
+    {
+      title: "بدائع لبنان للديكور",
+      site: { url: "https://badaea-demo.vercel.app", image: "/projects/badaea.jpg" },
+      category: "تجهيز المحلات والفنادق · شارع العليا، الرياض",
+      status: "rebuild",
+      summary:
+        "معرض من طابقين يورّد علاقات الملابس والمانيكانات وتروليات الفنادق وأثاث المقاهي، ودومين موقعه منتهٍ. عملاؤه مشاريع لا متسوقون، لذلك يعمل الموقع كطلب عرض سعر.",
+      details: [
+        "قائمة عرض السعر: أضف المنتجات بالكميات، ثم أرسل القائمة كاملة على واتساب لتصلك الأسعار.",
+        "فلترة المنتجات حسب نوع المشروع: محلات الملابس، الفنادق، المقاهي، المعارض، والمجوهرات.",
+        "هوية مأخوذة من الواجهة: الأخضر الليموني من اللافتة النهارية، والأسود من الليلية، والذهبي من المنتجات.",
+      ],
+    },
+    {
+      title: "مكتب بن يحيى للعقارات",
+      site: { url: "https://yahya-demo.vercel.app", image: "/projects/yahya.jpg" },
+      category: "مكتب عقاري · أم الحمام، الرياض",
+      status: "rebuild",
+      summary:
+        "مكتب عقاري في الحي، موقعه القديم متوقف، ومراجعاته تتكرر فيها شكوى عدم الرد على الجوال. بنيت له موقعاً يأخذ الطلب بالتفصيل ويعرض معاودة الاتصال بدلاً من ذلك.",
+      details: [
+        "اطلب عقار: إيجار، أو أبي أأجّر عقاري، أو إدارة أملاكي ← نوع العقار ← الحي ← الغرف ← شريط الميزانية السنوية ← واتساب.",
+        "«ما لحقت ترد؟ نحن نتصل فيك»: طلب معاودة اتصال في الوقت الذي يناسب العميل.",
+        "قسم للملّاك: التسويق والتأجير، عقود إيجار، التحصيل، والصيانة.",
+      ],
+    },
+    {
+      title: "أكاديمية ردنا العالي للتدريب",
+      site: { url: "https://rodna-demo.vercel.app", image: "/projects/rodna.jpg" },
+      category: "أكاديمية تدريب نسائية · الحمراء، الرياض",
+      status: "rebuild",
+      summary:
+        "أكاديمية تدريب نسائية تقدّم دورات إدارية وحاسب وموارد بشرية، وموقعها يعطي خطأ شهادة SSL. بنيت لها موقعاً يساعد المتدربة على اختيار مسارها والتسجيل في أقل من دقيقة.",
+      details: [
+        "«وش يناسبني؟»: اختبار من 3 أسئلة يرشّح المسار الأنسب وينقل مباشرة إلى التسجيل.",
+        "تبويبات ملونة للمسارات: الدورات الإدارية، دورات الحاسب، دبلوم الموارد البشرية، والتدريب التعاوني.",
+        "تسجيل حسب المسار والفترة (صباحي/مسائي) والحالة (موظفة/باحثة عن عمل/طالبة)، يُرسل إلى واتساب.",
+      ],
+    },
+    {
+      title: "درر الوطنية لتأجير السيارات",
+      site: { url: "https://durar-demo.vercel.app", image: "/projects/durar.jpg" },
+      category: "تأجير سيارات · السليمانية، الرياض",
+      status: "rebuild",
+      summary:
+        "فرع تأجير سيارات موقعه لم يعد يعمل، فبقي الاتصال الهاتفي الطريقة الوحيدة للحجز. الموقع الجديد يضع نموذج الحجز في الواجهة مباشرة.",
+      details: [
+        "نموذج حجز: فئة السيارة، إيجار يومي أو أسبوعي أو شهري، تاريخ الاستلام والتسليم مع حساب الأيام تلقائياً.",
+        "إضافات اختيارية (توصيل، تأمين شامل، كرسي أطفال) تُضمَّن في طلب السعر عبر واتساب.",
+        "هوية جريئة من لافتة الفرع: أصفر وأحمر وأزرق بحدود سميكة وظلال مُزاحة.",
+      ],
+    },
+    {
+      title: "معهد ماز العالي للتدريب",
+      site: { url: "https://maz-demo.vercel.app", image: "/projects/maz.jpg" },
+      category: "معهد تدريب · الرياض، جدة، بريدة",
+      status: "rebuild",
+      summary:
+        "معهد تدريب بأربعة فروع في ثلاث مدن، وموقعاه كلاهما متوقفان. الموقع الجديد يعرض برامجه ويوجّه كل استفسار إلى الفرع الصحيح.",
+      details: [
+        "البرامج المعروضة فقط ما له دليل فعلي: دبلوم الذكاء الاصطناعي، الأمن السيبراني، التحضير لـ CSCP، والروبوت للأطفال.",
+        "نموذج التسجيل يُرسل إلى واتساب القبول في الفرع المختار، حضورياً أو عن بُعد.",
+        "دليل الفروع مع الاتجاهات والدوام لفرعي الرياض رجال ونساء وجدة وبريدة.",
+      ],
+    },
+    {
+      title: "عيادة بسمة الحياة البيطرية",
+      site: { url: "https://smilelife-demo.vercel.app", image: "/projects/smilelife.jpg" },
+      category: "عيادة بيطرية · السويدي، الرياض",
+      status: "rebuild",
+      summary:
+        "عيادة بيطرية تعمل حتى منتصف الليل بأكثر من 500 مراجعة على Google، وموقعها لا يفتح عبر HTTPS. بنيت لها موقعاً دافئاً يضع الأليف أولاً حول خدماتها ومواعيدها.",
+      details: [
+        "الشعار الدائري مرسوم SVG («Every pet has a smile» مع قط وكلب وقلب).",
+        "عرض خصم 20% على التعقيم والإخصاء من لوحة الاستقبال، مع رابط حجز مباشر.",
+        "الخدمات، ومعرض المرضى الصغار، ومواعيد العمل المتأخرة يوماً بيوم، ونموذج حجز عبر واتساب.",
+      ],
+    },
+    {
+      title: "استوديو تري ستار للتصوير",
+      site: { url: "https://threestar-demo.vercel.app", image: "/projects/threestar.jpg" },
+      category: "استوديو تصوير · اليرموك، الرياض",
+      status: "rebuild",
+      summary:
+        "استوديو تصوير بأكثر من 760 مراجعة على Google، ودومينه يعرض صفحة الاستضافة الافتراضية فقط. مراجعاته تمدح سرعة صور الجواز، فهذا ما يبدأ به الموقع.",
+      details: [
+        "الواجهة تعيد بناء جدار هوية الاستوديو بصور العائلات والأطفال والمواليد المؤطّرة.",
+        "دليل صور الجواز والتأشيرات بمقاسات مرسومة بالنسبة الحقيقية: الجواز، التأشيرة الأمريكية، شنغن وبريطانيا.",
+        "جلسات العائلة والمواليد، والطباعة والتأطير، مع الحجز عبر واتساب.",
+      ],
+    },
+    {
+      title: "ستوديو ليدي للتصوير النسائي",
+      site: { url: "https://lady-demo.vercel.app", image: "/projects/lady.jpg" },
+      category: "استوديو تصوير نسائي · حي القدس، الرياض",
+      status: "rebuild",
+      summary:
+        "استوديو تصوير نسائي لم يعد دومين موقعه موجوداً. الخصوصية هي سبب اختيار العميلات له، لذلك يبدأ الموقع بالطاقم النسائي ويسهّل التحضير لصور الأحوال.",
+      details: [
+        "اشتراطات صورة الأحوال منقولة من الورقة المعلّقة في الاستوديو، لتصل العميلة جاهزة.",
+        "الخدمات من صور الأحوال والجواز إلى تصوير المناسبات والمنتجات وترميم الصور والتأطير والألبومات.",
+        "هوية هادئة وأنيقة ونموذج حجز عبر واتساب.",
+      ],
+    },
+    {
+      title: "ركن اليمامة لصيانة السيارات",
+      site: { url: "https://yamama-demo.vercel.app", image: "/projects/yamama.jpg" },
+      category: "متخصص السيارات الصينية · أم الحمام، الرياض",
+      status: "rebuild",
+      summary:
+        "ورشة سيارات صينية تعمل 24 ساعة بتقييم 4.4 على Google، مسجّلة باسم عام ودومينها متوقف. أعطيتها هوية متخصص واضحة لـ MG وشانجان وجيلي وغيرها.",
+      details: [
+        "الخدمات من لافتة الورشة (ميكانيكا، كهرباء، برمجة، سمكرة) إضافة إلى الجيربوكس من المراجعات.",
+        "قسم للماركات، ونموذج حجز ينقل موديل السيارة والعطل مباشرة إلى واتساب.",
+        "لم يكن لديهم سوى 7 صور تقريباً، فصُمم باقي الموقع بأيقونات ورسومات SVG.",
       ],
     },
   ],
@@ -375,7 +685,7 @@ const textByLocale = {
       role: "Software engineer · Full-stack · UI/UX",
       availability: "Open to new projects",
       facts: [
-        { value: "11", label: "Projects built" },
+        { value: "23", label: "Projects built" },
         { value: "Web + Mobile", label: "Platforms" },
         { value: "Next.js · Flutter", label: "Main stack" },
       ],
@@ -397,10 +707,16 @@ const textByLocale = {
       labels: { shipped: "Shipped", inProgress: "In development", watchDemo: "Watch demo", highlights: "Highlights" },
     },
     websites: {
-      title: "Websites for local businesses",
+      title: "Websites for businesses in Jordan",
       description:
         "Proposals I built on my own initiative for businesses that had no website, or one that was holding them back. Each is live, bilingual (Arabic and English) and built with Vue 3.",
-      labels: { redesign: "Redesign proposal", newSite: "New website proposal", visit: "Visit live site" },
+      labels: { redesign: "Redesign proposal", newSite: "New website proposal", visitSite: "Visit live site" },
+    },
+    websitesSa: {
+      title: "Websites for businesses in Saudi Arabia",
+      description:
+        "Twelve businesses whose registered websites had stopped working: dead domains, SSL errors or a blank hosting page. I rebuilt each one from its real photos, hours and reviews, with a booking or enquiry flow designed around what its customers actually ask for.",
+      labels: { rebuild: "Rebuild proposal", visitSite: "Visit live site" },
     },
     footer: {
       title: "Have a product in mind?",
@@ -423,7 +739,7 @@ const textByLocale = {
       role: "مهندس برمجيات · Full-Stack · UI/UX",
       availability: "متاح لمشاريع جديدة",
       facts: [
-        { value: "11", label: "مشاريع منجزة" },
+        { value: "23", label: "مشاريع منجزة" },
         { value: "ويب + موبايل", label: "المنصات" },
         { value: "Next.js · Flutter", label: "التقنيات الأساسية" },
       ],
@@ -445,10 +761,16 @@ const textByLocale = {
       labels: { shipped: "مُنجز", inProgress: "قيد التطوير", watchDemo: "شاهد العرض", highlights: "أبرز النقاط" },
     },
     websites: {
-      title: "مواقع لأعمال محلية",
+      title: "مواقع لأعمال في الأردن",
       description:
         "مواقع بنيتها بمبادرة مني لأعمال لم يكن لديها موقع، أو كان موقعها ضعيفاً ولا يخدمها. كلها منشورة، بالعربي والإنجليزي، ومبنية بـ Vue 3.",
-      labels: { redesign: "مقترح إعادة تصميم", newSite: "مقترح موقع جديد", visit: "زيارة الموقع" },
+      labels: { redesign: "مقترح إعادة تصميم", newSite: "مقترح موقع جديد", visitSite: "زيارة الموقع" },
+    },
+    websitesSa: {
+      title: "مواقع لأعمال في السعودية",
+      description:
+        "اثنا عشر نشاطاً توقفت مواقعها المسجّلة عن العمل: دومينات منتهية، أو أخطاء شهادة SSL، أو صفحة استضافة فارغة. أعدت بناء كل موقع من صوره ومواعيده ومراجعاته الحقيقية، مع مسار حجز أو استفسار مصمم حول ما يسأل عنه عملاؤه فعلاً.",
+      labels: { rebuild: "مقترح إعادة بناء", visitSite: "زيارة الموقع" },
     },
     footer: {
       title: "لديك فكرة منتج؟",
@@ -480,6 +802,7 @@ export default function Home() {
   const t = textByLocale[locale];
   const projectCards = projectCardsByLocale[locale];
   const websiteCards = websiteCardsByLocale[locale];
+  const saudiWebsiteCards = saudiWebsiteCardsByLocale[locale];
 
   useEffect(() => {
     let stored: string | null = null;
@@ -524,7 +847,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const sections = (["home", "skills", "projects", "websites"] as const)
+    const sections = (["home", "skills", "projects", "websites", "websites-sa"] as const)
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
 
@@ -533,7 +856,9 @@ export default function Home() {
         const visible = entries.filter((entry) => entry.isIntersecting);
 
         if (visible.length) {
-          setActiveSection(visible[visible.length - 1].target.id as SectionId);
+          const id = visible[visible.length - 1].target.id;
+          // Both website sections share the single "Websites" nav item.
+          setActiveSection((id === "websites-sa" ? "websites" : id) as SectionId);
         }
       },
       { rootMargin: "-45% 0px -50% 0px" },
@@ -721,9 +1046,24 @@ export default function Home() {
         </section>
 
         <section id="websites" className="hairline border-t">
-          <div className="shell py-20 sm:py-28">
+          <div className="shell pt-20 sm:pt-28">
             <SectionHeading index="03" title={t.websites.title} description={t.websites.description} />
-            <WebsiteGrid items={websiteCards} labels={t.websites.labels} />
+            <ProjectList
+              items={websiteCards}
+              labels={{ ...t.projects.labels, ...t.websites.labels }}
+              startAt={projectCards.length + 1}
+            />
+          </div>
+        </section>
+
+        <section id="websites-sa" className="hairline border-t">
+          <div className="shell pt-20 sm:pt-28">
+            <SectionHeading index="04" title={t.websitesSa.title} description={t.websitesSa.description} />
+            <ProjectList
+              items={saudiWebsiteCards}
+              labels={{ ...t.projects.labels, ...t.websitesSa.labels }}
+              startAt={projectCards.length + websiteCards.length + 1}
+            />
           </div>
         </section>
       </main>
