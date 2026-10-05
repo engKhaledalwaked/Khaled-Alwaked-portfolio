@@ -7,11 +7,12 @@ export type ProjectCard = {
   title: string;
   summary: string;
   category: string;
-  span: "large" | "medium" | "small";
-  accent: string;
+  span?: "large" | "medium" | "small";
+  accent?: string;
   details: string[];
   youtubeUrl?: string;
-  status?: "ready" | "inProgress";
+  site?: { url: string; image: string };
+  status?: "ready" | "inProgress" | "redesign" | "newSite" | "rebuild";
 };
 
 export type ProjectListLabels = {
@@ -19,7 +20,19 @@ export type ProjectListLabels = {
   inProgress: string;
   watchDemo: string;
   highlights: string;
+  redesign?: string;
+  newSite?: string;
+  rebuild?: string;
+  visitSite?: string;
 };
+
+function statusLabel(status: ProjectCard["status"], labels: ProjectListLabels) {
+  if (status === "inProgress") return labels.inProgress;
+  if (status === "redesign") return labels.redesign ?? labels.shipped;
+  if (status === "newSite") return labels.newSite ?? labels.shipped;
+  if (status === "rebuild") return labels.rebuild ?? labels.shipped;
+  return labels.shipped;
+}
 
 function getYoutubeId(url: string) {
   return url.match(/\/embed\/([^?]+)/)?.[1] ?? null;
@@ -79,9 +92,39 @@ function VideoPreview({ title, youtubeUrl, label }: { title: string; youtubeUrl:
   );
 }
 
-export function ProjectList({ items, labels }: { items: ProjectCard[]; labels: ProjectListLabels }) {
+function SitePreview({ title, site, label }: { title: string; site: { url: string; image: string }; label: string }) {
   return (
-    <ol className="mt-12 sm:mt-16">
+    <a
+      href={site.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${label}: ${title}`}
+      className="hairline group relative block aspect-video w-full overflow-hidden rounded-xl border bg-surface"
+    >
+      <Image
+        src={site.image}
+        alt=""
+        fill
+        sizes="(min-width: 1024px) 44rem, 100vw"
+        quality={75}
+        className="object-cover object-top opacity-80 grayscale-[35%] transition duration-500 group-hover:opacity-100 group-hover:grayscale-0"
+      />
+      <span className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+      <span className="absolute bottom-4 start-4 inline-flex items-center gap-2.5 rounded-full bg-foreground py-1.5 pe-4 ps-1.5 text-[13px] font-medium text-background transition group-hover:bg-white">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-background text-foreground" aria-hidden="true">
+          <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" strokeWidth="1.4" className="rtl:-scale-x-100">
+            <path d="M2 7 7 2M3 2h4v4" />
+          </svg>
+        </span>
+        {label}
+      </span>
+    </a>
+  );
+}
+
+export function ProjectList({ items, labels, startAt = 1 }: { items: ProjectCard[]; labels: ProjectListLabels; startAt?: number }) {
+  return (
+    <ol start={startAt} className="mt-12 sm:mt-16">
       {items.map((item, index) => {
         const inProgress = item.status === "inProgress";
 
@@ -89,18 +132,19 @@ export function ProjectList({ items, labels }: { items: ProjectCard[]; labels: P
           <li key={item.title} className="hairline grid gap-8 border-t py-12 sm:py-16 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
               <div className="lg:sticky lg:top-24">
-                <p className="font-mono text-xs text-subtle">{String(index + 1).padStart(2, "0")}</p>
+                <p className="font-mono text-xs text-subtle">{String(startAt + index).padStart(2, "0")}</p>
                 <h3 className="mt-3 text-2xl font-medium tracking-tight text-foreground rtl:tracking-normal sm:text-3xl">{item.title}</h3>
                 <p className="mt-2 text-sm text-muted">{item.category}</p>
                 <p className="mt-5 inline-flex items-center gap-2 text-xs text-muted">
                   <span className={`h-1.5 w-1.5 rounded-full ${inProgress ? "bg-accent" : "bg-muted/60"}`} aria-hidden="true" />
-                  {inProgress ? labels.inProgress : labels.shipped}
+                  {statusLabel(item.status, labels)}
                 </p>
               </div>
             </div>
 
             <div className="space-y-8 lg:col-span-8">
               {item.youtubeUrl ? <VideoPreview title={item.title} youtubeUrl={item.youtubeUrl} label={labels.watchDemo} /> : null}
+              {item.site ? <SitePreview title={item.title} site={item.site} label={labels.visitSite ?? item.site.url} /> : null}
 
               <p className="max-w-2xl text-base leading-relaxed text-foreground/85 sm:text-lg sm:leading-relaxed">{item.summary}</p>
 
