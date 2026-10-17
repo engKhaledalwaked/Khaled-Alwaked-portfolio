@@ -27,6 +27,39 @@ const projectVideoEmbeds = {
 const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
   en: [
     {
+      title: "Masken Platform",
+      site: { url: "https://maskan-web-ruddy.vercel.app", image: "/projects/maskan.jpg" },
+      category: "Nuxt + Flutter + Supabase",
+      span: "large",
+      accent: "#22d3ee",
+      status: "inProgress",
+      summary:
+        "In Jordan, thousands of university students move between governorates every year and struggle to find suitable housing by price, location, and space. Masken solves this by unifying student housing, tourist stays, and regular rentals in one trusted platform, while giving landlords a single dashboard to manage units, leases, and maintenance.",
+      details: [
+        "Helps students compare options faster using practical filters for budget, area, and location near universities.",
+        "Serves tourists and everyday renters too: one explorer for tourist, student and residential homes, filtered by city, rental period and amenities.",
+        "Booking requests with tracked booking codes, reviews, favorites, notifications and phone or email verification by one-time code.",
+        "Landlords manage units, rent, payment dates and tenants from one dashboard, including properties they own outside Masken, and can invite tenants via WhatsApp.",
+        "Subscription plans by number of managed units, paid boosts for featured listings and payment by CliQ transfer, with monthly revenue reports.",
+        "A separate staff dashboard with superadmin and admin roles, a support center and an audit log, plus a Flutter mobile app on the same Supabase backend.",
+      ],
+    },
+    {
+      title: "Chaty",
+      category: "Flutter + Supabase + WebRTC",
+      span: "large",
+      accent: "#a78bfa",
+      summary:
+        "Messaging apps usually depend on paid services for calls, storage and notifications, so costs grow with every user. Chaty is a Telegram-style messenger built entirely on free, open-source infrastructure: self-hosted Supabase, peer-to-peer WebRTC calls and free push notifications.",
+      details: [
+        "Realtime one-to-one and group chat with photos, video, files, voice notes and animated Telegram sticker packs.",
+        "Offline-first: chats open instantly from the on-device Isar database, and messages written without signal are queued and sent on reconnect.",
+        "Voice and video calls over WebRTC travel directly between devices; only the handshake goes through Supabase Realtime, with native ringing on iOS and Android.",
+        "Row-level security on every table, so a user can only read their own chats and can only be called by people they already share a chat with.",
+        "Telegram-style interface with grouped bubbles, delivery ticks, unread badges, presence and last seen, in light and dark themes.",
+      ],
+    },
+    {
       title: "V-Safety Manager",
       category: "React + Next.js",
       span: "large",
@@ -40,21 +73,6 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "Enforces fixed, visible service pricing before commitment, improving trust and cost predictability for owners and families.",
         "Built as 27 validated client routes and 21 production pages to support secure, end-to-end operation at scale.",
         "Safer maintenance decisions, fewer exploitation scenarios, and a more reliable service journey for vehicle owners in the Kingdom.",
-      ],
-    },
-    {
-      title: "Masken Platform",
-      category: "Web + Mobile + Supabase",
-      span: "medium",
-      accent: "#22d3ee",
-      status: "inProgress",
-      summary:
-        "In Jordan, thousands of university students move between governorates every year and struggle to find suitable housing by price, location, and space. Masken solves this by unifying student housing, tourist stays, and regular rentals in one trusted platform, while giving landlords a single dashboard to manage units, leases, and maintenance.",
-      details: [
-        "Helps students compare options faster using practical filters for budget, area, and location near universities.",
-        "Expands demand channels by serving tourists looking for hotels, apartments, or short-stay rooms at competitive prices in specific areas.",
-        "Gives everyday renters one place to discover better-value homes instead of fragmented listings and manual back-and-forth.",
-        "Enables landlords to manage units, leases, maintenance, and tenant communication from one dashboard instead of scattered calls and WhatsApp messages.",
       ],
     },
     {
@@ -133,6 +151,39 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
   ],
   ar: [
     {
+      title: "منصة مسكن",
+      site: { url: "https://maskan-web-ruddy.vercel.app", image: "/projects/maskan.jpg" },
+      category: "Nuxt + Flutter + Supabase",
+      span: "large",
+      accent: "#22d3ee",
+      status: "inProgress",
+      summary:
+        "في الأردن، آلاف الطلاب ينتقلون بين المحافظات للدراسة ويواجهون صعوبة في إيجاد سكن مناسب بالسعر والموقع والمساحة. منصة مسكن تحل ذلك عبر جمع سكن الطلاب، والإيجارات اليومية للسياح، وإيجارات السكن العادي في منصة واحدة موثوقة، مع لوحة إدارة موحدة للملاك لإدارة الشقق والعقود والإيجارات والصيانات.",
+      details: [
+        "يسرع قرار الطالب عبر فلاتر واضحة للسعر، المنطقة، والقرب من الجامعة بدل البحث العشوائي الطويل.",
+        "يخدم السياح والمستأجرين أيضاً: مستكشف واحد للسكن السياحي والطلابي والسكني، مع فلترة حسب المدينة ومدة الإيجار والمرافق.",
+        "طلبات حجز برموز حجز قابلة للمتابعة، وتقييمات، ومفضلة، وإشعارات، وتحقق من الهاتف أو البريد برمز لمرة واحدة.",
+        "يدير المالك الوحدات والإيجارات ومواعيد الدفع والمستأجرين من لوحة واحدة، حتى العقارات التي يملكها خارج مسكن، ويدعو المستأجرين عبر واتساب.",
+        "باقات اشتراك حسب عدد الوحدات المُدارة، وترويج مدفوع لتمييز الإعلانات، ودفع عبر تحويل CliQ، مع تقارير إيرادات شهرية.",
+        "لوحة تحكم منفصلة للموظفين بصلاحيات superadmin وadmin، ومركز دعم، وسجل إجراءات، إضافة إلى تطبيق موبايل Flutter على نفس قاعدة Supabase.",
+      ],
+    },
+    {
+      title: "Chaty",
+      category: "Flutter + Supabase + WebRTC",
+      span: "large",
+      accent: "#a78bfa",
+      summary:
+        "تطبيقات المراسلة عادة تعتمد على خدمات مدفوعة للمكالمات والتخزين والإشعارات، فتزيد التكلفة مع كل مستخدم. Chaty تطبيق مراسلة بأسلوب تلجرام مبني بالكامل على تقنيات مفتوحة المصدر ومجانية: Supabase مستضاف ذاتياً، ومكالمات WebRTC مباشرة بين الأجهزة، وإشعارات مجانية.",
+      details: [
+        "محادثات فورية فردية وجماعية مع الصور والفيديو والملفات والرسائل الصوتية وحزم ملصقات تلجرام المتحركة.",
+        "يعمل بدون إنترنت: المحادثات تفتح فوراً من قاعدة Isar على الجهاز، والرسائل المكتوبة بدون اتصال تُرسل تلقائياً عند عودة الشبكة.",
+        "مكالمات صوت وفيديو عبر WebRTC تنتقل مباشرة بين الجهازين، ويمر فقط بدء الاتصال عبر Supabase Realtime، مع رنين أصلي على iOS وAndroid.",
+        "حماية RLS على كل جدول، فلا يقرأ المستخدم إلا محادثاته، ولا يتصل به إلا من يشاركه محادثة.",
+        "واجهة بأسلوب تلجرام: فقاعات مجمّعة، وعلامات التسليم، وعدّاد غير المقروء، والتواجد وآخر ظهور، بوضعين فاتح وداكن.",
+      ],
+    },
+    {
       title: "V-Safety Manager",
       category: "React + Next.js",
       span: "large",
@@ -146,21 +197,6 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
         "يعرض اسعارا ثابتة وواضحة قبل إكمال الطلب، ما يرفع الثقة ويقلل مفاجآت التكلفة على العميل.",
         "مبني عبر 27 مسارا معتمدا للعميل و21 شاشة إنتاجية فعلية لضمان تشغيل متكامل وآمن.",
         "قرارات صيانة أكثر أمانا، حالات استغلال أقل، وتجربة خدمة موثوقة لأصحاب المركبات في المملكة.",
-      ],
-    },
-    {
-      title: "منصة Masken",
-      category: "ويب + موبايل + Supabase",
-      span: "medium",
-      accent: "#22d3ee",
-      status: "inProgress",
-      summary:
-        "في الأردن، آلاف الطلاب ينتقلون بين المحافظات للدراسة ويواجهون صعوبة في إيجاد سكن مناسب بالسعر والموقع والمساحة. منصة Masken تحل ذلك عبر جمع سكن الطلاب، والإيجارات اليومية للسياح، وإيجارات السكن العادي في منصة واحدة موثوقة، مع لوحة إدارة موحدة للملاك لإدارة الشقق والعقود والإيجارات والصيانات.",
-      details: [
-        "يسرع قرار الطالب عبر فلاتر واضحة للسعر، المنطقة، والقرب من الجامعة بدل البحث العشوائي الطويل.",
-        "يفتح قناة طلب إضافية للسياح الباحثين عن فنادق أو شقق أو غرف سياحية بأسعار منافسة ومواقع محددة.",
-        "يوفر للمستأجر العادي مقارنة أفضل للخيارات السكنية للوصول إلى بيت مناسب بالسعر والمكان المفضل.",
-        "يدير الشقق والعقود والإيجارات والصيانات والتواصل مع المستأجرين من مكان واحد بدل الاتصالات ورسائل الواتس المتفرقة.",
       ],
     },
     {
@@ -685,7 +721,7 @@ const textByLocale = {
       role: "Software engineer · Full-stack · UI/UX",
       availability: "Open to new projects",
       facts: [
-        { value: "23", label: "Projects built" },
+        { value: "24", label: "Projects built" },
         { value: "Web + Mobile", label: "Platforms" },
         { value: "Next.js · Flutter", label: "Main stack" },
       ],
@@ -704,7 +740,7 @@ const textByLocale = {
     projects: {
       title: "Selected work",
       description: "Real problems, the products built to solve them, and what changed for the people using them.",
-      labels: { shipped: "Shipped", inProgress: "In development", watchDemo: "Watch demo", highlights: "Highlights" },
+      labels: { shipped: "Shipped", inProgress: "In development", watchDemo: "Watch demo", highlights: "Highlights", visitSite: "Visit live site" },
     },
     websites: {
       title: "Websites for businesses in Jordan",
@@ -739,7 +775,7 @@ const textByLocale = {
       role: "مهندس برمجيات · Full-Stack · UI/UX",
       availability: "متاح لمشاريع جديدة",
       facts: [
-        { value: "23", label: "مشاريع منجزة" },
+        { value: "24", label: "مشاريع منجزة" },
         { value: "ويب + موبايل", label: "المنصات" },
         { value: "Next.js · Flutter", label: "التقنيات الأساسية" },
       ],
@@ -758,7 +794,7 @@ const textByLocale = {
     projects: {
       title: "أعمال مختارة",
       description: "مشكلات حقيقية، والمنتجات التي بُنيت لحلها، وما الذي تغيّر لمستخدميها.",
-      labels: { shipped: "مُنجز", inProgress: "قيد التطوير", watchDemo: "شاهد العرض", highlights: "أبرز النقاط" },
+      labels: { shipped: "مُنجز", inProgress: "قيد التطوير", watchDemo: "شاهد العرض", highlights: "أبرز النقاط", visitSite: "زيارة الموقع" },
     },
     websites: {
       title: "مواقع لأعمال في الأردن",
