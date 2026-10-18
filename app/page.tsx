@@ -52,6 +52,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "Flutter + Supabase + WebRTC",
       span: "large",
       accent: "#a78bfa",
+      image: "/projects/chaty.jpg",
       summary:
         "Messaging apps usually depend on paid services for calls, storage and notifications, so costs grow with every user. Chaty is a Telegram-style messenger built entirely on free, open-source infrastructure: self-hosted Supabase, peer-to-peer WebRTC calls and free push notifications.",
       details: [
@@ -162,6 +163,7 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "Flutter + Supabase + WebRTC",
       span: "large",
       accent: "#a78bfa",
+      image: "/projects/chaty.jpg",
       summary:
         "تطبيقات المراسلة عادة تعتمد على خدمات مدفوعة للمكالمات والتخزين والإشعارات، فتزيد التكلفة مع كل مستخدم. Chaty تطبيق مراسلة بأسلوب تلجرام مبني بالكامل على تقنيات مفتوحة المصدر ومجانية: Supabase مستضاف ذاتياً، ومكالمات WebRTC مباشرة بين الأجهزة، وإشعارات مجانية.",
       details: [
@@ -908,13 +910,15 @@ export default function Home() {
             <span className="max-[379px]:hidden"> {lastName}</span>
           </a>
 
-          <nav className="flex items-center gap-1 sm:gap-2">
+          <nav className="flex items-center sm:gap-2">
             {navItems.map((item) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}
                 aria-current={activeSection === item.id ? "true" : undefined}
-                className={`whitespace-nowrap rounded-md px-1.5 py-2 text-sm transition-colors sm:px-2.5 ${
+                // Full header height and no gaps: on phones the whole strip is tappable, so a slightly
+                // off tap can't land on a neighbouring link or a dead gap.
+                className={`flex h-16 items-center whitespace-nowrap px-[7px] text-sm transition-colors sm:px-2.5 ${
                   activeSection === item.id ? "text-foreground" : "text-muted hover:text-foreground"
                 }`}
               >
@@ -942,7 +946,7 @@ export default function Home() {
               type="button"
               onClick={() => setLocale((current) => (current === "en" ? "ar" : "en"))}
               aria-label={t.nav.switchLanguageAria}
-              className="hairline rounded-md border px-2 py-1.5 text-[13px] sm:ms-1 sm:px-3 text-muted transition-colors hover:border-foreground/30 hover:text-foreground"
+              className="hairline ms-1 rounded-md border px-2 py-1.5 text-[13px] sm:px-3 text-muted transition-colors hover:border-foreground/30 hover:text-foreground"
             >
               {t.nav.switchLanguage}
             </button>
@@ -1084,7 +1088,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer id="contact" className="hairline scroll-mt-20 border-t">
+      <footer id="contact" className="hairline border-t">
         <div className="shell py-20 sm:py-28">
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
             <h2 className="text-3xl font-medium tracking-tight rtl:tracking-normal sm:text-5xl lg:col-span-7">{t.footer.title}</h2>

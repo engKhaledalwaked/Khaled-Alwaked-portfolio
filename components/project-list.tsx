@@ -12,6 +12,7 @@ export type ProjectCard = {
   details: string[];
   youtubeUrl?: string;
   site?: { url: string; image: string };
+  image?: string; // static preview for projects without a demo video or live site
   repo?: string;
   status?: "ready" | "inProgress" | "redesign" | "newSite" | "rebuild";
 };
@@ -132,6 +133,11 @@ function Preview({ item, labels, sizes }: { item: ProjectCard; labels: ProjectLi
     <>
       {item.youtubeUrl ? <VideoPreview title={item.title} youtubeUrl={item.youtubeUrl} label={labels.watchDemo} sizes={sizes} /> : null}
       {item.site ? <SitePreview title={item.title} site={item.site} label={labels.visitSite ?? item.site.url} sizes={sizes} /> : null}
+      {item.image ? (
+        <div className="hairline relative aspect-video w-full overflow-hidden rounded-xl border bg-surface">
+          <Image src={item.image} alt={item.title} fill sizes={sizes} quality={75} className="object-cover" />
+        </div>
+      ) : null}
     </>
   );
 }
