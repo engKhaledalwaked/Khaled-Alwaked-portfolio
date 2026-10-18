@@ -14,7 +14,11 @@ export type ProjectCard = {
   site?: { url: string; image: string };
   image?: string; // static preview for projects without a demo video or live site
   repo?: string;
-  demo?: { title: string; note: string; url: string; linkLabel: string; email: string; password: string };
+  demo?: {
+    title: string;
+    note: string;
+    accounts: { role: string; name: string; url: string; linkLabel: string; email: string; password: string }[];
+  };
   status?: "ready" | "inProgress" | "redesign" | "newSite" | "rebuild";
 };
 
@@ -204,40 +208,46 @@ function CopyButton({ value, labels }: { value: string; labels: ProjectListLabel
   );
 }
 
-function DemoAccount({ demo, labels }: { demo: NonNullable<ProjectCard["demo"]>; labels: ProjectListLabels }) {
-  const rows = [
-    { label: labels.email, value: demo.email },
-    { label: labels.password, value: demo.password },
-  ];
-
+function DemoAccounts({ demo, labels }: { demo: NonNullable<ProjectCard["demo"]>; labels: ProjectListLabels }) {
   return (
     <div className="hairline max-w-2xl rounded-xl border bg-surface/60 p-5">
       <p className={eyebrow}>{demo.title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted">{demo.note}</p>
-      <dl className="mt-4 space-y-2">
-        {rows.map((row) => (
-          <div key={row.label} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <dt className="w-24 shrink-0 text-sm text-subtle">{row.label}</dt>
-            <dd className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <code dir="ltr" className="select-all whitespace-nowrap font-mono text-[13px] text-foreground sm:text-sm">
-                {row.value}
-              </code>
-              <CopyButton value={row.value} labels={labels} />
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <a
-        href={demo.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-white"
-      >
-        {demo.linkLabel}
-        <span aria-hidden="true" className="rtl:-scale-x-100">
-          ↗
-        </span>
-      </a>
+      {demo.accounts.map((account) => (
+        <div key={account.email} className="hairline mt-5 border-t pt-5">
+          <p className="text-sm">
+            <span className="font-medium text-foreground">{account.role}</span>
+            <span className="text-muted"> · {account.name}</span>
+          </p>
+          <dl className="mt-3 space-y-2">
+            {[
+              { label: labels.email, value: account.email },
+              { label: labels.password, value: account.password },
+            ].map((row) => (
+              <div key={row.label} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <dt className="w-24 shrink-0 text-sm text-subtle">{row.label}</dt>
+                <dd className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <code dir="ltr" className="select-all whitespace-nowrap font-mono text-[13px] text-foreground sm:text-sm">
+                    {row.value}
+                  </code>
+                  <CopyButton value={row.value} labels={labels} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <a
+            href={account.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hairline mt-4 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm text-foreground transition-colors hover:border-foreground/30 hover:bg-foreground/[0.03]"
+          >
+            {account.linkLabel}
+            <span aria-hidden="true" className="rtl:-scale-x-100">
+              ↗
+            </span>
+          </a>
+        </div>
+      ))}
     </div>
   );
 }
@@ -265,7 +275,7 @@ function LargeRow({ item, number, labels }: { item: ProjectCard; number: string;
           <p className={eyebrow}>{labels.highlights}</p>
           <HighlightList details={item.details} className="mt-4" />
         </div>
-        {item.demo ? <DemoAccount demo={item.demo} labels={labels} /> : null}
+        {item.demo ? <DemoAccounts demo={item.demo} labels={labels} /> : null}
         {item.repo ? <RepoLink repo={item.repo} label={labels.sourceCode} /> : null}
       </div>
     </li>
