@@ -36,6 +36,14 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       span: "large",
       accent: "#22d3ee",
       status: "inProgress",
+      demo: {
+        title: "Try the landlord dashboard",
+        note: "View-only demo account (Samer Al-Khatib, Elite plan). Saving, editing, booking and payment are disabled.",
+        url: "https://maskan-web-ruddy.vercel.app/auth/host-login",
+        linkLabel: "Open landlord sign-in",
+        email: "showcase.host@maskan.app",
+        password: "Maskan@Show2026",
+      },
       summary:
         "In Jordan, thousands of university students move between governorates every year and struggle to find suitable housing by price, location, and space. Maskan solves this by unifying student housing, tourist stays, and regular rentals in one trusted platform, while giving landlords a single dashboard to manage units, leases, and maintenance.",
       details: [
@@ -147,6 +155,14 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       span: "large",
       accent: "#22d3ee",
       status: "inProgress",
+      demo: {
+        title: "جرّب لوحة المالك",
+        note: "حساب عرض فقط (سامر الخطيب، خطة النخبة العقارية). لا يمكن الحفظ أو التعديل أو الحجز أو الدفع.",
+        url: "https://maskan-web-ruddy.vercel.app/auth/host-login",
+        linkLabel: "صفحة دخول المالك",
+        email: "showcase.host@maskan.app",
+        password: "Maskan@Show2026",
+      },
       summary:
         "في الأردن، آلاف الطلاب ينتقلون بين المحافظات للدراسة ويواجهون صعوبة في إيجاد سكن مناسب بالسعر والموقع والمساحة. منصة مسكن تحل ذلك عبر جمع سكن الطلاب، والإيجارات اليومية للسياح، وإيجارات السكن العادي في منصة واحدة موثوقة، مع لوحة إدارة موحدة للملاك لإدارة الشقق والعقود والإيجارات والصيانات.",
       details: [
@@ -721,6 +737,10 @@ const textByLocale = {
         highlights: "Highlights",
         visitSite: "Visit live site",
         sourceCode: "Source code",
+        email: "Email",
+        password: "Password",
+        copy: "Copy",
+        copied: "Copied",
       },
     },
     websites: {
@@ -779,6 +799,10 @@ const textByLocale = {
         highlights: "أبرز النقاط",
         visitSite: "زيارة الموقع",
         sourceCode: "الكود المصدري",
+        email: "البريد",
+        password: "كلمة المرور",
+        copy: "نسخ",
+        copied: "تم النسخ",
       },
     },
     websites: {
