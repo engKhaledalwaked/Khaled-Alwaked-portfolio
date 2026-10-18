@@ -15,31 +15,34 @@ const socialLinks = [
   { label: "GitHub", href: "https://github.com/engKhaledalwaked", src: githubProfileIcon },
 ] as const;
 
+const email = "engkhaledalwaked@gmail.com";
+const whatsappUrl = "https://wa.me/962790146862";
+const repoBase = "https://github.com/engKhaledalwaked";
+
 const projectVideoEmbeds = {
   vSafety: "https://www.youtube.com/embed/CY1cl1wyc2A?rel=0",
   taskFlow: "https://www.youtube.com/embed/zjwj2abCUGg?rel=0",
   challenger: "https://www.youtube.com/embed/0G4Sf1w9_bQ?rel=0",
   taqsi: "https://www.youtube.com/embed/bEAN-scSSsQ?rel=0",
-  bmi: "https://www.youtube.com/embed/tHY8ZVe-_Ys?rel=0",
   casher: "https://www.youtube.com/embed/r0LxGBrgS4U?rel=0",
 } as const;
 
 const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
   en: [
     {
-      title: "Masken Platform",
+      title: "Maskan Platform",
       site: { url: "https://maskan-web-ruddy.vercel.app", image: "/projects/maskan.jpg" },
       category: "Nuxt + Flutter + Supabase",
       span: "large",
       accent: "#22d3ee",
       status: "inProgress",
       summary:
-        "In Jordan, thousands of university students move between governorates every year and struggle to find suitable housing by price, location, and space. Masken solves this by unifying student housing, tourist stays, and regular rentals in one trusted platform, while giving landlords a single dashboard to manage units, leases, and maintenance.",
+        "In Jordan, thousands of university students move between governorates every year and struggle to find suitable housing by price, location, and space. Maskan solves this by unifying student housing, tourist stays, and regular rentals in one trusted platform, while giving landlords a single dashboard to manage units, leases, and maintenance.",
       details: [
         "Helps students compare options faster using practical filters for budget, area, and location near universities.",
         "Serves tourists and everyday renters too: one explorer for tourist, student and residential homes, filtered by city, rental period and amenities.",
         "Booking requests with tracked booking codes, reviews, favorites, notifications and phone or email verification by one-time code.",
-        "Landlords manage units, rent, payment dates and tenants from one dashboard, including properties they own outside Masken, and can invite tenants via WhatsApp.",
+        "Landlords manage units, rent, payment dates and tenants from one dashboard, including properties they own outside Maskan, and can invite tenants via WhatsApp.",
         "Subscription plans by number of managed units, paid boosts for featured listings and payment by CliQ transfer, with monthly revenue reports.",
         "A separate staff dashboard with superadmin and admin roles, a support center and an audit log, plus a Flutter mobile app on the same Supabase backend.",
       ],
@@ -62,17 +65,17 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
     {
       title: "V-Safety Manager",
       category: "React + Next.js",
-      span: "large",
+      span: "medium",
       accent: "#ff4fd8",
       summary:
-        "Many vehicle owners in Saudi Arabia are exposed to overpricing and fraud by untrusted repair and maintenance channels. V-Safety Manager addresses this by providing a government-aligned digital experience with fixed pricing and verified inspection centers in one trusted platform.",
+        "Many vehicle owners in Saudi Arabia are exposed to overpricing by untrusted repair and maintenance channels. V-Safety Manager is an independent platform designed to counter this: inspection centers listed in one place, with fixed prices shown before booking.",
       youtubeUrl: projectVideoEmbeds.vSafety,
+      repo: `${repoBase}/V-safety-manager`,
       details: [
-        "Replaces scattered workshop offers with one verified channel, reducing pricing ambiguity and fraud exposure.",
-        "Connects users to state-documented inspection centers across Saudi Arabia through guided booking and verification flows.",
-        "Enforces fixed, visible service pricing before commitment, improving trust and cost predictability for owners and families.",
-        "Built as 27 validated client routes and 21 production pages to support secure, end-to-end operation at scale.",
-        "Safer maintenance decisions, fewer exploitation scenarios, and a more reliable service journey for vehicle owners in the Kingdom.",
+        "Replaces scattered workshop offers with one channel where every service has a visible, fixed price.",
+        "Lists inspection centers across Saudi Arabia and takes the owner through a guided booking and verification flow.",
+        "The price is confirmed before the owner commits, so there are no surprises at the center.",
+        "27 client routes and 21 pages in Next.js covering the full journey from search to booking.",
       ],
     },
     {
@@ -83,11 +86,11 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "Gaming cafes often struggle with device booking because most cashier tools are difficult for staff and do not offer precise reservation control. Challenger solves this with a dedicated, accurate booking-management section built for real day-to-day floor operations.",
       youtubeUrl: projectVideoEmbeds.challenger,
+      repo: `${repoBase}/Challenger-gaming-cafe-system`,
       details: [
         "Gives teams a clear booking workflow for device allocation and session control, reducing reservation conflicts and manual corrections.",
         "Includes a complete Sales Report page with save-and-return capability, so managers can review reports anytime without rebuilding data.",
         "Removes heavy dependence on Excel sheets by keeping operational records inside the app for faster daily follow-up.",
-        "Less staff friction, quicker shift handling, and more reliable reporting for gaming-cafe operations.",
       ],
     },
     {
@@ -98,11 +101,11 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "Most task apps are either too shallow or too monotonous, usually designed around a single use case. Task Flow solves this by combining detailed task tracking, smart prioritization, and goal-based organization with a motivating habit system in one focused experience.",
       youtubeUrl: projectVideoEmbeds.taskFlow,
+      repo: `${repoBase}/TaskFlow-to-do-app`,
       details: [
         "Enables structured planning by organizing tasks through priority, type, and purpose, helping users act faster with less mental overload.",
         "Includes a dedicated habit-tracking module with daily score accumulation to reinforce consistency and healthy routine-building.",
         "Turns progress into motivation through visible streak and score mechanics that reward sustained execution.",
-        "Better retention and higher day-to-day goal completion through clarity, structure, and behavioral motivation.",
         "Planned weekly, monthly, and yearly leaderboards will add social competition to push long-term commitment even further.",
       ],
     },
@@ -114,24 +117,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "Many weather apps require too many steps before users reach a decision. This app streamlines access to current conditions and forecasts with resilient data handling so users can act quickly in changing conditions.",
       youtubeUrl: projectVideoEmbeds.taqsi,
+      repo: `${repoBase}/Taqsi-weather-app`,
       details: [
         "Offers 3 fast entry paths (current location, city search, favorites) to reduce lookup friction.",
         "Provides hourly insights plus a 7-day forecast view for immediate and short-term planning decisions.",
-        "Faster decision-making with lower drop-off risk when connectivity is unstable.",
-      ],
-    },
-    {
-      title: "BMI Calculator",
-      category: "Flutter Health",
-      span: "small",
-      accent: "#f59e0b",
-      summary:
-        "Health tracking tools often fail when input is confusing or feedback is unclear. This BMI app simplifies data entry and interpretation, making regular self-check routines easier to sustain.",
-      youtubeUrl: projectVideoEmbeds.bmi,
-      details: [
-        "Supports 2 unit systems (metric and imperial) to reduce entry mistakes across different user regions.",
-        "Visualizes outcomes across 4 BMI ranges with an animated gauge and keeps historical readings for progress awareness.",
-        "Clearer repeat-use experience that encourages ongoing self-tracking behavior.",
       ],
     },
     {
@@ -142,10 +131,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "Retail checkout lines slow down when invoicing and printer handling depend on repeated manual setup. Casher centralizes selling, invoicing, and thermal printing so cashiers can complete bills with fewer interruptions.",
       youtubeUrl: projectVideoEmbeds.casher,
+      repo: `${repoBase}/Casher-POS-System`,
       details: [
         "Printer selection is done once, then reused with auto-connect on next launches, reducing repeated setup at the counter.",
-        "Moves invoice printing from a 20+ line integration pattern to a single service call for faster feature delivery and maintenance.",
-        "Faster checkout flow with lower cashier friction during peak billing windows.",
+        "Invoice printing is wrapped in a single service call, so any screen can print a bill without its own printer code.",
       ],
     },
   ],
@@ -186,17 +175,17 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
     {
       title: "V-Safety Manager",
       category: "React + Next.js",
-      span: "large",
+      span: "medium",
       accent: "#ff4fd8",
       summary:
-        "كثير من أصحاب المركبات في السعودية يتعرضون للاستغلال ورفع الأسعار من جهات صيانة غير موثوقة. V-Safety Manager يحل هذه المشكلة عبر منصة رقمية موثقة على مستوى الجهات الحكومية، تجمع التسعير الثابت ومراكز الفحص المعتمدة في تجربة واحدة موثوقة.",
+        "كثير من أصحاب المركبات في السعودية يتعرضون لرفع الأسعار من جهات صيانة غير موثوقة. V-Safety Manager منصة مستقلة صُممت لمعالجة ذلك: مراكز الفحص في مكان واحد، مع سعر ثابت يظهر قبل الحجز.",
       youtubeUrl: projectVideoEmbeds.vSafety,
+      repo: `${repoBase}/V-safety-manager`,
       details: [
-        "ينقل المستخدم من خيارات عشوائية بين الورش إلى قناة موثقة واحدة، مما يقلل تضارب الأسعار ومخاطر النصب.",
-        "يربط أصحاب المركبات بمراكز فحص موثقة ومعتمدة على مستوى المملكة العربية السعودية ضمن تدفق حجز واضح.",
-        "يعرض اسعارا ثابتة وواضحة قبل إكمال الطلب، ما يرفع الثقة ويقلل مفاجآت التكلفة على العميل.",
-        "مبني عبر 27 مسارا معتمدا للعميل و21 شاشة إنتاجية فعلية لضمان تشغيل متكامل وآمن.",
-        "قرارات صيانة أكثر أمانا، حالات استغلال أقل، وتجربة خدمة موثوقة لأصحاب المركبات في المملكة.",
+        "ينقل المستخدم من عروض متفرقة بين الورش إلى قناة واحدة لكل خدمة فيها سعر ثابت وواضح.",
+        "يعرض مراكز الفحص في أنحاء المملكة ويأخذ صاحب المركبة عبر تدفق حجز وتحقق واضح.",
+        "يتأكد السعر قبل أن يلتزم العميل، فلا مفاجآت في التكلفة عند المركز.",
+        "27 مساراً للعميل و21 صفحة بـ Next.js تغطي الرحلة كاملة من البحث حتى الحجز.",
       ],
     },
     {
@@ -207,11 +196,11 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "مشكلة مقاهي الألعاب أن إدارة حجز الأجهزة تكون صعبة لأن أغلب تطبيقات الكاشير متعبة للعاملين ولا تعطي دقة كافية في تنظيم الحجوزات. منصة Challenger تعالج ذلك عبر قسم مخصص لإدارة الحجوزات بشكل دقيق وعملي يناسب التشغيل اليومي.",
       youtubeUrl: projectVideoEmbeds.challenger,
+      repo: `${repoBase}/Challenger-gaming-cafe-system`,
       details: [
         "يوفر تدفقا واضحا لحجز الأجهزة وإدارة الجلسات، مما يقلل تعارضات الحجوزات والتعديلات اليدوية أثناء الضغط.",
         "يتضمن صفحة كاملة لتقرير المبيعات مع إمكانية حفظ التقارير والرجوع لها في أي وقت دون إعادة العمل من الصفر.",
         "يقلل الاعتماد على شيتات وجداول Excel عبر حفظ بيانات التشغيل داخل التطبيق بشكل منظم.",
-        "وقت أقل في المتابعة اليومية، جهد تشغيلي أقل على الفريق، وموثوقية أعلى في التقارير والإدارة.",
       ],
     },
     {
@@ -222,11 +211,11 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "المشكلة أن كثيراً من تطبيقات المهام تكون سطحية أو مملة وتركز على هدف واحد فقط. Task Flow يحل هذا عبر تجربة متكاملة تجمع تتبع المهام بالتفصيل، ترتيب الأولويات، وتصنيف المهام حسب نوعها وهدفها، مع نظام تحفيزي واضح للاستمرار.",
       youtubeUrl: projectVideoEmbeds.taskFlow,
+      repo: `${repoBase}/TaskFlow-to-do-app`,
       details: [
         "يساعد المستخدم على تنظيم يومه بوضوح عبر ترتيب المهام حسب الأولوية والنوع والهدف بدلاً من قوائم عشوائية.",
         "يتضمن قسماً مخصصاً لتتبع العادات وبناء عادات صحية جديدة مع نظام score يومي يزيد مع الاستمرارية.",
         "يحوّل الانضباط إلى تجربة محفزة من خلال تتبع النقاط اليومية وإظهار التقدم بشكل مستمر.",
-        "إنجاز أعلى للأهداف اليومية واستمرارية أفضل لأن النظام يجمع بين التنظيم والتحفيز السلوكي.",
         "عند الإطلاق الكامل ستتوفر Leaderboards أسبوعية وشهرية وسنوية لتحفيز المستخدمين على المنافسة والاستمرار.",
       ],
     },
@@ -238,24 +227,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "الكثير من تطبيقات الطقس تحتاج خطوات كثيرة قبل الوصول لقرار. هذا التطبيق يختصر الوصول للبيانات الحالية والتوقعات مع معالجة مرنة للاتصال حتى يتخذ المستخدم قرارا أسرع.",
       youtubeUrl: projectVideoEmbeds.taqsi,
+      repo: `${repoBase}/Taqsi-weather-app`,
       details: [
         "يقدم 3 طرق سريعة للوصول (الموقع الحالي، البحث عن مدينة، المفضلة) لتقليل وقت الوصول للمعلومة.",
         "يوفر توقعات ساعية مع عرض 7 أيام لدعم قرارات فورية وقصيرة المدى.",
-        "قرارات أسرع مع تقليل احتمال الانسحاب عند ضعف الشبكة.",
-      ],
-    },
-    {
-      title: "حاسبة BMI",
-      category: "Flutter Health",
-      span: "small",
-      accent: "#f59e0b",
-      summary:
-        "أدوات المتابعة الصحية تفشل عندما يكون الإدخال معقدا أو التفسير غير واضح. هذا التطبيق يبسط إدخال البيانات وقراءة النتيجة، مما يسهل الالتزام بالمتابعة الدورية.",
-      youtubeUrl: projectVideoEmbeds.bmi,
-      details: [
-        "يدعم نظامي قياس (متري وإمبريالي) لتقليل أخطاء الإدخال بين فئات المستخدمين.",
-        "يعرض النتيجة ضمن 4 نطاقات BMI بمؤشر متحرك مع حفظ سجل القراءات لمتابعة التقدم.",
-        "تجربة أوضح للاستخدام المتكرر تشجع الاستمرارية في المتابعة الصحية.",
       ],
     },
     {
@@ -266,10 +241,10 @@ const projectCardsByLocale: Record<Locale, ProjectCard[]> = {
       summary:
         "طوابير الكاشير تتباطأ عندما تكون الفوترة والطباعة الحرارية معتمدة على إعداد يدوي متكرر. Casher يجمع البيع والفوترة والطباعة في تدفق واحد لتسريع الإنجاز وتقليل الانقطاع.",
       youtubeUrl: projectVideoEmbeds.casher,
+      repo: `${repoBase}/Casher-POS-System`,
       details: [
         "يتم اختيار الطابعة مرة واحدة ثم إعادة الاتصال تلقائيا في التشغيلات التالية، مما يقلل وقت الإعداد على نقطة البيع.",
-        "ينقل الطباعة من نمط تكامل يتجاوز 20 سطرا إلى استدعاء خدمة واحد، ما يسرع التطوير والصيانة.",
-        "سرعة أعلى في الإنهاء عند الكاشير واحتكاك أقل خلال فترات الذروة.",
+        "طباعة الفاتورة ملفوفة في استدعاء خدمة واحد، فتستطيع أي شاشة طباعة فاتورة دون كود طابعة خاص بها.",
       ],
     },
   ],
@@ -283,7 +258,7 @@ const websiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "Dental center · Shmeisani, Amman",
       status: "redesign",
       summary:
-        "Jordan’s first comprehensive dental center had an outdated website that buried its eight departments, eleven dentists and emergency service in cluttered pages. I rebuilt it as a fast bilingual site that turns a visit into a booking.",
+        "Jordan’s first comprehensive dental center had a website that made its eight departments, eleven dentists and emergency service hard to find. I reimagined it as a fast bilingual site that turns a visit into a booking.",
       details: [
         "Choosing a department or a doctor carries straight into a booking form that opens WhatsApp with a ready-made message.",
         "Draggable before/after sliders for real cases, a doctor directory filtered by specialty and a photo tour of the center.",
@@ -296,7 +271,7 @@ const websiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "Steakhouse · Jabal Amman",
       status: "newSite",
       summary:
-        "A Jabal Amman steakhouse with 3,600+ Google reviews was relying on Instagram and Facebook alone, with its menu available only as an old photo. I designed a site that sells the experience and takes reservations.",
+        "A Jabal Amman steakhouse with 3,600+ Google reviews was relying on Instagram and Facebook alone, with its menu shared only as a photo. I designed a site that sells the experience and takes reservations.",
       details: [
         "Interactive butcher’s chart: hover any cut to see where it comes from, with weights taken from the house menu.",
         "Reservation form with occasion and seating choices that reaches the restaurant’s WhatsApp as a structured request.",
@@ -337,7 +312,7 @@ const websiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "مركز أسنان · الشميساني، عمّان",
       status: "redesign",
       summary:
-        "أول مركز متخصص شامل لطب الأسنان في الأردن كان موقعه قديماً، يُخفي أقسامه الثمانية وأطباءه الأحد عشر وخدمة الطوارئ خلف صفحات مزدحمة. أعدت بناءه كموقع سريع بالعربي والإنجليزي يحوّل الزيارة إلى حجز.",
+        "أول مركز متخصص شامل لطب الأسنان في الأردن، موقعه لا يُبرز أقسامه الثمانية وأطباءه الأحد عشر وخدمة الطوارئ بشكل كافٍ. أعدت تصوّره كموقع سريع بالعربي والإنجليزي يحوّل الزيارة إلى حجز.",
       details: [
         "اختيار القسم أو الطبيب ينتقل مباشرة إلى نموذج حجز يفتح واتساب برسالة جاهزة.",
         "شرائح مقارنة قبل/بعد قابلة للسحب لحالات حقيقية، ودليل أطباء مصنّف حسب التخصص، وجولة مصوّرة داخل المركز.",
@@ -350,7 +325,7 @@ const websiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "مطعم ستيك · جبل عمّان",
       status: "newSite",
       summary:
-        "مطعم ستيك في جبل عمّان بأكثر من 3,600 مراجعة على Google كان يعتمد على إنستغرام وفيسبوك فقط، وقائمته مجرد صورة قديمة. صممت له موقعاً يعرض التجربة ويستقبل الحجوزات.",
+        "مطعم ستيك في جبل عمّان بأكثر من 3,600 مراجعة على Google كان يعتمد على إنستغرام وفيسبوك فقط، وقائمته متاحة كصورة فقط. صممت له موقعاً يعرض التجربة ويستقبل الحجوزات.",
       details: [
         "مخطط جزّار تفاعلي: مرّر على أي قطعة لترى موقعها على الذبيحة مع أوزانها من قائمة المطعم.",
         "نموذج حجز يحدد المناسبة ومكان الجلوس، ويصل إلى واتساب المطعم كطلب منظّم.",
@@ -394,7 +369,7 @@ const saudiWebsiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "Recruitment office · Al Maghrazat, Riyadh",
       status: "rebuild",
       summary:
-        "A recruitment office with 1,200+ Google reviews, an old website failing with an SSL error, and one question filling its reviews: where is my request? I built a site that takes the request step by step and lets clients follow it up without calling.",
+        "A recruitment office with 1,200+ Google reviews, an old website showing an SSL error, and clients who often ask how to follow up on their requests. I built a site that takes the request step by step and lets clients follow it up without calling.",
       details: [
         "Guided request flow (profession → nationality → requirements → contact) with a live summary ticket, sent to WhatsApp.",
         "“Track your request”: a Musaned contract number and name become a ready follow-up message to the office.",
@@ -446,7 +421,7 @@ const saudiWebsiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "Real estate office · Umm Al Hamam, Riyadh",
       status: "rebuild",
       summary:
-        "A neighborhood real estate office whose old site was down and whose reviews kept mentioning unanswered phones. I built a site that captures the request in detail and offers a callback instead.",
+        "A neighborhood real estate office whose old site was down, so clients could only reach it by phone. I built a site that captures the request in detail and lets clients ask for a callback at a convenient time.",
       details: [
         "Property request: rent, list my property or manage my property → type → district → rooms → annual budget slider → WhatsApp.",
         "“Missed us? We’ll call you”: a callback request at the client’s preferred time.",
@@ -537,7 +512,7 @@ const saudiWebsiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "Chinese car specialist · Umm Al Hamam, Riyadh",
       status: "rebuild",
       summary:
-        "A 24/7 workshop for Chinese cars, rated 4.4 on Google, listed under a generic name and with a dead domain. I gave it a clear specialist identity for MG, Changan, Geely and more.",
+        "A 24/7 workshop for Chinese cars, rated 4.4 on Google, with a domain that no longer works. I gave it a clear specialist identity for MG, Changan, Geely and more.",
       details: [
         "Services from the shop sign (mechanics, electrics, programming, body work) plus gearbox repair from its reviews.",
         "Brands section, and a booking form that takes the car model and the problem straight to WhatsApp.",
@@ -552,7 +527,7 @@ const saudiWebsiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "مكتب استقدام · حي المغرزات، الرياض",
       status: "rebuild",
       summary:
-        "مكتب استقدام بأكثر من 1,200 مراجعة على Google، موقعه القديم يعطي خطأ شهادة SSL، وأكثر سؤال يتكرر في مراجعاته: وين وصل طلبي؟ بنيت له موقعاً يأخذ الطلب خطوة بخطوة ويتيح للعميل متابعته دون اتصال.",
+        "مكتب استقدام بأكثر من 1,200 مراجعة على Google، موقعه القديم يعطي خطأ شهادة SSL، وعملاء يسألون كثيراً عن متابعة طلباتهم. بنيت له موقعاً يأخذ الطلب خطوة بخطوة ويتيح للعميل متابعته دون اتصال.",
       details: [
         "طلب استقدام تفاعلي (المهنة ← الجنسية ← المواصفات ← البيانات) مع تذكرة ملخص حيّة، يُرسل إلى واتساب.",
         "«تابع طلبك»: رقم عقد مساند والاسم يتحولان إلى رسالة متابعة جاهزة للمكتب.",
@@ -604,7 +579,7 @@ const saudiWebsiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "مكتب عقاري · أم الحمام، الرياض",
       status: "rebuild",
       summary:
-        "مكتب عقاري في الحي، موقعه القديم متوقف، ومراجعاته تتكرر فيها شكوى عدم الرد على الجوال. بنيت له موقعاً يأخذ الطلب بالتفصيل ويعرض معاودة الاتصال بدلاً من ذلك.",
+        "مكتب عقاري في الحي، موقعه القديم متوقف، فبقي الهاتف الطريقة الوحيدة للتواصل. بنيت له موقعاً يأخذ الطلب بالتفصيل ويتيح طلب معاودة الاتصال في وقت مناسب.",
       details: [
         "اطلب عقار: إيجار، أو أبي أأجّر عقاري، أو إدارة أملاكي ← نوع العقار ← الحي ← الغرف ← شريط الميزانية السنوية ← واتساب.",
         "«ما لحقت ترد؟ نحن نتصل فيك»: طلب معاودة اتصال في الوقت الذي يناسب العميل.",
@@ -695,7 +670,7 @@ const saudiWebsiteCardsByLocale: Record<Locale, ProjectCard[]> = {
       category: "متخصص السيارات الصينية · أم الحمام، الرياض",
       status: "rebuild",
       summary:
-        "ورشة سيارات صينية تعمل 24 ساعة بتقييم 4.4 على Google، مسجّلة باسم عام ودومينها متوقف. أعطيتها هوية متخصص واضحة لـ MG وشانجان وجيلي وغيرها.",
+        "ورشة سيارات صينية تعمل 24 ساعة بتقييم 4.4 على Google، ودومينها متوقف. أعطيتها هوية متخصص واضحة لـ MG وشانجان وجيلي وغيرها.",
       details: [
         "الخدمات من لافتة الورشة (ميكانيكا، كهرباء، برمجة، سمكرة) إضافة إلى الجيربوكس من المراجعات.",
         "قسم للماركات، ونموذج حجز ينقل موديل السيارة والعطل مباشرة إلى واتساب.",
@@ -717,14 +692,11 @@ const textByLocale = {
       description:
         "Full-stack developer working with Next.js, React and Flutter. I take products from the first screen to a working release — booking systems, point-of-sale apps, service platforms and websites for local businesses.",
       primaryCta: "View selected work",
+      contactCta: "Get in touch",
       portraitAlt: "Portrait of Khaled Alwaked",
       role: "Software engineer · Full-stack · UI/UX",
       availability: "Open to new projects",
-      facts: [
-        { value: "24", label: "Projects built" },
-        { value: "Web + Mobile", label: "Platforms" },
-        { value: "Next.js · Flutter", label: "Main stack" },
-      ],
+      facts: { products: "Products", websites: "Business websites", stack: "Main stack" },
     },
     skills: {
       title: "Tools & focus",
@@ -734,29 +706,36 @@ const textByLocale = {
         { label: "Mobile", items: ["Flutter"] },
         { label: "Backend & data", items: ["Supabase", "System design"] },
         { label: "Product", items: ["UI/UX design", "Motion UI"] },
-        { label: "AI", items: ["Model integration", "AI training"] },
+        { label: "AI & automation", items: ["Model integration", "Model fine-tuning", "Workflow automation"] },
       ],
     },
     projects: {
       title: "Selected work",
       description: "Real problems, the products built to solve them, and what changed for the people using them.",
-      labels: { shipped: "Shipped", inProgress: "In development", watchDemo: "Watch demo", highlights: "Highlights", visitSite: "Visit live site" },
+      labels: {
+        shipped: "Shipped",
+        inProgress: "In development",
+        watchDemo: "Watch demo",
+        highlights: "Highlights",
+        visitSite: "Visit live site",
+        sourceCode: "Source code",
+      },
     },
     websites: {
       title: "Websites for businesses in Jordan",
       description:
-        "Proposals I built on my own initiative for businesses that had no website, or one that was holding them back. Each is live, bilingual (Arabic and English) and built with Vue 3.",
+        "Proposals I built on my own initiative for businesses that had no website, or one that was holding them back. Each is live, bilingual (Arabic and English) and built with Vue 3. These are unofficial concepts, not commissioned by or affiliated with the businesses named.",
       labels: { redesign: "Redesign proposal", newSite: "New website proposal", visitSite: "Visit live site" },
     },
     websitesSa: {
       title: "Websites for businesses in Saudi Arabia",
       description:
-        "Twelve businesses whose registered websites had stopped working: dead domains, SSL errors or a blank hosting page. I rebuilt each one from its real photos, hours and reviews, with a booking or enquiry flow designed around what its customers actually ask for.",
+        "Twelve businesses whose registered websites had stopped working: dead domains, SSL errors or a blank hosting page. I rebuilt each one from its real photos, hours and reviews, with a booking or enquiry flow designed around what its customers actually ask for. These are unofficial concepts, not commissioned by or affiliated with the businesses named.",
       labels: { rebuild: "Rebuild proposal", visitSite: "Visit live site" },
     },
     footer: {
       title: "Have a product in mind?",
-      description: "Send me a message on LinkedIn — I’m happy to talk through scope, timeline and the right stack.",
+      description: "Email me or send a message on WhatsApp — I’m happy to talk through scope, timeline and the right stack.",
       rights: "All rights reserved.",
     },
   },
@@ -771,14 +750,11 @@ const textByLocale = {
       description:
         "مطوّر Full-Stack أعمل بـ Next.js وReact وFlutter. أنقل المنتج من أول شاشة حتى إصدار يعمل فعلياً — أنظمة حجز، وتطبيقات نقاط بيع، ومنصات خدمات، ومواقع لأعمال محلية.",
       primaryCta: "تصفّح الأعمال",
+      contactCta: "تواصل معي",
       portraitAlt: "صورة خالد الواكد",
       role: "مهندس برمجيات · Full-Stack · UI/UX",
       availability: "متاح لمشاريع جديدة",
-      facts: [
-        { value: "24", label: "مشاريع منجزة" },
-        { value: "ويب + موبايل", label: "المنصات" },
-        { value: "Next.js · Flutter", label: "التقنيات الأساسية" },
-      ],
+      facts: { products: "منتجات", websites: "مواقع لأعمال", stack: "التقنيات الأساسية" },
     },
     skills: {
       title: "الأدوات والتركيز",
@@ -788,29 +764,36 @@ const textByLocale = {
         { label: "الموبايل", items: ["Flutter"] },
         { label: "الخلفية والبيانات", items: ["Supabase", "تصميم الأنظمة"] },
         { label: "المنتج", items: ["تصميم UI/UX", "واجهات حركية"] },
-        { label: "الذكاء الاصطناعي", items: ["تكامل النماذج", "تدريب الذكاء الاصطناعي"] },
+        { label: "الذكاء الاصطناعي والأتمتة", items: ["تكامل النماذج", "Fine-tuning للنماذج", "أتمتة سير العمل"] },
       ],
     },
     projects: {
       title: "أعمال مختارة",
       description: "مشكلات حقيقية، والمنتجات التي بُنيت لحلها، وما الذي تغيّر لمستخدميها.",
-      labels: { shipped: "مُنجز", inProgress: "قيد التطوير", watchDemo: "شاهد العرض", highlights: "أبرز النقاط", visitSite: "زيارة الموقع" },
+      labels: {
+        shipped: "مُنجز",
+        inProgress: "قيد التطوير",
+        watchDemo: "شاهد العرض",
+        highlights: "أبرز النقاط",
+        visitSite: "زيارة الموقع",
+        sourceCode: "الكود المصدري",
+      },
     },
     websites: {
       title: "مواقع لأعمال في الأردن",
       description:
-        "مواقع بنيتها بمبادرة مني لأعمال لم يكن لديها موقع، أو كان موقعها ضعيفاً ولا يخدمها. كلها منشورة، بالعربي والإنجليزي، ومبنية بـ Vue 3.",
+        "مواقع بنيتها بمبادرة مني لأعمال لم يكن لديها موقع، أو كان موقعها ضعيفاً ولا يخدمها. كلها منشورة، بالعربي والإنجليزي، ومبنية بـ Vue 3. هذه مفاهيم غير رسمية، لم تطلبها هذه الأعمال ولا ترتبط بها.",
       labels: { redesign: "مقترح إعادة تصميم", newSite: "مقترح موقع جديد", visitSite: "زيارة الموقع" },
     },
     websitesSa: {
       title: "مواقع لأعمال في السعودية",
       description:
-        "اثنا عشر نشاطاً توقفت مواقعها المسجّلة عن العمل: دومينات منتهية، أو أخطاء شهادة SSL، أو صفحة استضافة فارغة. أعدت بناء كل موقع من صوره ومواعيده ومراجعاته الحقيقية، مع مسار حجز أو استفسار مصمم حول ما يسأل عنه عملاؤه فعلاً.",
+        "اثنا عشر نشاطاً توقفت مواقعها المسجّلة عن العمل: دومينات منتهية، أو أخطاء شهادة SSL، أو صفحة استضافة فارغة. أعدت بناء كل موقع من صوره ومواعيده ومراجعاته الحقيقية، مع مسار حجز أو استفسار مصمم حول ما يسأل عنه عملاؤه فعلاً. هذه مفاهيم غير رسمية، لم تطلبها هذه الأعمال ولا ترتبط بها.",
       labels: { rebuild: "مقترح إعادة بناء", visitSite: "زيارة الموقع" },
     },
     footer: {
       title: "لديك فكرة منتج؟",
-      description: "راسلني على LinkedIn — يسعدني أن نناقش النطاق والجدول الزمني والتقنيات المناسبة.",
+      description: "راسلني على الإيميل أو واتساب — يسعدني أن نناقش النطاق والجدول الزمني والتقنيات المناسبة.",
       rights: "جميع الحقوق محفوظة.",
     },
   },
@@ -836,6 +819,7 @@ export default function Home() {
 
   const isArabic = locale === "ar";
   const t = textByLocale[locale];
+  const [firstName, lastName] = t.name.split(" ");
   const projectCards = projectCardsByLocale[locale];
   const websiteCards = websiteCardsByLocale[locale];
   const saudiWebsiteCards = saudiWebsiteCardsByLocale[locale];
@@ -917,9 +901,11 @@ export default function Home() {
           isScrolled ? "hairline bg-background/85 backdrop-blur-md" : "border-transparent bg-background"
         }`}
       >
-        <div className="shell flex h-16 items-center justify-between gap-4">
-          <a href="#home" className="text-[15px] font-medium tracking-tight text-foreground rtl:tracking-normal">
-            {t.name}
+        <div className="shell flex h-16 items-center justify-between gap-2 sm:gap-4">
+          <a href="#home" className="whitespace-nowrap text-sm font-medium sm:text-[15px] tracking-tight text-foreground rtl:tracking-normal">
+            {firstName}
+            {/* The full name does not fit beside the nav on the narrowest phones. */}
+            <span className="max-[379px]:hidden"> {lastName}</span>
           </a>
 
           <nav className="flex items-center gap-1 sm:gap-2">
@@ -928,7 +914,7 @@ export default function Home() {
                 key={item.id}
                 href={`#${item.id}`}
                 aria-current={activeSection === item.id ? "true" : undefined}
-                className={`rounded-md px-2.5 py-2 text-sm transition-colors ${
+                className={`whitespace-nowrap rounded-md px-1.5 py-2 text-sm transition-colors sm:px-2.5 ${
                   activeSection === item.id ? "text-foreground" : "text-muted hover:text-foreground"
                 }`}
               >
@@ -956,7 +942,7 @@ export default function Home() {
               type="button"
               onClick={() => setLocale((current) => (current === "en" ? "ar" : "en"))}
               aria-label={t.nav.switchLanguageAria}
-              className="hairline ms-1 rounded-md border px-3 py-1.5 text-[13px] text-muted transition-colors hover:border-foreground/30 hover:text-foreground"
+              className="hairline rounded-md border px-2 py-1.5 text-[13px] sm:ms-1 sm:px-3 text-muted transition-colors hover:border-foreground/30 hover:text-foreground"
             >
               {t.nav.switchLanguage}
             </button>
@@ -991,25 +977,19 @@ export default function Home() {
                   </span>
                 </a>
                 <a
-                  href={socialLinks[0].href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#contact"
                   className="text-sm text-muted underline decoration-subtle/60 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-foreground"
                 >
-                  LinkedIn
-                </a>
-                <a
-                  href={socialLinks[1].href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-muted underline decoration-subtle/60 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-foreground"
-                >
-                  GitHub
+                  {t.hero.contactCta}
                 </a>
               </div>
 
               <dl className="hairline mt-14 grid grid-cols-3 gap-4 border-t pt-6 sm:gap-8">
-                {t.hero.facts.map((fact) => (
+                {[
+                  { label: t.hero.facts.products, value: projectCards.length },
+                  { label: t.hero.facts.websites, value: websiteCards.length + saudiWebsiteCards.length },
+                  { label: t.hero.facts.stack, value: "Next.js · Flutter" },
+                ].map((fact) => (
                   <div key={fact.label} className="min-w-0">
                     <dt className="text-xs text-subtle sm:text-sm">{fact.label}</dt>
                     <dd className="mt-1.5 text-sm font-medium text-foreground sm:text-base">{fact.value}</dd>
@@ -1104,13 +1084,28 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="hairline border-t">
+      <footer id="contact" className="hairline scroll-mt-20 border-t">
         <div className="shell py-20 sm:py-28">
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
             <h2 className="text-3xl font-medium tracking-tight rtl:tracking-normal sm:text-5xl lg:col-span-7">{t.footer.title}</h2>
             <div className="lg:col-span-5 lg:self-end">
               <p className="text-base leading-relaxed text-muted">{t.footer.description}</p>
               <div className="mt-6 flex flex-wrap gap-3">
+                <a
+                  href={`mailto:${email}`}
+                  className="inline-flex items-center rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-colors hover:bg-white"
+                  dir="ltr"
+                >
+                  {email}
+                </a>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hairline inline-flex items-center rounded-full border px-4 py-2.5 text-sm text-foreground transition-colors hover:border-foreground/30 hover:bg-foreground/[0.03]"
+                >
+                  WhatsApp
+                </a>
                 {socialLinks.map(({ label, href, src }) => (
                   <a
                     key={label}

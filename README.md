@@ -17,7 +17,7 @@ The site is bilingual (English and Arabic, with full RTL support) and presents p
 
 | Section | Content |
 |---|---|
-| **Selected work** | Product case studies: the problem, what was built and what changed. Includes Masken, Chaty, V-Safety Manager, Challenger, Task Flow and Flutter apps, with demo videos or live links |
+| **Selected work** | Product case studies: the problem, what was built and what changed. Includes Maskan, Chaty, V-Safety Manager, Challenger, Task Flow and Flutter apps, with demo videos or live links |
 | **Websites — Jordan** | Redesign and new-site proposals for local restaurants and clinics, each live and bilingual |
 | **Websites — Saudi Arabia** | Twelve rebuilds for businesses whose websites had stopped working |
 

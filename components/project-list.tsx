@@ -7,11 +7,12 @@ export type ProjectCard = {
   title: string;
   summary: string;
   category: string;
-  span?: "large" | "medium" | "small";
+  span?: "large" | "medium";
   accent?: string;
   details: string[];
   youtubeUrl?: string;
   site?: { url: string; image: string };
+  repo?: string;
   status?: "ready" | "inProgress" | "redesign" | "newSite" | "rebuild";
 };
 
@@ -20,11 +21,15 @@ export type ProjectListLabels = {
   inProgress: string;
   watchDemo: string;
   highlights: string;
+  sourceCode: string;
   redesign?: string;
   newSite?: string;
   rebuild?: string;
   visitSite?: string;
 };
+
+const largeSizes = "(min-width: 1024px) 44rem, 100vw";
+const compactSizes = "(min-width: 1024px) 22rem, (min-width: 640px) 50vw, 100vw";
 
 function statusLabel(status: ProjectCard["status"], labels: ProjectListLabels) {
   if (status === "inProgress") return labels.inProgress;
@@ -42,7 +47,7 @@ function withAutoplay(url: string) {
   return `${url}${url.includes("?") ? "&" : "?"}autoplay=1`;
 }
 
-function VideoPreview({ title, youtubeUrl, label }: { title: string; youtubeUrl: string; label: string }) {
+function VideoPreview({ title, youtubeUrl, label, sizes }: { title: string; youtubeUrl: string; label: string; sizes: string }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
   const videoId = getYoutubeId(youtubeUrl);
@@ -71,7 +76,7 @@ function VideoPreview({ title, youtubeUrl, label }: { title: string; youtubeUrl:
               src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
               alt=""
               fill
-              sizes="(min-width: 1024px) 44rem, 100vw"
+              sizes={sizes}
               quality={70}
               className="object-cover opacity-80 grayscale-[35%] transition duration-500 group-hover:opacity-100 group-hover:grayscale-0"
               onError={() => setThumbnailFailed(true)}
@@ -92,7 +97,7 @@ function VideoPreview({ title, youtubeUrl, label }: { title: string; youtubeUrl:
   );
 }
 
-function SitePreview({ title, site, label }: { title: string; site: { url: string; image: string }; label: string }) {
+function SitePreview({ title, site, label, sizes }: { title: string; site: { url: string; image: string }; label: string; sizes: string }) {
   return (
     <a
       href={site.url}
@@ -105,7 +110,7 @@ function SitePreview({ title, site, label }: { title: string; site: { url: strin
         src={site.image}
         alt=""
         fill
-        sizes="(min-width: 1024px) 44rem, 100vw"
+        sizes={sizes}
         quality={75}
         className="object-cover object-top opacity-80 grayscale-[35%] transition duration-500 group-hover:opacity-100 group-hover:grayscale-0"
       />
@@ -122,47 +127,127 @@ function SitePreview({ title, site, label }: { title: string; site: { url: strin
   );
 }
 
-export function ProjectList({ items, labels, startAt = 1 }: { items: ProjectCard[]; labels: ProjectListLabels; startAt?: number }) {
+function Preview({ item, labels, sizes }: { item: ProjectCard; labels: ProjectListLabels; sizes: string }) {
   return (
-    <ol start={startAt} className="mt-12 sm:mt-16">
-      {items.map((item, index) => {
-        const inProgress = item.status === "inProgress";
+    <>
+      {item.youtubeUrl ? <VideoPreview title={item.title} youtubeUrl={item.youtubeUrl} label={labels.watchDemo} sizes={sizes} /> : null}
+      {item.site ? <SitePreview title={item.title} site={item.site} label={labels.visitSite ?? item.site.url} sizes={sizes} /> : null}
+    </>
+  );
+}
 
-        return (
-          <li key={item.title} className="hairline grid gap-8 border-t py-12 sm:py-16 lg:grid-cols-12 lg:gap-12">
-            <div className="lg:col-span-4">
-              <div className="lg:sticky lg:top-24">
-                <p className="font-mono text-xs text-subtle">{String(startAt + index).padStart(2, "0")}</p>
-                <h3 className="mt-3 text-2xl font-medium tracking-tight text-foreground rtl:tracking-normal sm:text-3xl">{item.title}</h3>
-                <p className="mt-2 text-sm text-muted">{item.category}</p>
-                <p className="mt-5 inline-flex items-center gap-2 text-xs text-muted">
-                  <span className={`h-1.5 w-1.5 rounded-full ${inProgress ? "bg-accent" : "bg-muted/60"}`} aria-hidden="true" />
-                  {statusLabel(item.status, labels)}
-                </p>
-              </div>
-            </div>
+function Status({ item, labels }: { item: ProjectCard; labels: ProjectListLabels }) {
+  return (
+    <span className="inline-flex items-center gap-2 text-xs text-muted">
+      <span className={`h-1.5 w-1.5 rounded-full ${item.status === "inProgress" ? "bg-accent" : "bg-muted/60"}`} aria-hidden="true" />
+      {statusLabel(item.status, labels)}
+    </span>
+  );
+}
 
-            <div className="space-y-8 lg:col-span-8">
-              {item.youtubeUrl ? <VideoPreview title={item.title} youtubeUrl={item.youtubeUrl} label={labels.watchDemo} /> : null}
-              {item.site ? <SitePreview title={item.title} site={item.site} label={labels.visitSite ?? item.site.url} /> : null}
+function HighlightList({ details, className = "" }: { details: string[]; className?: string }) {
+  return (
+    <ul className={`space-y-3 ${className}`}>
+      {details.map((detail) => (
+        <li key={detail} className="flex gap-4 text-sm leading-7 text-muted sm:text-[15px]">
+          <span className="mt-[0.9rem] h-px w-3 shrink-0 bg-subtle" aria-hidden="true" />
+          <span>{detail}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
-              <p className="max-w-2xl text-base leading-relaxed text-foreground/85 sm:text-lg sm:leading-relaxed">{item.summary}</p>
+function RepoLink({ repo, label }: { repo: string; label: string }) {
+  return (
+    <a
+      href={repo}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex text-sm text-muted underline decoration-subtle/60 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-foreground"
+    >
+      {label} ↗
+    </a>
+  );
+}
 
-              <div className="max-w-2xl">
-                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-subtle rtl:font-sans rtl:text-xs rtl:tracking-normal">{labels.highlights}</p>
-                <ul className="mt-4 space-y-3">
-                  {item.details.map((detail) => (
-                    <li key={detail} className="flex gap-4 text-sm leading-7 text-muted sm:text-[15px]">
-                      <span className="mt-[0.9rem] h-px w-3 shrink-0 bg-subtle" aria-hidden="true" />
-                      <span>{detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+const eyebrow = "font-mono text-[11px] uppercase tracking-[0.14em] text-subtle rtl:font-sans rtl:text-xs rtl:tracking-normal";
+
+function LargeRow({ item, number, labels }: { item: ProjectCard; number: string; labels: ProjectListLabels }) {
+  return (
+    <li className="hairline grid gap-8 border-t py-12 sm:py-16 lg:grid-cols-12 lg:gap-12">
+      <div className="lg:col-span-4">
+        <div className="lg:sticky lg:top-24">
+          <p className="font-mono text-xs text-subtle">{number}</p>
+          <h3 className="mt-3 text-2xl font-medium tracking-tight text-foreground rtl:tracking-normal sm:text-3xl">{item.title}</h3>
+          <p className="mt-2 text-sm text-muted">{item.category}</p>
+          <p className="mt-5">
+            <Status item={item} labels={labels} />
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-8 lg:col-span-8">
+        <Preview item={item} labels={labels} sizes={largeSizes} />
+        <p className="max-w-2xl text-base leading-relaxed text-foreground/85 sm:text-lg sm:leading-relaxed">{item.summary}</p>
+        <div className="max-w-2xl">
+          <p className={eyebrow}>{labels.highlights}</p>
+          <HighlightList details={item.details} className="mt-4" />
+        </div>
+        {item.repo ? <RepoLink repo={item.repo} label={labels.sourceCode} /> : null}
+      </div>
+    </li>
+  );
+}
+
+function CompactCard({ item, number, labels }: { item: ProjectCard; number: string; labels: ProjectListLabels }) {
+  return (
+    <li className="flex flex-col gap-5">
+      <Preview item={item} labels={labels} sizes={compactSizes} />
+      <div>
+        <p className="flex items-center justify-between gap-4">
+          <span className="font-mono text-xs text-subtle">{number}</span>
+          <Status item={item} labels={labels} />
+        </p>
+        <h3 className="mt-3 text-xl font-medium tracking-tight text-foreground rtl:tracking-normal">{item.title}</h3>
+        <p className="mt-1 text-sm text-muted">{item.category}</p>
+      </div>
+      <p className="text-[15px] leading-relaxed text-foreground/85">{item.summary}</p>
+      <details className="group">
+        <summary className={`${eyebrow} flex cursor-pointer list-none items-center gap-2 transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden`}>
+          {labels.highlights}
+          <span className="transition-transform group-open:rotate-45" aria-hidden="true">
+            +
+          </span>
+        </summary>
+        <HighlightList details={item.details} className="mt-4" />
+      </details>
+      {item.repo ? <RepoLink repo={item.repo} label={labels.sourceCode} /> : null}
+    </li>
+  );
+}
+
+export function ProjectList({ items, labels, startAt = 1 }: { items: ProjectCard[]; labels: ProjectListLabels; startAt?: number }) {
+  const numbered = items.map((item, index) => ({ item, number: String(startAt + index).padStart(2, "0") }));
+  const large = numbered.filter(({ item }) => item.span === "large");
+  const compact = numbered.filter(({ item }) => item.span !== "large");
+
+  return (
+    <div className="mt-12 sm:mt-16">
+      {large.length ? (
+        <ol>
+          {large.map(({ item, number }) => (
+            <LargeRow key={item.title} item={item} number={number} labels={labels} />
+          ))}
+        </ol>
+      ) : null}
+      {compact.length ? (
+        <ol className="hairline grid items-start gap-x-8 gap-y-14 border-t py-12 sm:grid-cols-2 sm:py-16 lg:grid-cols-3">
+          {compact.map(({ item, number }) => (
+            <CompactCard key={item.title} item={item} number={number} labels={labels} />
+          ))}
+        </ol>
+      ) : null}
+    </div>
   );
 }

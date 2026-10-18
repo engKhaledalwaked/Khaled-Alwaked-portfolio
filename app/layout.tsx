@@ -20,6 +20,7 @@ const arabic = IBM_Plex_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://khaled-alwaked-portfolio.vercel.app"),
   title: {
     default: "Khaled M Alwaked | Software Developer",
     template: "%s | Khaled M Alwaked",
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
     locale: "en_US",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Khaled M Alwaked | Software Developer",
     description: "Web and mobile products built with Next.js, React and Flutter.",
   },
